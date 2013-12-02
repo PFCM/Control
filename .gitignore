@@ -4,3 +4,12 @@
 .DS_Store
 .DS_Store?
 ._*
+
+# temp latex files #
+####################
+
+*.aux
+*.fls
+*.log
+*.synctex.gz
+*.fdb_latexmk

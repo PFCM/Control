@@ -16,8 +16,9 @@
 public class MidiInstrument extends Instrument {
     MidiOut mout;
     
-    fun void init(OscRecv input) {
-        __init(input);
+    fun void init(OscRecv input, FileIO file) {
+        chout <= "Initialising MIDI instrument" <= IO.nl();
+        __init(input, file);
     }
     
     /** Attempts to open a MIDI port, using a number,
