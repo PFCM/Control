@@ -31,7 +31,7 @@ public class Instrument {
     // needs a file to get messages from
     // will use the first point at which they diverge as a prefix for 
     // the standard interface
-    fun void __init(OscRecv input, FileIO names) {
+    fun void __init(OscRecv input) {
         input @=> oscIn;
         // get messages from names
         // want to implement some form of inheritance in the osc 

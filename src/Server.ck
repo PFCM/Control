@@ -24,6 +24,19 @@ OscRecv netRecv;
 50000 => netRecv.port;
 
 
+// Get all the files, this will tell us what robots to load
+FileIO dir;
+if ( !dir.open( me.dir() ) )
+    cherr <= "Could not open '" <= me.dir() <= "' no files loaded." <= IO.nl();
+else
+{
+    dir.dirList() @=> string files[];
+    chout <= "Loading files" <= IO.nl();
+    for ( int i; i < files.cap(); i++ )
+        chout <= files[i] <= IO.nl();
+}
+ 
+
 for (int i; i < 10; i++) {
     if (maybe) {
         MidiInstrument m;
@@ -32,6 +45,3 @@ for (int i; i < 10; i++) {
     else
         new Instrument @=> instruments[i];
 }
-
-for (int i; i < instruments.cap(); i++)
-    instruments[i].init();
