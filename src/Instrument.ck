@@ -23,15 +23,15 @@ public class Instrument {
     // from the outside.
     // Unsure what arguments this will require
     fun void init(OscRecv input, FileIO names) {
-        cherr <= "Attempting to initialise base Instrument class" <= IO.nl(); 
+        cherr <= "Attempting to initialise base Instrument class directly. Not recommended" <= IO.nl(); 
     }
     
     // Private intialiser to be called from derived classes
     // because they can't call super version of overridden function
-    // needs a file to get messages from
+    // needs a list of messages 
     // will use the first point at which they diverge as a prefix for 
     // the standard interface
-    fun void __init(OscRecv input, FileIO file) {
+    fun void __init(OscRecv input, string names[]) {
         input @=> oscIn;
         // get messages from names
         // want to implement some form of inheritance in the osc 
@@ -45,6 +45,7 @@ public class Instrument {
         // this will require some prior handshaking, 
         // the client app will have to send a startup message on 
         // on joining the network
+        
     }
     
     // Returns the highest level of this Instruments address pattern

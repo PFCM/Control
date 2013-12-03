@@ -1,1 +1,3 @@
 type=MIDI
+name=test
+"/test/a, i"=171,$1,127
