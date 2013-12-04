@@ -54,7 +54,10 @@ else
                 // MIDI (MIDIInstrument.ck) -- a generic MIDI instrument
                 if (type == "MIDI")
                 {
-                    new MidiInstrument @=> newI; // put a MIDI instrument into it
+                    new MidiInstrument @=> MidiInstrument m;//newI; // put a MIDI instrument into it
+                    /////TEMP
+                    m.setMidiPort(0);
+                    m @=> newI;
                 }
                 else
                 {
@@ -68,6 +71,8 @@ else
         }
     }
 }
+
+netRecv.listen(); // now we want to hear
 
 // loop
 while ( true ) 1::second => now;

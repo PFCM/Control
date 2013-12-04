@@ -52,7 +52,8 @@ public class MidiInstrument extends Instrument {
             }
             
             // if we get here we’re good
-            line.substring( 0, split ) => string pat;
+            line.substring( 0, split-1 ) => string pat; // cut off the =
+            Util.trimQuotes( pat ) => pat;
             line.substring( split ) => string msg;
             osc_patterns.size(numPats+1);
             pat => osc_patterns[numPats++];
@@ -87,9 +88,9 @@ public class MidiInstrument extends Instrument {
         
         for (int i; i < 2; i++)
         {
-            if ( bytes[1].charAt(0) != '$' )
+            if ( bytes[i+1].charAt(0) != '$' )
             {
-                bytes[1].toInt() => d[i].set;
+                bytes[i+1].toInt() => d[i].set;
             }
             else
             {
@@ -138,6 +139,7 @@ public class MidiInstrument extends Instrument {
     container and send the MidiMsg. */
     fun void handleMessage( OscEvent event, string addrPat )
     {
+        <<<"received ", addrPat>>>;
         mout.send( transform_table[addrPat].getMsg( event ) );
     }
 }
@@ -198,5 +200,7 @@ private class MidiMessageContainer
         status => msg.data1;
         evt => d1.get => msg.data2;
         evt => d2.get => msg.data3;
+        
+        return msg;
     }
 }

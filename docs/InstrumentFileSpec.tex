@@ -1,5 +1,5 @@
 \documentclass[12pt]{article}
-\usepackage[a4paper,margin=1cm]{geometry}
+\usepackage[a4paper,margin=2.7cm]{geometry}
 \usepackage{syntax}
 \usepackage{enumerate}
 \usepackage{float}
@@ -9,7 +9,7 @@
 \begin{document}
 
 This section defines the data files which specify what instruments are available. The precise definition of the file syntax is provided in 
-Backaus-Naur form in figure \ref{ebnfspec}. 
+Backaus-Naur form below. 
 It must 
 \begin{enumerate} [a)]
 \item{begin with a ``type'' field consisting of \texttt{type=} followed by a description of a type which the system knows. This can be
@@ -18,16 +18,18 @@ the system will check the first line for \texttt{// type=}. It will then attempt
 file, at which point it should add the file to the virtual machine and instantiate an object. Note that this code will have to be added to \texttt{Server.ck}
 when a new instrument is added by a \texttt{.ck}.}
 \item{follow this with a name, specified by \texttt{name=}\textit{name}}
+\item{a MIDI file will now look for a port, specified as \texttt{port=}\textit{number or name}} (if the name of the port is specified, it can be in quotes,
+ but it is not required)
 \item{follow this with 0 or more translation lines.}
 
 \end{enumerate}
 
 A file with 0 translation lines would cause the server to instantiate the object specified, and may therefore be of some use.
 
-\begin{figure} [htp]
+\subsection{Grammar}
 \setlength{\grammarindent}{12em}
 \begin{grammar}
-	<file> ::= <type> <linebreak> <name> <linebreak> ( <translation> <linebreak> ) * 
+	<file> ::= <type> <linebreak> <name> <linebreak> ( <file-element> <linebreak> ) * 
 	
 	<type> ::= ``type=''<type-string> <linebreak>
 	
@@ -36,6 +38,12 @@ A file with 0 translation lines would cause the server to instantiate the object
 	<name> ::= ``name=''<name-string> <linebreak>
 	
 	<name-string> ::= `[a-zA-Z][a-zA-Z0-9_]*'
+	
+	<file-element> ::= <midi-port> \alt <translation>
+	
+	<midi-port> ::= `port=' <midi-port-desc>
+	
+	<midi-port-desc> ::= `[a-zA-Z][a-zA-Z0-9]*' \alt `[0-9]+'
 	
 	<translation> ::= <osc-message-desc> `=' <output-message-desc> <linebreak>
 	
@@ -60,10 +68,4 @@ A file with 0 translation lines would cause the server to instantiate the object
 	<osc-arg> ::= `$'[0-9]+
 
 \end{grammar}
-
-
-\caption[Grammar]{Data file grammar}
-\label{ebnfspec}
-\end{figure}
-
 \end{document}

@@ -39,4 +39,15 @@ public class Util
         in => results[results.size()-1];
         return;
     }
+    
+    /** trims leading and trailing quotes (one of each only) */
+    fun static string trimQuotes( string in )
+    {
+        // check if the back is quoted
+        
+        (in.charAt(in.length()-1) == '"') => int back; // hackery
+        (in.charAt(0) == '"') => int front;
+        return in.substring(front, in.length()-(front+back));
+       
+    }
 }

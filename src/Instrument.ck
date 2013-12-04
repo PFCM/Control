@@ -76,12 +76,15 @@ public class Instrument {
     // listens to a specific OscEvent, calls the handle message function when the event fires
     fun void __listener( OscEvent event, string addrpat )
     {
+        <<<name, " now listening for: ", addrpat>>>;
         // will exit when parent exits
-        while ( true )
+        while ( event => now )
         {
-            event => now;
             while ( event.nextMsg() )
+            {
                 handleMessage( event, addrpat );
+                <<<addrpat>>>;
+            }
         }
     }
 }
