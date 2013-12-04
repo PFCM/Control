@@ -15,7 +15,7 @@
          whatever they send.
 ***********************************************************************/
 
-Instrument @ instruments[10]; // array of references, initialises to null rather than default objects
+Instrument @ instruments[0]; // array of references, initialises to null rather than default objects
 
 // Global OSC receiver, just needs to listen
 OscRecv netRecv;
@@ -54,10 +54,10 @@ else
                 // MIDI (MIDIInstrument.ck) -- a generic MIDI instrument
                 if (type == "MIDI")
                 {
-                    new MidiInstrument @=> MidiInstrument m;//newI; // put a MIDI instrument into it
-                    /////TEMP
+                    new MidiInstrument @=> newI; // put a MIDI instrument into it
+                    /*TEMP
                     m.setMidiPort(0);
-                    m @=> newI;
+                    m @=> newI;*/
                 }
                 else
                 {
@@ -67,6 +67,9 @@ else
                 
                 
                 newI.init(netRecv, inst); // initialise with the OSC recv and the rest of the file
+                // put it in the list
+                instruments.size(instruments.size()+1);
+                newI @=> instruments[instruments.size()-1];
             }
         }
     }

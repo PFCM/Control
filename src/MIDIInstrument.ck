@@ -15,10 +15,11 @@ Desc: Base class for all instruments that output MIDI.
 
 public class MidiInstrument extends Instrument {
     MidiOut mout;
+    0 => int portSet;
     // the number of recognised osc address patterns
     int numPats;
     // holds the MidiMessageContainers by OSC address pattern that should produce them
-    MidiMessageContainer @ transform_table[64]; // has some default value, array.push_back() doesn’t work
+    MidiMessageContainer @ transform_table[64]; // has some default value, array.pushBack() doesn’t work
     
     fun void init( OscRecv input, FileIO file ) {
         chout <= "Initialising MIDI instrument" <= IO.nl();
@@ -36,35 +37,66 @@ public class MidiInstrument extends Instrument {
         
         __setName(line.substring(5).trim());
         
-        // now read in the translations
+        
+        
+        // now read in the translations/port
         string osc_patterns[0];
         while ( file.more() )
         {
             file.readLine() => line;
-            int split;
-            // find the equals
-            while ( line.charAt( split++ ) != '=' && split < line.length() );
-            if ( split == line.length() )
+            
+            
+            
+            line.find("port=") => int split;
+            if (split < 0) // translation
             {
-                cherr <= "Can’t find the ‘=‘ in this line: " <= line <= IO.nl();
-                cherr <= "Can’t initialise" <= IO.nl();
-                return;
+                0 => split;
+                // find the equals
+                while ( line.charAt( split++ ) != '=' && split < line.length() );
+                if ( split == line.length() )
+                {
+                    cherr <= "Can’t find the ‘=‘ in this line: " <= line <= IO.nl();
+                    cherr <= "Can’t initialise" <= IO.nl();
+                    return;
+                }
+                
+                // if we get here we’re good
+                line.substring( 0, split-1 ) => string pat; // cut off the =
+                Util.trimQuotes( pat ) => pat;
+                line.substring( split ) => string msg;
+                osc_patterns.size(numPats+1);
+                pat => osc_patterns[numPats++];
+                
+                // grab typetag
+                int i;
+                while (pat.charAt(i++) != ',' && i < pat.length());
+                
+                if (i >= pat.length() )
+                {
+                    cherr <= "(" <= name <= ") Osc message does not appear to have a typetag: " <= pat <= IO.nl();
+                    return;
+                }
+                
+                chout <= i <= "\t" <= pat.length() <= IO.nl();
+                midiContainerFromString( msg, pat.substring(i).trim() ) @=> transform_table[pat];
             }
-            
-            // if we get here we’re good
-            line.substring( 0, split-1 ) => string pat; // cut off the =
-            Util.trimQuotes( pat ) => pat;
-            line.substring( split ) => string msg;
-            osc_patterns.size(numPats+1);
-            pat => osc_patterns[numPats++];
-            
-            // grab typetag
-            int i;
-            while (pat.charAt(i++) != ',');
-          
-            
-            midiContainerFromString( msg, pat.substring(i).trim() ) @=> transform_table[pat];
+            else // port=something
+            {
+                // is it a number?
+                line.substring(5) => string port;
+                if (RegEx.match("[0-9]+", port))
+                {
+                    setMidiPort(port.toInt());
+                } 
+                else
+                {
+                    setMidiPort(Util.trimQuotes(port));
+                }
+            }
         }
+        
+        if(!portSet)
+            cherr <= name <= " — MIDI port not found in file, MIDI not initialised." <= IO.nl();
         
         // finally, call the super init to set up osc
         __init( input, osc_patterns );
@@ -118,6 +150,8 @@ public class MidiInstrument extends Instrument {
     {
         if ( !mout.open( port ) )
             cherr <= "Error opening port: " <= port <= IO.nl();
+        
+        1 => portSet;
     }
     
     /** Attempts to open a MIDI port by name, 
@@ -128,6 +162,8 @@ public class MidiInstrument extends Instrument {
     {
         if ( !mout.open( port ) )
             cherr <= "Error opening port: " <= port <= IO.nl();
+        
+        1 => portSet;
     }
     
     
