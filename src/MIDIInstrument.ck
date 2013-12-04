@@ -34,8 +34,10 @@ public class MidiInstrument extends Instrument {
             return;
         }
         
+        __setName(line.substring(5).trim());
+        
         // now read in the translations
-        string osc_patterns[64];
+        string osc_patterns[0];
         while ( file.more() )
         {
             file.readLine() => line;
@@ -52,6 +54,7 @@ public class MidiInstrument extends Instrument {
             // if we get here we’re good
             line.substring( 0, split ) => string pat;
             line.substring( split ) => string msg;
+            osc_patterns.size(numPats+1);
             pat => osc_patterns[numPats++];
             
             // grab typetag
@@ -124,6 +127,18 @@ public class MidiInstrument extends Instrument {
     {
         if ( !mout.open( port ) )
             cherr <= "Error opening port: " <= port <= IO.nl();
+    }
+    
+    
+    /** Handle a received message.
+    This method receives a reference to the OscEvent that just 
+    fired and the string used to get that event.
+    We have already done most of the hard work determining the 
+    typetag etc, so we can just throw it to the appropriate
+    container and send the MidiMsg. */
+    fun void handleMessage( OscEvent event, string addrPat )
+    {
+        mout.send( transform_table[addrPat].getMsg( event ) );
     }
 }
 

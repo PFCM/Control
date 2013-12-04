@@ -68,3 +68,6 @@ else
         }
     }
 }
+
+// loop
+while ( true ) 1::second => now;

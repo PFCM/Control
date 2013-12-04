@@ -15,9 +15,9 @@
 ***********************************************************************/
 
 public class Instrument {
-    OscRecv oscIn; // assumed to be initialised and running
-    
-    
+    OscRecv oscIn; // assumed to be initialised and listening on the correct port
+    string name;   // some kind of identification
+    string patterns[0]; // to store the current address patterns for later queries
     
     // Public initialiser ensures we can init all instruments
     // from the outside.
@@ -46,6 +46,17 @@ public class Instrument {
         // the client app will have to send a startup message on 
         // on joining the network
         
+        
+        // for now 
+        names @=> patterns;
+        for ( int i; i < patterns.cap(); i++ )
+            spork~__listener( oscIn.event( patterns[i] ), patterns[i] );
+    }
+    
+    // Private method to set the name
+    fun void __setName(string n)
+    {
+        n => name;
     }
     
     // Returns the highest level of this Instruments address pattern
@@ -57,5 +68,20 @@ public class Instrument {
     // Deals with an OSC message
     // this class takes care of handling the OSC, 
     // subclasses need only override this method
-    fun void handleMessage(OscEvent event) {}
+    // needs a copy of the string that created the event
+    // because there is no way of getting an address pattern
+    // from an OscEvent
+    fun void handleMessage(OscEvent event, string addrpat) {}
+    
+    // listens to a specific OscEvent, calls the handle message function when the event fires
+    fun void __listener( OscEvent event, string addrpat )
+    {
+        // will exit when parent exits
+        while ( true )
+        {
+            event => now;
+            while ( event.nextMsg() )
+                handleMessage( event, addrpat );
+        }
+    }
 }
