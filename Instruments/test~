@@ -1,5 +1,0 @@
-type=MIDI
-name=test
-"/test/a, i"=171,$1,127
-port=0
-"/text/a. i"=172,$blargh,$banana

@@ -76,15 +76,21 @@ public class Instrument {
     // listens to a specific OscEvent, calls the handle message function when the event fires
     fun void __listener( OscEvent event, string addrpat )
     {
-        <<<name, " now listening for: ", addrpat>>>;
+        chout <= name <=  " now listening for: " <= addrpat <= IO.nl();
         // will exit when parent exits
         while ( event => now )
         {
             while ( event.nextMsg() )
             {
                 handleMessage( event, addrpat );
-                <<<addrpat>>>;
             }
         }
     }
+    
+    // Sends the non-default methods
+    // subclasses are better qualified to deal with this, as 
+    // it is necessary to send info about what should
+    // messages the client needs to receive
+    fun void sendMethods( OscSend s )
+    {}
 }

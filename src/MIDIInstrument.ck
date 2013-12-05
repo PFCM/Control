@@ -19,7 +19,7 @@ public class MidiInstrument extends Instrument {
     // the number of recognised osc address patterns
     int numPats;
     // holds the MidiMessageContainers by OSC address pattern that should produce them
-    MidiMessageContainer @ transform_table[64]; // has some default value, array.pushBack() doesn’t work
+    MidiMessageContainer @ transform_table[0]; // has some default value, array.pushBack() doesn’t work
     
     fun void init( OscRecv input, FileIO file ) {
         chout <= "Initialising MIDI instrument" <= IO.nl();
@@ -64,8 +64,15 @@ public class MidiInstrument extends Instrument {
                 line.substring( 0, split-1 ) => string pat; // cut off the =
                 Util.trimQuotes( pat ) => pat;
                 line.substring( split ) => string msg;
-                osc_patterns.size(numPats+1);
-                pat => osc_patterns[numPats++];
+                
+                // now does the pattern start with the name?
+                if ( pat.find( name ) != 1 )
+                {
+                    // prepend it
+                    "/" + name + pat => pat;
+                }
+                osc_patterns << pat;
+                numPats++;
                 
                 // grab typetag
                 int i;
@@ -77,7 +84,7 @@ public class MidiInstrument extends Instrument {
                     return;
                 }
                 
-                chout <= i <= "\t" <= pat.length() <= IO.nl();
+                //chout <= i <= "\t" <= pat.length() <= IO.nl();
                 midiContainerFromString( msg, pat.substring(i).trim() ) @=> transform_table[pat];
             }
             else // port=something
@@ -177,6 +184,31 @@ public class MidiInstrument extends Instrument {
     {
         <<<"received ", addrPat>>>;
         mout.send( transform_table[addrPat].getMsg( event ) );
+    }
+    
+    /** Sends the non-default messages */
+    fun void sendMethods( OscSend s )
+    {
+        Util.makeDefaults( name ) @=> string defaults[];
+        for ( int i; i < patterns.cap(); i++ )
+        {
+            0 => int default;
+            for ( int j; j < defaults.cap(); j++ )
+            {
+                if ( defaults[j] == patterns[i] )
+                {
+                    1 => default;
+                    break;
+                }
+            }
+            if ( !default )
+            {
+                s.startMsg( "/instrument/extend", "ssi" );
+                s.addString( name );
+                s.addString( patterns[i] );
+                s.addInt( transform_table[patterns[i]].status );
+            }
+        }
     }
 }
 

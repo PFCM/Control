@@ -50,4 +50,19 @@ public class Util
         return in.substring(front, in.length()-(front+back));
        
     }
+    
+    /** returns the default messages from a given name */
+    fun static string[] makeDefaults( string name )
+    {
+        // check if it starts with a /
+        name => string start; // copy first
+        if ( !name.charAt(0) == '/' )
+        {
+            "/" + start => start;
+        }
+        string defaults[0];
+        defaults<<start+"/note"; 
+        defaults<<start+"/control";
+        return defaults;
+    }
 }

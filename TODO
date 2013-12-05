@@ -1,0 +1,5 @@
+5/12/13
+	- Add input to client into data files
+	  - do associate parsing work in MidiInstrument
+	  - send properly
+	- TEST TEST TEST TEST TEST

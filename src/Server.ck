@@ -76,6 +76,44 @@ else
 }
 
 netRecv.listen(); // now we want to hear
+// need somewhere to keep the clients
+OscSend clients[0];
+
+// add the client loop
+spork~newClientListener();
+
+fun void newClientListener()
+{
+    netRecv.event("/system/addme, si") @=> OscEvent evt;
+    chout <= "Listening for new clients" <= IO.nl();
+    while ( evt => now )
+    {
+        while ( evt.nextMsg() )
+        {
+            // TODO check if already exists
+            evt.getString() => string sendIp;
+            evt.getInt() => int sendPort;
+            OscSend s;
+            s.setHost( sendIp, sendPort );
+            spork~sendInstruments( s );
+            clients << s;
+        }
+    }
+}
+
+fun void sendInstruments( OscSend s )
+{
+    for ( int i; i < instruments.size(); i++ )
+    {
+        s.startMsg( "/instruments/add", "s" );
+        s.addString( instruments[i].name );
+        Util.makeDefaults( instruments[i].name ) @=> string defaults[];
+        // add its methods, if they are special
+        instruments[i].sendMethods( s );
+    }
+    s.startMsg( "/instruments/add", "s" );
+    s.addString("END");
+}
 
 // loop
 while ( true ) 1::second => now;
