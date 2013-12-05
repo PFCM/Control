@@ -49,8 +49,27 @@ public class Instrument {
         
         // for now 
         names @=> patterns;
+        // need to check if the defaults are specified
+        int note, control;
         for ( int i; i < patterns.cap(); i++ )
+        {
             spork~__listener( oscIn.event( patterns[i] ), patterns[i] );
+            RegEx.match( "/note,[ ]?ii", patterns[i] ) => note;
+            RegEx.match( "/control,[ ]?ii", patterns[i] ) => control;
+            
+        }
+        if ( !note )
+        {
+            chout <= "Adding default note listener for " <= name <= IO.nl();
+            "/" + name + "/note,ii" => string notes;
+            spork~__listener( oscIn.event( notes ), notes ); 
+        }
+        if ( !control )
+        {
+            chout <= "Adding default control listener for " <= name <= IO.nl();
+            "/" + name + "/control,ii" => string controls;
+            spork~__listener( oscIn.event( controls ), controls ); 
+        }
     }
     
     // Private method to set the name

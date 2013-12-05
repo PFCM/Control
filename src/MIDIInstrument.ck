@@ -19,7 +19,7 @@ public class MidiInstrument extends Instrument {
     // the number of recognised osc address patterns
     int numPats;
     // holds the MidiMessageContainers by OSC address pattern that should produce them
-    MidiMessageContainer @ transform_table[0]; // has some default value, array.pushBack() doesn’t work
+    MidiMessageContainer @ transform_table[0];
     
     fun void init( OscRecv input, FileIO file ) {
         chout <= "Initialising MIDI instrument" <= IO.nl();
@@ -125,7 +125,7 @@ public class MidiInstrument extends Instrument {
         bytes[0].toInt() => int status;
         MidiDataByte d[2];
         
-        for (int i; i < 2; i++)
+        for (int i; i < bytes.cap()-1; i++)
         {
             if ( bytes[i+1].charAt(0) != '$' )
             {
@@ -133,17 +133,28 @@ public class MidiInstrument extends Instrument {
             }
             else
             {
-                if (typetag.charAt(0) == 'i') // it is probably i (or should be)
+                if ( bytes[i+1].charAt(1) == '1' || bytes[i+1].charAt(1) == '2' && bytes[i+1].length() == 2)
                 {
-                    MidiDataByte.INT_VAL => d[i].set;
+                    if (typetag.charAt(0) == 'i') // it is probably i (or should be)
+                    {
+                        MidiDataByte.INT_VAL => d[i].set;
+                        bytes[i+1].substring(1).toInt() => d[i].number;
+                    }
+                    else if (typetag.charAt(0) == 'f') // warn, but still use
+                    {
+                        MidiDataByte.FLOAT_VAL => d[i].set;
+                        bytes[i+1].substring(1).toInt() => d[i].number;
+                        cherr <= "Initialising MIDI instrument to translate float into int, this works but may not be ideal" <= IO.nl();
+                    }
+                    else 
+                        cherr <= "Can’t turn type ‘" <= typetag.charAt(0) <= "’ into midi." <= IO.nl();
+                    
+                    
                 }
-                else if (typetag.charAt(0) == 'f') // warn, but still use
+                else
                 {
-                    MidiDataByte.FLOAT_VAL => d[i].set;
-                    cherr <= "Initialising MIDI instrument to translate float into int, this works but may not be ideal" <= IO.nl();
+                    cherr <= "Invalid specifier in MIDI output message: " <= bytes[i+1] <= IO.nl();
                 }
-                else 
-                    cherr <= "Can’t turn type ‘" <= typetag.charAt(0) <= "’ into midi." <= IO.nl();
             }
         }
         MidiMessageContainer mCont;
@@ -217,6 +228,8 @@ private class MidiDataByte
 {
     // keep track - if < 0 must be FLOAT_VAL or INT_VAL 
     int _val;
+    // used for the order in which they should be executed
+    int number;
     
     /** constants so instances know what they are */
     1 => static int CONST_VAL;
@@ -266,8 +279,17 @@ private class MidiMessageContainer
         MidiMsg msg;
         
         status => msg.data1;
-        evt => d1.get => msg.data2;
-        evt => d2.get => msg.data3;
+        
+        if ( d1.number < d2.number )
+        {
+            evt => d1.get => msg.data2;
+            evt => d2.get => msg.data3;
+        } 
+        else
+        {
+            evt => d2.get => msg.data3;
+            evt => d1.get => msg.data2;
+        }
         
         return msg;
     }
