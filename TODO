@@ -3,3 +3,11 @@
 	  - do associate parsing work in MidiInstrument
 	  - send properly
 	- TEST TEST TEST TEST TEST
+
+6/12/13
+	- MAKE IT WORK
+	- MIDI in to client working, but OSC not sending
+	- Server receiving OSC working and sending MIDI
+	- note IAC driver does not appear to support loopback to the same app
+	- need figure out why Server is not getting Client's OSC
+	- probably come up with a better test rig (VM? Bring in a MIDI device? Two computers?
