@@ -91,8 +91,7 @@ else
                     
                     newI.init(netRecv, inst); // initialise with the OSC recv and the rest of the file
                     // put it in the list
-                    instruments.size(instruments.size()+1);
-                    newI @=> instruments[instruments.size()-1];
+                    instruments<<newI;
                 }
             }
         }
@@ -119,7 +118,8 @@ fun void newClientListener()
             evt.getInt() => int sendPort;
             OscSend s;
             s.setHost( sendIp, sendPort );
-            spork~sendInstruments( s );
+            chout <= "Found new client at " <= sendIp <= ":" <= sendPort <= IO.nl();
+            sendInstruments( s );
             clients << s;
         }
     }
@@ -127,6 +127,7 @@ fun void newClientListener()
 
 fun void sendInstruments( OscSend s )
 {
+    chout <= "Sending " <= instruments.size() <= " instruments to new client" <= IO.nl();
     for ( int i; i < instruments.size(); i++ )
     {
         s.startMsg( "/instruments/add", "s" );
@@ -137,6 +138,11 @@ fun void sendInstruments( OscSend s )
     }
     s.startMsg( "/instruments/add", "s" );
     s.addString("END");
+    s.startMsg( "/instruments/extend", "ssi" );
+    s.addString("END");
+    s.addString("END");
+    s.addInt(-1);
+    chout <= "Finished sending instruments" <= IO.nl();
 }
 
 // loop

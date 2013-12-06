@@ -20,6 +20,9 @@ public class MidiInstrument extends Instrument {
     int numPats;
     // holds the MidiMessageContainers by OSC address pattern that should produce them
     MidiMessageContainer @ transform_table[0];
+    // holds the client messages by OSC adress pattern — these are needed for when we enumerate ourselves to the client
+    // we only need the non-standard messages here
+    int nonstandard_statusbytes[0];
     
     fun void init( OscRecv input, FileIO file ) {
         chout <= "Initialising MIDI instrument" <= IO.nl();
@@ -50,20 +53,27 @@ public class MidiInstrument extends Instrument {
             line.find("port=") => int split;
             if (split < 0) // translation
             {
-                0 => split;
-                // find the equals
-                while ( line.charAt( split++ ) != '=' && split < line.length() );
-                if ( split == line.length() )
+                Util.splitString( line, "=" ) @=> string parts[];
+                string pat;
+                -1 => int stat;
+                
+                if ( parts.cap() == 2 )
+                    parts[0] => pat;
+                else if ( parts.cap() == 3 )
                 {
-                    cherr <= "Can’t find the ‘=‘ in this line: " <= line <= IO.nl();
-                    cherr <= "Can’t initialise" <= IO.nl();
-                    return;
+                    parts[1] => pat;
+                    parts[0].toInt() => stat;
+                }
+                else
+                {
+                    cherr <= "This is not a valid line: " <= line <= IO.nl();
+                    break;
                 }
                 
-                // if we get here we’re good
-                line.substring( 0, split-1 ) => string pat; // cut off the =
                 Util.trimQuotes( pat ) => pat;
-                line.substring( split ) => string msg;
+                parts[parts.cap()-1] => string msg;
+                
+                
                 
                 // now does the pattern start with the name?
                 if ( pat.find( name ) != 1 )
@@ -85,12 +95,25 @@ public class MidiInstrument extends Instrument {
                 }
                 
                 //chout <= i <= "\t" <= pat.length() <= IO.nl();
-                midiContainerFromString( msg, pat.substring(i).trim() ) @=> transform_table[pat];
+                pat.substring(i).trim() => string tt;
+                midiContainerFromString( msg, tt ) @=> transform_table[pat];
+                if ( !RegEx.match( "^/"+name+"/note", pat ) && !RegEx.match( "^/"+name+"/control", pat ) )
+                {
+                    // to actually send it to the client as a message it has to have the correct typetag
+                    if (tt != "ii")
+                    {
+                        chout <= "Non standard message with typetag other than ii cannot be used for client MIDI" <= IO.nl();
+                        -1 => stat;
+                    }
+                    chout <= "Added non standard message: " <= pat <= " with midi status byte: " <= stat<= IO.nl();
+                    stat => nonstandard_statusbytes[pat];
+                }
             }
             else // port=something
             {
                 // is it a number?
                 line.substring(5) => string port;
+                chout <= "Setting port to " <= port <= IO.nl();
                 if (RegEx.match("[0-9]+", port))
                 {
                     setMidiPort(port.toInt());
@@ -193,13 +216,19 @@ public class MidiInstrument extends Instrument {
     container and send the MidiMsg. */
     fun void handleMessage( OscEvent event, string addrPat )
     {
-        <<<"received ", addrPat>>>;
-        mout.send( transform_table[addrPat].getMsg( event ) );
+        chout <= "received: " <= addrPat <= IO.nl();
+        transform_table[addrPat].getMsg( event ) @=> MidiMsg @ msg;
+        if ( msg != null )
+        {
+            chout <= "sending MIDI" <= IO.nl();
+            mout.send( msg );
+        }
     }
     
     /** Sends the non-default messages */
     fun void sendMethods( OscSend s )
     {
+        chout <= name <= " sending methods." <= IO.nl();
         Util.makeDefaults( name ) @=> string defaults[];
         for ( int i; i < patterns.cap(); i++ )
         {
@@ -214,10 +243,11 @@ public class MidiInstrument extends Instrument {
             }
             if ( !default )
             {
-                s.startMsg( "/instrument/extend", "ssi" );
+                chout <= "Sending: " <= patterns[i] <= " from " <= nonstandard_statusbytes[patterns[i]] <= IO.nl();
+                s.startMsg( "/instruments/extend", "ssi" );
                 s.addString( name );
                 s.addString( patterns[i] );
-                s.addInt( transform_table[patterns[i]].status );
+                s.addInt( nonstandard_statusbytes[patterns[i]] );
             }
         }
     }

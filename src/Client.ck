@@ -160,10 +160,11 @@ if ( !midiSet )
 string instruments[0]; // the names of the instruments
 MessagePair messages[0][0];// and their messages, assumed to be ii or it would be a challenge to transform from midi
 
-// start listening for replies before we actually tell the server we exist, jic
-spork~instrumentAddListener();
+
 // start listening for non-default messages available
 spork~instrumentMethodListener();
+// start listening for replies before we actually tell the server we exist, jic
+spork~instrumentAddListener();
 
 // now tell the server we exist
 osend.startMsg( "/system/addme", "si" );
@@ -175,19 +176,21 @@ chout <= "(Client) Attempted to initiate contact with Server" <= IO.nl();
 // drop into main loop (ie this shred is the MIDI listener)
 chout <= "(Client) Entering main loop. " <= IO.nl();
 MidiMsg msg;
+// main loop
 while ( true )
 {
     min => now;
     while ( min.recv( msg ) )
     {
         // get channel
-        msg.data1 & 0xf0 => int chan;
+        msg.data1 & 0x0f => int chan;
         // get type
-        msg.data1 & 0x0f => int msgtype;
+        msg.data1 & 0xf0 => int msgtype;
         // get name of instrument
         if ( chan >= instruments.cap() )
         {
-            cherr <= "(Client) Received MIDI on channel " <= chan <= " without a registered instrument." <= IO.nl();
+            cherr <= "(Client) Received MIDI on channel " <= chan+1 <= " without a registered instrument." <= IO.nl();
+            break;
         }
         instruments[chan] => string name;
         // find the appropriate message
@@ -195,6 +198,7 @@ while ( true )
         {
             if ( messages[name][i].statusbyte == msgtype )
             {
+                chout <= "(Client) [" <= name <= "] " <= messages[name][i].addresspattern <= IO.nl();
                 osend.startMsg( messages[name][i].addresspattern, "ii" );
                 osend.addInt( msg.data2 );
                 osend.addInt( msg.data3 );
@@ -226,16 +230,8 @@ fun void instrumentAddListener()
             }
             else
             {
-                chout <= "(Client) Server signalled end, received: " <= instruments.size() <= IO.nl();
-                for ( int i; i < instruments.size(); i++ )
-                {
-                    instruments[i] => name;
-                    chout <= "(Client)    " <= instruments[i] <= " on channel " <= i+1 <= IO.nl();
-                    for ( int j; j < messages[instruments[i]].size(); j++ )
-                    {
-                        chout <= "(Client)        " <= messages[name][j].statusbyte+i <= " becomes " <= messages[name][j].addresspattern <= IO.nl();
-                    }
-                }
+                chout <= "(Client) new instrument listener received END" <= IO.nl();
+                onEnd();
                 me.exit();
             }
         }
@@ -245,24 +241,67 @@ fun void instrumentAddListener()
 // listens for messages telling about extensions to given instruments
 fun void instrumentMethodListener()
 {
-    orec.event("/instrument/extend,ssi") @=> OscEvent evt;
+    orec.event("/instruments/extend,ssi") @=> OscEvent evt;
     
     while ( evt => now )
     {
         while ( evt.nextMsg() )
         {
             evt.getString() => string name;
+            
+            if ( name == "END" )
+            {
+                chout <= "(Client) Method listener received END" <= IO.nl();
+                onEnd();
+                me.exit();
+            }
+            
             evt.getString() => string pat;
             evt.getInt() => int status; // get desired midi message type to plug
+            
+            chout <= "(Client) Received method for " <= name <= IO.nl();
+            
             if ( pat.find( name ) != 1 ) // not preceded by /name, attempt to recover
             {
                 "/" + name + pat => pat;
             }
+            
+            // strip typetag if it equals ii
+            if ( RegEx.match( ",ii$", pat ) )
+            {
+                pat.length()-1 => int newLength;
+                while ( pat.charAt(newLength) != ',' ) newLength-1 => newLength;
+                pat.substring(0, newLength) => pat;
+            }
+            
             MessagePair p;
             pat => p.addresspattern;
-            status & 0xf0 => p.statusbyte;
+            if ( status != -1)
+                status & 0xf0 => status;
+            status => p.statusbyte;
             messages[name]<<p;
         }
+    }
+}
+
+// finalises the instruments when both the add and the extend listeners
+// have returned
+int numQuit;
+fun void onEnd()
+{
+    if (++numQuit == 2) // both of them
+    {
+        chout <= "(Client) Server signalled end, received: " <= instruments.size() <= IO.nl();
+        for ( int i; i < instruments.size(); i++ )
+        {
+            instruments[i] => string name;
+            chout <= "(Client)    " <= instruments[i] <= " on channel " <= i+1 <= IO.nl();
+            for ( int j; j < messages[instruments[i]].size(); j++ )
+            {
+                chout <= "(Client)        " <= messages[name][j].statusbyte+i <= " becomes " <= messages[name][j].addresspattern <= IO.nl();
+            }
+        }
+        
     }
 }
 

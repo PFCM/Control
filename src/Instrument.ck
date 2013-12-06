@@ -111,5 +111,5 @@ public class Instrument {
     // it is necessary to send info about what should
     // messages the client needs to receive
     fun void sendMethods( OscSend s )
-    {}
+    {  }
 }
