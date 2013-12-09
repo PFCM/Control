@@ -62,7 +62,7 @@ public class MidiInstrument extends Instrument {
                 else if ( parts.cap() == 3 )
                 {
                     parts[1] => pat;
-                    parts[0].toInt() => stat;
+                    parts[0].toInt() & 0xf0 => stat;
                 }
                 else
                 {
