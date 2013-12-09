@@ -286,13 +286,14 @@ fun void instrumentMethodListener()
     }
 }
 
-// finalises the instruments when both the add and the extend listeners
+// prints the instruments when both the add and the extend listeners
 // have returned
 int numQuit;
 fun void onEnd()
 {
     if (++numQuit == 2) // both of them
     {
+        500::ms => now;
         chout <= "(Client) Server signalled end, received: " <= instruments.size() <= IO.nl();
         for ( int i; i < instruments.size(); i++ )
         {
