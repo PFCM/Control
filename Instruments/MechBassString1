@@ -1,3 +1,4 @@
 type=MIDI
 name=MechBass/string1
 port=0
+128="damp,ii"=128,$1,$2

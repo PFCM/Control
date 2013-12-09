@@ -306,7 +306,6 @@ fun void onEnd()
                     chout <= "(Client)        " <= messages[name][j].addresspattern <= " available." <= IO.nl();
             }
         }
-        
     }
 }
 
