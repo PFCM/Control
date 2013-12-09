@@ -36,7 +36,7 @@ if ( me.args() > 0 )
         // is it the port or the hostname?
         
         // is it in the format AAA.BBB.CCC.DDD?
-        if ( RegEx.match( "([0-9]{1,3}\\.){3}[0-9]{1,3}", me.arg(i) ) )
+        if ( RegEx.match( "([0-9]{1,3}\\.){3}[0-9]{1,3}", me.arg(i) ) && me.arg(i).find("self=") == -1 )
         {
             setHost( me.arg(i) );
         }
@@ -313,7 +313,13 @@ fun void initialiseLastInstrument()
     instruments.size() -1 => int inst;
     chout <= "(Client) Adding standard messages to " <= instruments[inst] <= IO.nl();
     // set up the defaults
-    getDefaultMessages(instruments[inst]) @=> messages[instruments[inst]];
+    getDefaultMessages(instruments[inst]) @=> MessagePair m[];
+    // sync, no explicit locks, have no idea how granular things actually are
+    if ( messages[instruments[inst]] == null )
+        m @=> messages[instruments[inst]];
+    else
+        for ( int i; i < m.cap(); i++ )
+            messages[instruments[inst]]<<m[i];
     // i think that is all
 }
 
@@ -322,14 +328,14 @@ fun MessagePair[] getDefaultMessages( string name )
 {
     MessagePair patterns[2];
     "/" + name + "/note" => patterns[0].addresspattern;
-    0x90 => patterns[0].statusbyte;
+    144 => patterns[0].statusbyte;
     "/" + name + "/control" => patterns[1].addresspattern;
-    0xB0 => patterns[1].statusbyte;
+    176 => patterns[1].statusbyte;
     return patterns;
 }
 
 fun void setHost( string newhost )
-{
+{   
     if ( hostSet )
     {
         cherr <= "(Client) Error: setting host a second time, ignoring." <= IO.nl();

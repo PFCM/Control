@@ -11,3 +11,7 @@
 	- note IAC driver does not appear to support loopback to the same app
 	- need figure out why Server is not getting Client's OSC
 	- probably come up with a better test rig (VM? Bring in a MIDI device? Two computers?
+
+9/12/13
+	- Sort out MIDI message composition from arguments
+	  - might be quite nice to be able to compose them from arbitrary length OSC messages

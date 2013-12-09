@@ -128,8 +128,45 @@ public class MidiInstrument extends Instrument {
         if(!portSet)
             cherr <= name <= " — MIDI port not found in file, MIDI not initialised." <= IO.nl();
         
+        // super sets up default listeners for /note and /control
+        // but if we do nothing that will just crash the listener 
+        // because there is nothing in here
+        
+        
+        // check if defaults are specified
+        checkDefaults( osc_patterns );
+        
+        
         // finally, call the super init to set up osc
         __init( input, osc_patterns );
+    }
+    
+    /** Checks to see if the defaults are specified, adds them if not */
+    fun void checkDefaults( string osc_patterns[] )
+    {
+        // check
+        -1 => int noteSet => int contSet;
+        for ( int i; i < osc_patterns.cap(); i++ )
+        {
+            if ( RegEx.match( "^/"+name+"/note", osc_patterns[i] ) )
+                i => noteSet;
+            if ( RegEx.match( "^/"+name+"/control", osc_patterns[i] ) )
+                i => contSet;
+        }
+        
+        if ( noteSet < 0 )
+        {
+            // make a message container
+            midiContainerFromString( "144,$1,$2", "ii" ) @=> transform_table["/" + name + "/note,ii"];
+            chout <= "Made default message for /" <= name <= "/note -> now becomes 144,$1,$2" <= IO.nl();
+        }
+        
+        if ( contSet < 0 )
+        {
+            midiContainerFromString( "176,$1,$2", "ii" ) @=> transform_table["/" + name + "/control,ii"];
+            chout <= "Made default message for /" <= name <= "/control -> now becomes 176,$1,$2" <= IO.nl();
+            
+        }
     }
     
     /** Creates a MidiMessageContainer from the string assumed to be stripped to just the Midi message descriptor. Also needs the OSC typetag. */
@@ -309,16 +346,35 @@ private class MidiMessageContainer
         MidiMsg msg;
         
         status => msg.data1;
+        // TODO — same number, get only second one right, match typetags up right
+        // this whole section probably needs to be redone
         
         if ( d1.number < d2.number )
         {
             evt => d1.get => msg.data2;
             evt => d2.get => msg.data3;
         } 
-        else
+        else if ( d1.number > d2.number )
         {
             evt => d2.get => msg.data3;
             evt => d1.get => msg.data2;
+        }
+        // must be the same, will check they are greater than 0
+        else if ( d1.number > 0 )
+        {
+            // need to double check types line up
+            if ( d1.number == 1 )
+                evt => d1.get => msg.data2 => msg.data3;
+            else if ( d1.number == 2 )
+            {
+                evt => d1.get; // burn one
+                evt => d2.get => msg.data2 => msg.data3;
+            }
+        }
+        else // both <= 0, so now we just need to put in the actual values
+        {
+            evt => d1.get => msg.data2;
+            evt => d2.get => msg.data3;
         }
         
         return msg;

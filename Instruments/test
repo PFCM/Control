@@ -2,5 +2,7 @@ type=MIDI
 name=test
 240="/test/a, i"=171,$1,127
 port="IAC Driver 1 Bus 1"
-224="/text/a,fi"=172,$2,$1
-128="/banana,ii"=128,$1,$2
+224="/text/a,ii"=172,$2,$1
+128="/banana,fi"=128,$2,$1
+"/hello,ii"=129,$2,$2
+"/bye,ii"=130,$1,$1
