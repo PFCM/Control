@@ -298,7 +298,10 @@ fun void onEnd()
             chout <= "(Client)    " <= instruments[i] <= " on channel " <= i+1 <= IO.nl();
             for ( int j; j < messages[instruments[i]].size(); j++ )
             {
-                chout <= "(Client)        " <= messages[name][j].statusbyte+i <= " becomes " <= messages[name][j].addresspattern <= IO.nl();
+                if ( messages[name][j].statusbyte >= 0 )
+                    chout <= "(Client)        " <= messages[name][j].statusbyte+i <= " becomes " <= messages[name][j].addresspattern <= IO.nl();
+                else
+                    chout <= "(Client)        " <= messages[name][j].addresspattern <= " available." <= IO.nl();
             }
         }
         
