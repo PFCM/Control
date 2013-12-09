@@ -166,6 +166,8 @@ spork~instrumentMethodListener();
 // start listening for replies before we actually tell the server we exist, jic
 spork~instrumentAddListener();
 
+// waaait
+500::ms => now;
 // now tell the server we exist
 osend.startMsg( "/system/addme", "si" );
 osend.addString( selfIP );
