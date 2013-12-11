@@ -254,8 +254,7 @@ public class MidiInstrument extends Instrument {
     fun void handleMessage( OscEvent event, string addrPat )
     {
         chout <= "received: " <= addrPat <= IO.nl();
-        transform_table[addrPat] @=> MidiMessageContainer @ cont;
-        if (cont != null)
+        if (transform_table.find(addrPat))
         {
             transform_table[addrPat].getMsg( event ) @=> MidiMsg @ msg;
             if ( msg != null )
