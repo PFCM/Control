@@ -96,12 +96,17 @@ public class Instrument {
     fun void __listener( OscEvent event, string addrpat )
     {
         chout <= name <=  " now listening for: " <= addrpat <= IO.nl();
+        
+        // hold on to these (was getting some odd crashes)
+        event @=> OscEvent @ evt;
+        addrpat => string pat;
+        
         // will exit when parent exits
-        while ( event => now )
+        while ( evt => now )
         {
-            while ( event.nextMsg() )
+            while ( evt.nextMsg() )
             {
-                handleMessage( event, addrpat );
+                handleMessage( evt, pat );
             }
         }
     }
