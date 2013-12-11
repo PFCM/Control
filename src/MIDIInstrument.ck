@@ -255,15 +255,18 @@ public class MidiInstrument extends Instrument {
     {
         chout <= "received: " <= addrPat <= IO.nl();
         transform_table[addrPat] @=> MidiMessageContainer @ cont;
-        if (cont == null)
+        if (cont != null)
+        {
+            transform_table[addrPat].getMsg( event ) @=> MidiMsg @ msg;
+            if ( msg != null )
+            {
+                chout <= "sending MIDI" <= IO.nl();
+                mout.send( msg );
+            }
+        } 
+        else
         {
             chout <= "Unknown message " <= addrPat <= " received by " <= name <= IO.nl();
-        }
-        transform_table[addrPat].getMsg( event ) @=> MidiMsg @ msg;
-        if ( msg != null )
-        {
-            chout <= "sending MIDI" <= IO.nl();
-            mout.send( msg );
         }
     }
     
