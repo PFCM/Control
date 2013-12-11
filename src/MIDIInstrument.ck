@@ -97,7 +97,7 @@ public class MidiInstrument extends Instrument {
                 //chout <= i <= "\t" <= pat.length() <= IO.nl();
                 pat.substring(i).trim() => string tt;
                 midiContainerFromString( msg, tt ) @=> transform_table[pat];
-                if ( !RegEx.match( "^/"+name+"/note", pat ) && !RegEx.match( "^/"+name+"/control", pat ) )
+                if ( !RegEx.match( "^/"+name+"/note,", pat ) && !RegEx.match( "^/"+name+"/control", pat ) )
                 {
                     // to actually send it to the client as a message it has to have the correct typetag
                     if (tt != "ii")
