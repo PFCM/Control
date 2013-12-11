@@ -148,9 +148,9 @@ public class MidiInstrument extends Instrument {
         -1 => int noteSet => int contSet;
         for ( int i; i < osc_patterns.cap(); i++ )
         {
-            if ( RegEx.match( "^/"+name+"/note", osc_patterns[i] ) )
+            if ( RegEx.match( "^/"+name+"/note,", osc_patterns[i] ) )
                 i => noteSet;
-            if ( RegEx.match( "^/"+name+"/control", osc_patterns[i] ) )
+            if ( RegEx.match( "^/"+name+"/control,", osc_patterns[i] ) )
                 i => contSet;
         }
         
