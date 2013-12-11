@@ -257,7 +257,7 @@ public class MidiInstrument extends Instrument {
         transform_table[addrPat] @=> MidiMessageContainer @ cont;
         if (cont == null)
         {
-            chout <= "Unknown message " <= addrPat <= " received by " <= name <= IO.nl():
+            chout <= "Unknown message " <= addrPat <= " received by " <= name <= IO.nl();
         }
         transform_table[addrPat].getMsg( event ) @=> MidiMsg @ msg;
         if ( msg != null )
