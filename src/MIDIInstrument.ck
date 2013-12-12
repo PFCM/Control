@@ -50,7 +50,7 @@ public class MidiInstrument extends Instrument {
         {
             file.readLine() => line;
             // does it begin with a comment
-            if (line.charAt(0) == '#')
+            if (line.size() > 0 && line.charAt(0) == '#')
                 continue;
             
             
