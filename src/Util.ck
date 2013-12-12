@@ -74,4 +74,12 @@ public class Util
         
         return isNote || isCont;
     }
+    
+    /** Removes comments from the end of a string */
+    fun static string stripComments( string line )
+    {
+        line.find('#') => int index;
+        if (index < 0) line.length() => index;
+        return line.substring(0,index);
+    }
 }

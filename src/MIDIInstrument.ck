@@ -49,10 +49,12 @@ public class MidiInstrument extends Instrument {
         while ( file.more() )
         {
             file.readLine() => line;
-            // does it begin with a comment
-            if (line.size() > 0 && line.charAt(0) == '#')
+            // get rid of whole line comments and empty lines
+            if (line.length() == 0 || (line.length() > 0 && line.charAt(0) == '#'))
                 continue;
             
+            // strip comments (if present) from the end of a line
+            Util.stripComments(line) => line;
             
             line.find("port=") => int split;
             if (split < 0) // translation
