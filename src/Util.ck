@@ -65,4 +65,13 @@ public class Util
         defaults<<start+"/control,ii";
         return defaults;
     }
+    
+    /** Returns a 1 if the given matches one in the default set, 0 if not */
+    fun static int isDefault( string msg )
+    {
+        RegEx.match( "/note,[ ]*ii$", msg ) => int isNote;
+        RegEx.match( "/control,[ ]*ii$", msg ) => int isCont;
+        
+        return isNote || isCont;
+    }
 }

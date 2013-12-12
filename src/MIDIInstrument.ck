@@ -286,7 +286,7 @@ public class MidiInstrument extends Instrument {
             0 => int default;
             for ( int j; j < defaults.cap(); j++ )
             {
-                if ( defaults[j] == patterns[i] )
+                if ( Util.isDefault( patterns[i] ) )
                 {
                     1 => default;
                     break;
