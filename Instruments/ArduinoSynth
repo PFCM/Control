@@ -1,6 +1,6 @@
 type=MIDI
 name=ardu
 port=0
-128="/noteoff,ii"=135,$1,$2
+128="/noteoff, ii"=135,$1,$2
 144="/note,ii"=151,$1,$2
 176="/control,ii"=183,$1,$2
