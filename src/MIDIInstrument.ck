@@ -97,7 +97,7 @@ public class MidiInstrument extends Instrument {
                 //chout <= i <= "\t" <= pat.length() <= IO.nl();
                 pat.substring(i).trim() => string tt;
                 midiContainerFromString( msg, tt ) @=> transform_table[pat];
-                if ( !RegEx.match( "^/"+name+"/note,", pat ) && !RegEx.match( "^/"+name+"/control", pat ) )
+                if ( !RegEx.match( "/note,", pat ) && !RegEx.match( "/control,", pat ) )
                 {
                     // to actually send it to the client as a message it has to have the correct typetag
                     if (tt != "ii")
@@ -129,7 +129,7 @@ public class MidiInstrument extends Instrument {
             cherr <= name <= " — MIDI port not found in file, MIDI not initialised." <= IO.nl();
         
         // super sets up default listeners for /note and /control
-        // but if we do nothing that will just crash the listener 
+        // but if we do nothing that will just crash the listener shred
         // because there is nothing in here
         
         
@@ -149,9 +149,15 @@ public class MidiInstrument extends Instrument {
         for ( int i; i < osc_patterns.cap(); i++ )
         {
             if ( RegEx.match( "^/"+name+"/note,", osc_patterns[i] ) )
+            {
                 i => noteSet;
+                chout <= "Overridden default note listener (found " <= osc_patterns[i] <= ")" <= i <= IO.nl();
+            }
             if ( RegEx.match( "^/"+name+"/control,", osc_patterns[i] ) )
+            {
                 i => contSet;
+                chout <= "Overridden default control listener (found " <= osc_patterns[i] <= ")" <= IO.nl();
+            }
         }
         
         if ( noteSet < 0 )
