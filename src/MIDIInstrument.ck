@@ -280,7 +280,6 @@ public class MidiInstrument extends Instrument {
     fun void sendMethods( OscSend s )
     {
         chout <= name <= " sending methods." <= IO.nl();
-        Util.makeDefaults( name ) @=> string defaults[];
         for ( int i; i < patterns.cap(); i++ )
         {
             0 => int default;
