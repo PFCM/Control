@@ -1,0 +1,20 @@
+\documentclass{article}
+\usepackage[a4paper]{geometry}
+\usepackage{enumerate}
+\usepackage[sc,compact]{titlesec}
+\usepackage{tgcursor}
+\usepackage[T1]{fontenc}
+
+\begin{document}
+\section{Overview}
+The system is divided into two parts, the {\em client} and the {\em server}. The server runs on a single computer, connected to the various devices and listens to incoming Open Sound 
+Control messages and translates them to the appropriate control for the target device. 
+
+The client runs on any number of computers networked to the server and serves to translate MIDI into Open Sound Control which it then relays to the server. This is optional, users
+can interface with the server directly through Open Sound Control if desired.
+
+\section{Server}
+The server determines what instruments are available by reading files in the \texttt{Instruments} directory of the project folder; it assumes every file present represents an instrument
+currently connected.
+
+\end{document}

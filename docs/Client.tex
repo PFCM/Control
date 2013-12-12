@@ -21,7 +21,7 @@ but translates MIDI into OSC to be sent over the network. As such there is some 
 		\texttt{in=}
 	\item The clients IP address, formatted as above. Unfortunately the client has to actually know this to enable two-way communication, 
 		in ChucK there is no way of getting the address of a received message, so we have to specifically tell the server where we are.
-		To avoid confusion this is specified as \texttt{self=}\textit{<address>}.
+		To avoid confusion this is specified as \texttt{self=}\textit{<ip address>} and \texttt{in=}\textit{<port>}.
 	\item The MIDI port to listen on -- this must be prefixed by \texttt{midi=} can be a number or a name, if it is a name containing spaces it might be
 		 wise to surround it in quotes (eg. \texttt{midi="IAC Driver 1 Bus 1"})
 		
@@ -29,13 +29,14 @@ but translates MIDI into OSC to be sent over the network. As such there is some 
 If these need to be set, they can be provided as arguments to \texttt{Client.ck}. In ChucK arguments are expected to be colon delimited and appended
 to the name of the file, so the command to run \texttt{Client.ck} would become something like 
 \begin{verbatim}
-    %> chuck + Client.ck:192.0.16.8:8000:in=8001:midi="IAC Driver Bus 1"
+    %> chuck Client.ck:192.168.33.1:8000:in=8001:midi="IAC Driver Bus 1":\
+    	  self=192.168.33.1
 \end{verbatim}
 These can be specified in any order.
 If you are running the file from the midiAudicle, you can add the argument list in the text field above the main editor.
 
-If any of the above are not specified in the arguments, we will attempt to use default values, which should be the same as the default values for the 
-server.
+The essential values are the IP address of the server and the clients own IP address, without these no communication is possible. The MIDI input port is
+also likely to be necessary to specify, with no input it will default to 0, which mauy or may not be useful.
 
 \subsection{Standard Interface}
 The standard interface for which all instruments must do something consists only of two standard messages: note and control.

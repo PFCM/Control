@@ -1,0 +1,37 @@
+\documentclass{article}
+\usepackage[a4paper,margin=2.7cm]{geometry}
+\usepackage{enumerate}
+\usepackage[sc,compact]{titlesec}
+\usepackage{tgcursor}
+\usepackage[T1]{fontenc}
+
+\begin{document}
+\section{Steps}
+
+\begin{enumerate} [\bf 1.]
+\item {\large On the server}
+	\begin{enumerate} [\bf i.]
+
+		\item{Check all the desired instruments are connected correctly.}
+		\item{Check \texttt{Instruments} directory -- make sure files are present for each of the instruments.}
+		\item Run \texttt{Master.ck} -- in the shell this is (assuming we are in the root project directory)
+		\begin{verbatim}
+			    %> chuck src/Master
+		\end{verbatim}
+		\item  It will produce a lot of text, double check to make sure no errors were emitted.
+	\end{enumerate}
+\item {\large On your own machine}
+	\begin{enumerate} [\bf i.]
+		\item {If you want to communicate over OSC}
+		\begin{enumerate} [\bf a.]
+			\item{Double check the address patterns the server printed at the end of its initialisation, you shuold be good to go.}
+		\end{enumerate}
+		\item {If you want to use MIDI}
+		\begin{enumerate} [\bf a.]
+			\item{}
+		\end{enumerate}
+	\end{enumerate}
+
+\end{enumerate}
+
+\end{document}
