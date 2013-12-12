@@ -15,3 +15,7 @@
 9/12/13
 	- Sort out MIDI message composition from arguments
 	  - might be quite nice to be able to compose them from arbitrary length OSC messages
+
+12/12/13
+	- Set up git so that mac mini is the master repo
+	- write docs
