@@ -62,7 +62,7 @@ public class MidiInstrument extends Instrument {
                 else if ( parts.cap() == 3 )
                 {
                     parts[1] => pat;
-                    parts[0].toInt() & 0xf0 => stat;
+                    parts[0].toInt() & 0xf0 => stat; // be agnostic to channel
                 }
                 else
                 {
@@ -75,8 +75,8 @@ public class MidiInstrument extends Instrument {
                 
                 
                 
-                // now does the pattern start with the name?
-                if ( pat.find( name ) != 1 )
+                // now does the pattern start with /name?
+                if ( pat.find( "/" + name ) != 0 )
                 {
                     // prepend it
                     "/" + name + pat => pat;
@@ -160,14 +160,15 @@ public class MidiInstrument extends Instrument {
             }
         }
         
-        if ( noteSet < 0 )
+        // not found
+        if ( noteSet == -1 )
         {
             // make a message container
             midiContainerFromString( "144,$1,$2", "ii" ) @=> transform_table["/" + name + "/note,ii"];
             chout <= "Made default message for /" <= name <= "/note -> now becomes 144,$1,$2" <= IO.nl();
         }
         
-        if ( contSet < 0 )
+        if ( contSet == -1 )
         {
             midiContainerFromString( "176,$1,$2", "ii" ) @=> transform_table["/" + name + "/control,ii"];
             chout <= "Made default message for /" <= name <= "/control -> now becomes 176,$1,$2" <= IO.nl();
@@ -180,7 +181,7 @@ public class MidiInstrument extends Instrument {
     {
         // TODO have the number after $ specify the order in which they are executed but not the order 
         // of the resulting midi message
-        
+        // —— kinda done
         
         // get the three sections individually
         Util.splitString( message, "," ) @=> string bytes[];

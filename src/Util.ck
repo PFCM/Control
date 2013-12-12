@@ -61,8 +61,8 @@ public class Util
             "/" + start => start;
         }
         string defaults[0];
-        defaults<<start+"/note"; 
-        defaults<<start+"/control";
+        defaults<<start+"/note,ii"; 
+        defaults<<start+"/control,ii";
         return defaults;
     }
 }
