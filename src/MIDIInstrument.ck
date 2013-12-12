@@ -151,7 +151,7 @@ public class MidiInstrument extends Instrument {
             if ( RegEx.match( "^/"+name+"/note,", osc_patterns[i] ) )
             {
                 i => noteSet;
-                chout <= "Overridden default note listener (found " <= osc_patterns[i] <= ")" <= i <= IO.nl();
+                chout <= "Overridden default note listener (found " <= osc_patterns[i] <= ")" <= IO.nl();
             }
             if ( RegEx.match( "^/"+name+"/control,", osc_patterns[i] ) )
             {
@@ -283,7 +283,7 @@ public class MidiInstrument extends Instrument {
         for ( int i; i < patterns.cap(); i++ )
         {
             0 => int default;
-            for ( int j; j < defaults.cap(); j++ )
+            for ( int j; j < 2; j++ )
             {
                 if ( Util.isDefault( patterns[i] ) )
                 {
