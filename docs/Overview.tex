@@ -1,20 +1,28 @@
-\documentclass{article}
+\documentclass[11pt]{article}
 \usepackage[a4paper]{geometry}
 \usepackage{enumerate}
-\usepackage[sc,compact]{titlesec}
+\usepackage[sc,small,compact]{titlesec}
 \usepackage{tgcursor}
 \usepackage[T1]{fontenc}
 
 \begin{document}
 \section{Overview}
 The system is divided into two parts, the {\em client} and the {\em server}. The server runs on a single computer, connected to the various devices and listens to incoming Open Sound 
-Control messages and translates them to the appropriate control for the target device. 
+Control (OSC) messages and translates them to the appropriate control for the target device. 
 
-The client runs on any number of computers networked to the server and serves to translate MIDI into Open Sound Control which it then relays to the server. This is optional, users
-can interface with the server directly through Open Sound Control if desired.
+The client runs on any number of computers networked to the server and serves to translate MIDI into OSC which it then relays to the server. This is optional, users
+can interface with the server directly through OSC (via UDP) if desired.
 
-\section{Server}
+\subsection{Server}
 The server determines what instruments are available by reading files in the \texttt{Instruments} directory of the project folder; it assumes every file present represents an instrument
-currently connected.
+currently connected and sets itself up to communicate to them based on the information in the file.
+
+\subsection{Client}
+Client machines communicate to the server using OSC over UDP. A translation layer is provided which accepts MIDI messages and turns them into OSC which it then sends to the 
+server. Some form of inter-application MIDI routing is required for this to succeed, but allows the use of standard musical software to interface with the server. 
+
+When the client translation layer starts up it notifies the server of its presence on the network. The server then enumerates the instruments it is currently connected to and any methods
+they offer outside the standard interface. This step means the client layer is agnostic to changes on the server -- instruments can come and go and controls can change without any
+updates needing to happen on the client end.
 
 \end{document}

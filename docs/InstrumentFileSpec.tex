@@ -2,9 +2,17 @@
 \usepackage[a4paper,margin=2.7cm]{geometry}
 \usepackage{syntax}
 \usepackage{enumerate}
-\usepackage{float}
-\floatstyle{boxed}
-\restylefloat{figure}
+
+\usepackage{xcolor}
+\usepackage{listings}
+\lstset{numbers=left, 
+	  stepnumber=2, 
+	  numbersep=1em,
+	  basicstyle=\small\ttfamily,
+	  showstringspaces=false}
+\lstloadlanguages{bash}
+
+
 \usepackage{tgcursor}
 \usepackage[T1]{fontenc}
 
@@ -36,15 +44,15 @@ they will be added.
 A file with 0 translation lines would cause the server to instantiate the object specified, and may therefore be of some use.
 
 \subsection{Grammar}
-\setlength{\grammarindent}{12em}
+\setlength{\grammarindent}{10em}
 \begin{grammar}
-	<file> ::= <type> <linebreak> <name> <linebreak> ( <file-element> <linebreak> ) * 
+	<file> ::= <type> <linebreak>  (<comment> <linebreak>)* <name> <linebreak> (<comment> <linebreak>)* ( <file-element> | <comment> <linebreak> ) *
 	
-	<type> ::= ``type=''<type-string> <linebreak>
+	<type> ::= ``type=''<type-string> [<comment>] <linebreak> 
 	
 	<type-string> ::= ``MIDI''
 	
-	<name> ::= ``name=''<name-string> <linebreak>
+	<name> ::= ``name=''<name-string> [<comment>] <linebreak>
 	
 	<name-string> ::= `[a-zA-Z][a-zA-Z0-9_]*'
 	
@@ -54,7 +62,7 @@ A file with 0 translation lines would cause the server to instantiate the object
 	
 	<midi-port-desc> ::= `[a-zA-Z][a-zA-Z0-9]*' \alt `[0-9]+'
 	
-	<translation> ::= [<input-status-byte> `='] <osc-message-desc> `=' <output-message-desc> <linebreak>
+	<translation> ::= [<input-status-byte> `='] <osc-message-desc> `=' <output-message-desc>  [<comment>] <linebreak>
 	
 	<input-status-byte> ::= <midi-stat-byte>
 	
@@ -77,6 +85,27 @@ A file with 0 translation lines would cause the server to instantiate the object
 	<midi-data-byte> ::= 0--127 \alt <osc-arg>
 	
 	<osc-arg> ::= `$'[1-2]
+	
+	<comment> ::= `#' any characters
 
 \end{grammar}
+
+\subsection{Example}
+\subsubsection{Basic MIDI file}
+\begin{lstlisting} [language=bash,
+			  morekeywords={name,type,port,MIDI},
+			  otherkeywords={128,144,224},
+			  commentstyle=\color{green!60!black},
+			  stringstyle=\color{blue!40!black}]
+type=MIDI 			#this must come first
+name=Example			#and this second
+# and now we are free of order
+port="IAC Driver 1 Bus 1" 	#could be a number
+# this would be enough for only the standard interface
+128=/noteoff,ii=129,$1,$2 	#pass a note off to channel 2
+224=/pitchbend,ii=225,$2,$2 	#only send one byte
+144=/note,ii=145,$2,$1	#redefine default note, change order
+/block,f=160,64,$1	#message without MIDI input
+\end{lstlisting}
+
 \end{document}

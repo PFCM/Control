@@ -31,6 +31,8 @@ public class MidiInstrument extends Instrument {
         // assume file has moved past the first line and
         // no more
         file.readLine() => string line;
+        if (line.charAt(0) == '#')
+            file.readLine() => string line;
         if ( line.substring( 0,5 ) != "name=" )
         {
             cherr <= "Expecting: name=something got " <= line <= IO.nl();
@@ -47,7 +49,9 @@ public class MidiInstrument extends Instrument {
         while ( file.more() )
         {
             file.readLine() => line;
-            
+            // does it begin with a comment
+            if (line.charAt(0) == '#')
+                continue;
             
             
             line.find("port=") => int split;
