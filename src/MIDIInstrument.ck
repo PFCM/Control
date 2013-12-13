@@ -93,7 +93,7 @@ public class MidiInstrument extends Instrument {
                 pat.find(',') => int comma;
                 if (comma > 0 && pat.charAt(comma-1) == ' ')
                 {
-                    pat.substring(0,comma-1) + pat.substring(comma) => pat;
+                    pat.substring(0,comma-1) + pat.substring(comma+1) => pat;
                 }
                 osc_patterns << pat;
                 numPats++;
