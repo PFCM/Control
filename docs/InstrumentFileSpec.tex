@@ -2,6 +2,7 @@
 \usepackage[a4paper,margin=2.7cm]{geometry}
 \usepackage{syntax}
 \usepackage{enumerate}
+\usepackage[sc,small,compact]{titlesec}
 
 \usepackage{xcolor}
 \usepackage{listings}
@@ -91,12 +92,13 @@ A file with 0 translation lines would cause the server to instantiate the object
 \end{grammar}
 
 \subsection{Example}
-\subsubsection{Basic MIDI file}
+\subsubsection{Basic MIDI File}
 \begin{lstlisting} [language=bash,
 			  morekeywords={name,type,port,MIDI},
 			  otherkeywords={128,144,224},
 			  commentstyle=\color{green!60!black},
-			  stringstyle=\color{blue!40!black}]
+			  stringstyle=\color{blue!40!black},
+			  keywordstyle=\color{blue!70!black}]
 type=MIDI 			#this must come first
 name=Example			#and this second
 # and now we are free of order
@@ -106,6 +108,80 @@ port="IAC Driver 1 Bus 1" 	#could be a number
 224=/pitchbend,ii=225,$2,$2 	#only send one byte
 144=/note,ii=145,$2,$1	#redefine default note, change order
 /block,f=160,64,$1	#message without MIDI input
+\end{lstlisting}
+
+\clearpage
+\subsubsection{Example Addition to Class Hierarchy}
+\begin{lstlisting} [language=java,
+			  classoffset=0,
+			  morekeywords={fun,string},
+			  keywordstyle=\color{blue!90!black},
+			  stringstyle=\color{black!40},
+			  commentstyle=\color{green!60!black},
+			  classoffset=1,
+			  morekeywords={OscEvent, OscRecv,FileIO},
+			  keywordstyle=\color{red!60!black},
+			  classoffset=0,
+			  tabsize=3]
+//type=EXTENDED_TYPE
+/* ^^ has to be first line
+ * EXTENDED_TYPE must be defined in Server.ck
+ * and this file must have been added to the VM by
+ * Master.ck 
+ *
+ * a MIDI instrument that sends each 
+ * message on a different channel */
+public class ExtendedType extends MidiInstrument
+{
+	int chan;
+	// need to do some init
+	fun void init( OscRecv input, FileIO file )
+	{
+		// file contains this file
+		// we will just hardcode the default msgs
+		"ext" => name; // name is a field in Instrument
+		string patterns[0];
+		MidiMsgContainer noteMsg;
+		MidiDataByte d1, d2;
+		d1.set( MidiDataByte.INT_VAL );
+		d2.set( MidiDataByte.INT_VAL );
+		noteMsg.set( 144, d1, d2 );
+		noteMsg @=> transform_table["/ext/note,ii"];
+		
+		MidiMsgContainer cntMsg;
+		MidiDataByte d3, d4;
+		d3.set( MidiDataByte.INT_VAL );
+		d4.set( MidiDataByte.INT_VAL );
+		cntMsg.set( 176, d3, d4 );
+		cntMsg @=> transform_table["/ext/control,ii"];
+		
+		// choose a MIDI port for output
+		setMidiPort( 0 );
+		
+		// let Instrument set up OSC listeners
+		patterns<<"/ext/note,ii";
+		patterns<<"/ext/control,ii";
+		__init( input, patterns );
+	}
+	
+	fun void handleMessage( OscEvent evt, string addrpat )
+	{
+		if ( transform_table.find( addrpat ) )
+		{
+			// get message define
+			transform_table[addrpat].getMsg( event ) 
+				@=> MidiMsg msg;
+			if ( msg != null )
+			{
+				chan +=> msg.data1;
+				16 %=> ++chan;
+				mout.send( msg );
+			}
+		}
+	}
+}
+
+  
 \end{lstlisting}
 
 \end{document}
