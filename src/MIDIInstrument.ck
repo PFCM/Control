@@ -68,6 +68,7 @@ public class MidiInstrument extends Instrument {
                 else if ( parts.cap() == 3 )
                 {
                     parts[1] => pat;
+                    // TODO check it is actually OK
                     parts[0].toInt() & 0xf0 => stat; // be agnostic to channel
                 }
                 else
@@ -86,6 +87,13 @@ public class MidiInstrument extends Instrument {
                 {
                     // prepend it
                     "/" + name + pat => pat;
+                }
+                
+                // check for space in between the typetag and the pattern
+                pat.find(',') => int comma;
+                if (comma > 0 && pat.charAt(comma-1) == ' ')
+                {
+                    pat.substring(0,comma-1) + pat.substring(comma) => pat;
                 }
                 osc_patterns << pat;
                 numPats++;
