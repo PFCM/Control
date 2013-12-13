@@ -54,7 +54,7 @@ public class MidiInstrument extends Instrument {
                 continue;
             
             // strip comments (if present) from the end of a line
-            Util.stripComments(line) => line;
+            Util.stripComments(line).trim() => line;
             
             line.find("port=") => int split;
             if (split < 0) // translation
@@ -272,7 +272,7 @@ public class MidiInstrument extends Instrument {
             transform_table[addrPat].getMsg( event ) @=> MidiMsg @ msg;
             if ( msg != null )
             {
-                chout <= "sending MIDI" <= IO.nl();
+                chout <= "sending MIDI " <= msg.data1 <= "," <= msg.data2 <= "," <= msg.data3 <= IO.nl();
                 mout.send( msg );
             }
         } 
