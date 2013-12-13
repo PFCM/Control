@@ -55,9 +55,9 @@ public class Instrument {
         {
             spork~__listener( oscIn.event( patterns[i] ), patterns[i] );
             if (!note)
-                RegEx.match( "/note,", patterns[i] ) => note;
+                RegEx.match( "/note,[ ]*ii$", patterns[i] ) => note;
             if (!control)
-                RegEx.match( "/control,", patterns[i] ) => control;
+                RegEx.match( "/control,[ ]*ii$", patterns[i] ) => control;
             
         }
         if ( !note )
