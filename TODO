@@ -25,4 +25,5 @@
 	- get set up for actual robots?
 	- Fix so that instruments that fail initialisation don't report success
 	  - will probably require a field in Instrument so the server can check
-	    whether or not it worked
+	    whether or not it worked, or have init() (and __init()) return a
+	    value.

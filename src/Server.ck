@@ -85,7 +85,7 @@ else
                 }
                 else // not a .ck
                 {
-                    if (output.substring(0,5) != "type=")
+                    if ( !RegEx.match("^type=", output) )
                         cherr <= "\t" <= "File must begin with 'type='" <= IO.nl();
                     else
                     {
@@ -148,15 +148,15 @@ fun void sendInstruments( OscSend s )
     chout <= "Sending " <= instruments.size() <= " instruments to new client" <= IO.nl();
     for ( int i; i < instruments.size(); i++ )
     {
-        s.startMsg( "/instruments/add", "s" );
+        s.startMsg( "/system/instruments/add", "s" );
         s.addString( instruments[i].name );
         Util.makeDefaults( instruments[i].name ) @=> string defaults[];
         // add its methods, if they are special
         instruments[i].sendMethods( s );
     }
-    s.startMsg( "/instruments/add", "s" );
+    s.startMsg( "/system/instruments/add", "s" );
     s.addString("END");
-    s.startMsg( "/instruments/extend", "ssi" );
+    s.startMsg( "/system/instruments/extend", "ssi" );
     s.addString("END");
     s.addString("END");
     s.addInt(-1);

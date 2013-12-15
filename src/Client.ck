@@ -219,7 +219,7 @@ while ( true )
 // string for this
 fun void instrumentAddListener()
 {
-    orec.event("/instruments/add,s") @=> OscEvent evt;
+    orec.event("/system/instruments/add,s") @=> OscEvent evt;
     
     while ( evt => now )
     {
@@ -249,7 +249,7 @@ fun void instrumentAddListener()
 // listens for messages telling about extensions to given instruments
 fun void instrumentMethodListener()
 {
-    orec.event("/instruments/extend,ssi") @=> OscEvent evt;
+    orec.event("/system/instruments/extend,ssi") @=> OscEvent evt;
     
     while ( evt => now )
     {

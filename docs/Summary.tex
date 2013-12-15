@@ -7,6 +7,7 @@
 \usepackage{bigfoot}
 
 \begin{document}
+\raggedright
 \section*{Summary}
 \begin{enumerate}[\bf1.]
 	\item Server starts running
@@ -16,7 +17,20 @@
 		\begin{enumerate}
 			\item MidiInstrument class sets up MIDI output and translation from OSC
 			\item Base class Instrument sets up OSC listeners according to what is defined in file.
+			\item All instruments have two default messages they expect if nothing is specified -- \texttt{/\textit{<name>}/note,ii} and 
+				 \texttt{/\textit{<name>}/control,ii} 
 		\end{enumerate}
+		\item Starts listening over OSC for new clients
+	 \end{enumerate}
+	 \item Client starts up
+	 \begin{enumerate} [\bf a.]
+	 	\item Sends \texttt{/system/addme,si} to Server (with hostname and port)
+		\item Server responds with a series of \texttt{/system/instruments/add,s} messages which list the instruments constructed earlier by name.
+		\item Any instruments with possible messages beyond the basic two send
+			 \texttt{/system/instruments/extend,ssi} to the client
+			which contain the name of the instrument, the pattern for the message and the MIDI status byte to transform.
+		\item Client uses this data to construct a table of MIDI input to OSC output
+		\item Client listens for MIDI input on specified port and translates appropriately.
 	 \end{enumerate}
 \end{enumerate}
 \end{document}

@@ -305,7 +305,7 @@ public class MidiInstrument extends Instrument {
             if ( !default )
             {
                 chout <= "Sending: " <= patterns[i] <= " from " <= nonstandard_statusbytes[patterns[i]] <= IO.nl();
-                s.startMsg( "/instruments/extend", "ssi" );
+                s.startMsg( "/system/instruments/extend", "ssi" );
                 s.addString( name );
                 s.addString( patterns[i] );
                 s.addInt( nonstandard_statusbytes[patterns[i]] );
