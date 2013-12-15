@@ -41,7 +41,10 @@ else
             cherr <= "Error opening '" <= me.dir() + "/../Instruments/" <= "', ignoring." <= IO.nl();
         else
         {
-            
+            if ( inst.isDir() )
+            {
+                chout <= "Skipping directory " <= files[i] <= IO.nl();
+            }
             inst.readLine() => string output;
             // is the file a .ck or just a config file
             if ( RegEx.match( ".*\\.ck$", files[i] ) )
