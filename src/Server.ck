@@ -56,7 +56,7 @@ else
                 
                 inst.readLine() => string output;
                 // is the file a .ck or just a config file
-                if ( RegEx.match( ".*\\.ck$", files[i] ) )
+                if ( RegEx.match( ".ck$", files[i] ) )
                 {
                     if ( ! RegEx.match( "^//", output ) ) // needs to start with //
                     {

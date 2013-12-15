@@ -20,6 +20,9 @@
 	- Set up git so that mac mini is the master repo
 	- write docs
 
-15/12/13
+16/12/13
 	- tone down some of the printing
 	- get set up for actual robots?
+	- Fix so that instruments that fail initialisation don't report success
+	  - will probably require a field in Instrument so the server can check
+	    whether or not it worked
