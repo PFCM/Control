@@ -58,7 +58,7 @@ else
                 // is the file a .ck or just a config file
                 if ( RegEx.match( ".*\\.ck$", files[i] ) )
                 {
-                    if ( ! RegEx.match( "^//", files[i] ) ) // needs to start with //
+                    if ( ! RegEx.match( "^//", output ) ) // needs to start with //
                     {
                         cherr <= "Found a .ck in Instruments directory without a comment on the first line. Ignoring." <= IO.nl();
                     }
