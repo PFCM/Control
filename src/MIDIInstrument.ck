@@ -74,7 +74,8 @@ public class MidiInstrument extends Instrument {
                 else
                 {
                     cherr <= "This is not a valid line: " <= line <= IO.nl();
-                    break;
+                    cherr <= "Attempting to ignore." <= IO.nl();
+                    continue;
                 }
                 
                 Util.trimQuotes( pat ) => pat;
@@ -87,13 +88,6 @@ public class MidiInstrument extends Instrument {
                 {
                     // prepend it
                     "/" + name + pat => pat;
-                }
-                
-                // check for space in between the typetag and the pattern
-                pat.find(',') => int comma;
-                if (comma > 0 && pat.charAt(comma-1) == ' ')
-                {
-                    pat.substring(0,comma-1).trim() + pat.substring(comma).trim() => pat;
                 }
                 osc_patterns << pat;
                 numPats++;

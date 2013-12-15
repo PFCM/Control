@@ -1,24 +1,37 @@
-\documentclass{article}
+\documentclass[11pt]{article}
 \usepackage[a4paper,margin=2.7cm]{geometry}
 \usepackage{enumerate}
 \usepackage[sc,compact]{titlesec}
 \usepackage{tgcursor}
 \usepackage[T1]{fontenc}
+\usepackage{bigfoot}
 
 \begin{document}
 \section{Steps}
 
+\subsection{ChucK / ssh}
 \begin{enumerate} [\bf 1.]
-\item {\large On the server}
+\item {\large Start the server}
 	\begin{enumerate} [\bf i.]
 
 		\item{Check all the desired instruments are connected correctly.}
-		\item{Check \texttt{Instruments} directory -- make sure files are present for each of the instruments.}
-		\item Run \texttt{Master.ck} -- in the shell this is (assuming we are in the root project directory)
+		\item{Start up the server. Once it has booted, log in either remotely---
+		\begin{verbatim}
+			%> ssh sonics@192.168.33.1
+		\end{verbatim}
+		or using the login screen. If you log in locally to the server, open a terminal window.}
+		\item{Check \texttt{Instruments} directory---
+		\begin{verbatim}
+			cd Documents/RobotNetwork 
+			ls Instruments/
+		\end{verbatim}
+		make sure files are present for each of the instruments.}
+		\item Run \texttt{Master.ck} -- in the shell this is (assuming we are still in the root project directory)
 		\begin{verbatim}
 			    %> chuck src/Master
 		\end{verbatim}
-		\item  It will produce a lot of text, double check to make sure no errors were emitted.
+		\item  It will produce a lot of text, double check to make sure no errors were emitted. You could run the 
+			  server from the miniAudicle, but this is often less stable over long periods of time.
 	\end{enumerate}
 \item {\large On your own machine}
 	\begin{enumerate} [\bf i.]
@@ -26,9 +39,13 @@
 		\begin{enumerate} [\bf a.]
 			\item{Double check the address patterns the server printed at the end of its initialisation, you should be good to go.}
 		\end{enumerate}
-		\item {If you want to use MIDI}
+		\item {If you want to use MIDI run \texttt{Client.ck} -- it needs some information to function correctly.
+			  The minimum is: }
 		\begin{enumerate} [\bf a.]
-			\item{Run \texttt{Client.ck} -- it needs some information to function correctly}
+			\item{An address for the server; hopefully 192.168.33.1 or \texttt{leoadmins-Mac-mini.local} will work
+			\footnote{ To find the IP address the server is using for the ethernet either look in Network Preferences or use \verb+ifconfig en0 | grep inet+
+			which should print the IPv4 and IPv6 addresses, the former of which is what we are after.}}
+			\item{An address for the client machine, you could use a numerical address or \textit{<your-computer-name>}.local if it is a Mac.}
 		\end{enumerate}
 	\end{enumerate}
 

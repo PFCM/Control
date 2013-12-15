@@ -18,6 +18,8 @@ OscRecv orec;
 OscSend osend; // client needs to receive data early on and to send throughout
 MidiIn min; // pretty much the point
 
+false => int debug;
+
 50000 => int port;
 50001 => int portIn;
 "localhost" => string hostname => string selfIP;
@@ -191,7 +193,8 @@ while ( true )
         // get name of instrument
         if ( chan >= instruments.cap() )
         {
-            cherr <= "(Client) Received MIDI on channel " <= chan+1 <= " without a registered instrument." <= IO.nl();
+            if (debug) 
+                cherr <= "(Client) Received MIDI on channel " <= chan+1 <= " without a registered instrument." <= IO.nl();
             break;
         }
         instruments[chan] => string name;
@@ -200,7 +203,8 @@ while ( true )
         {
             if ( messages[name][i].statusbyte == msgtype )
             {
-                chout <= "(Client) [" <= name <= "] " <= messages[name][i].addresspattern <= IO.nl();
+                if (debug)
+                    chout <= "(Client) [" <= name <= "] " <= messages[name][i].addresspattern <= IO.nl();
                 osend.startMsg( messages[name][i].addresspattern, "ii" );
                 osend.addInt( msg.data2 );
                 osend.addInt( msg.data3 );
@@ -228,11 +232,13 @@ fun void instrumentAddListener()
                 initialiseLastInstrument();
                 if ( instruments.size() > 16 )
                     chout <= "(Client) More than 16 instruments present on server, I hope you weren’t trying to use MIDI for them all." <= IO.nl();
+               if (debug)
                 chout <= "(Client) Added instrument '" <= instruments[instruments.cap()-1] <= "' on channel: " <= instruments.size() <= IO.nl();
             }
             else
             {
-                chout <= "(Client) new instrument listener received END" <= IO.nl();
+                if (debug)
+                    chout <= "(Client) new instrument listener received END" <= IO.nl();
                 onEnd();
                 me.exit();
             }
@@ -253,7 +259,8 @@ fun void instrumentMethodListener()
             
             if ( name == "END" )
             {
-                chout <= "(Client) Method listener received END" <= IO.nl();
+                if (debug)
+                    chout <= "(Client) Method listener received END" <= IO.nl();
                 onEnd();
                 me.exit();
             }
@@ -261,7 +268,8 @@ fun void instrumentMethodListener()
             evt.getString() => string pat;
             evt.getInt() => int status; // get desired midi message type to plug
             
-            chout <= "(Client) Received method for " <= name <= IO.nl();
+            if (debug)
+                chout <= "(Client) Received method for " <= name <= IO.nl();
             
             if ( pat.find( name ) != 1 ) // not preceded by /name, attempt to recover
             {
@@ -269,7 +277,7 @@ fun void instrumentMethodListener()
             }
             
             // strip typetag if it equals ii
-            if ( RegEx.match( ",ii$", pat ) )
+            if ( RegEx.match( ",[ ]*ii$", pat ) )
             {
                 pat.length()-1 => int newLength;
                 while ( pat.charAt(newLength) != ',' ) newLength-1 => newLength;
@@ -316,7 +324,8 @@ fun void onEnd()
 fun void initialiseLastInstrument()
 {
     instruments.size() -1 => int inst;
-    chout <= "(Client) Adding standard messages to " <= instruments[inst] <= IO.nl();
+    if (debug)
+        chout <= "(Client) Adding standard messages to " <= instruments[inst] <= IO.nl();
     // set up the defaults
     getDefaultMessages(instruments[inst]) @=> MessagePair m[];
     // sync, no explicit locks, have no idea how granular things actually are

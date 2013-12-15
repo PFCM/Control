@@ -25,4 +25,17 @@ When the client translation layer starts up it notifies the server of its presen
 they offer outside the standard interface. This step means the client layer is agnostic to changes on the server -- instruments can come and go and controls can change without any
 updates needing to happen on the client end.
 
+Currently the client automatically allocates MIDI channels, starting from 1, in the order they are presented by the server.
+This order is not necessariy guaranteed, but at the end of initialisation the client will print a list of all the instruments,
+their channel and what they expect.
+
+\subsection{Standard Interface}
+All instruments in the system should respond to to at least two types of message: note and control. The OSC address
+patterns they expect these on is \texttt{/<name>/note,ii} and \texttt{/<name>/control,ii} where \texttt{<name>} is the name
+of the instrument. By default the client will produce these from incoming MIDI note on and control change messages 
+respectively, choosing the instrument from the channel and sending each of the data bytes as the two OSC integer 
+arguments. The server will listen for these messages even if not defined in the file for the instrument and the MIDI 
+instrument class produces default messages of a note on or control changeon channel 1, with the two OSC arguments 
+making up the two data bytes.
+
 \end{document}

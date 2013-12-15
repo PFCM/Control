@@ -44,7 +44,7 @@ else
             
             inst.readLine() => string output;
             // is the file a .ck or just a config file
-            if ( RegEx.match( ".*\\.ck", files[i] ) )
+            if ( RegEx.match( ".*\\.ck$", files[i] ) )
             {
                 if ( ! RegEx.match( "^//", files[i] ) ) // needs to start with //
                     cherr <= "Found a .ck in Instruments directory without a comment on the first line. Ignoring." <= IO.nl();
@@ -78,9 +78,6 @@ else
                     if (type == "MIDI")
                     {
                         new MidiInstrument @=> newI; // put a MIDI instrument into it
-                        /*TEMP
-                        m.setMidiPort(0);
-                        m @=> newI;*/
                     }
                     else
                     {
@@ -90,6 +87,7 @@ else
                     
                     
                     newI.init(netRecv, inst); // initialise with the OSC recv and the rest of the file
+                    chout <= newI.name <= " loaded successfully." <= IO.nl();
                     // put it in the list
                     instruments<<newI;
                 }
