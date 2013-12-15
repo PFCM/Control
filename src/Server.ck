@@ -17,6 +17,11 @@ whatever they send.
 
 Instrument @ instruments[0]; // array of references, initialises to null rather than default objects
 
+/*******************BEGIN CUSTOM INSTRUMENT NAMES**********************/
+
+"KRITAANJLI" => string KRITAANJLI;
+
+/********************END CUSTOM INSTRUMENT NAMES***********************/
 // Global OSC receiver, just needs to listen
 OscRecv netRecv;
 // grab a port outside the registered range
@@ -45,50 +50,62 @@ else
             {
                 chout <= "Skipping directory " <= files[i] <= IO.nl();
             }
-            inst.readLine() => string output;
-            // is the file a .ck or just a config file
-            if ( RegEx.match( ".*\\.ck$", files[i] ) )
+            else // inst.isDir()
             {
-                if ( ! RegEx.match( "^//", files[i] ) ) // needs to start with //
-                    cherr <= "Found a .ck in Instruments directory without a comment on the first line. Ignoring." <= IO.nl();
-                else
+                null @=> Instrument @ newI; // reference to instrument, no need to construct because we will jam a subclass in here
+                
+                inst.readLine() => string output;
+                // is the file a .ck or just a config file
+                if ( RegEx.match( ".*\\.ck$", files[i] ) )
                 {
-                    output.substring(2).trim() => string type;
-                    if ( type.substring(0,5) != "type=" )
-                        cherr <= "\t type= must be in the first line of .ck" <= IO.nl();
-                    else
+                    if ( ! RegEx.match( "^//", files[i] ) ) // needs to start with //
                     {
-                        // HERE IS WHERE WE FIND SUBCLASSES FOR SPECIFIC INSTRUMENTS
-                        type.substring(5) => type;
-                        
-                        /* if ( type == XXXXX )
-                            do something
-                        */
+                        cherr <= "Found a .ck in Instruments directory without a comment on the first line. Ignoring." <= IO.nl();
+                    }
+                    else 
+                    {
+                        output.substring(2).trim() => string type;
+                        if ( type.substring(0,5) != "type=" )
+                            cherr <= "\t type= must be in the first line of .ck" <= IO.nl();
+                        else
+                        {
+                            // HERE IS WHERE WE FIND SUBCLASSES FOR SPECIFIC INSTRUMENTS
+                            type.substring(5) => type;
+                            
+                            if ( type == KRITAANJLI )
+                            {
+                                new Kritaanjli @=> newI;
+                            }
+                            else
+                            {
+                                cherr <= "IGNORING unknown instrument type: " <= type <= IO.nl();
+                            }
+                        }
                     }
                 }
-            }
-            else
-            {
-                if (output.substring(0,5) != "type=")
-                    cherr <= "\t" <= "File must begin with 'type='" <= IO.nl();
-                else
+                else // not a .ck
                 {
-                    output.substring(5) => string type;
-                    null @=> Instrument @ newI; // reference to instrument, no need to construct because we will jam a subclass in here
-                    // HERE IS WHERE WE CHECK FOR KNOWN TYPES OF INSTRUMENT
-                    // CURRENTLY KNOWN
-                    // MIDI (MIDIInstrument.ck) -- a generic MIDI instrument
-                    if (type == "MIDI")
-                    {
-                        new MidiInstrument @=> newI; // put a MIDI instrument into it
-                    }
+                    if (output.substring(0,5) != "type=")
+                        cherr <= "\t" <= "File must begin with 'type='" <= IO.nl();
                     else
                     {
-                        cherr <= "\t" <= "Unkown output type '" <= type <= "'" <= IO.nl();
-                        break;
+                        output.substring(5) => string type;
+                        // HERE IS WHERE WE CHECK FOR KNOWN TYPES OF INSTRUMENT
+                        // CURRENTLY KNOWN
+                        // MIDI (MIDIInstrument.ck) -- a generic MIDI instrument
+                        if (type == "MIDI")
+                        {
+                            new MidiInstrument @=> newI; // put a MIDI instrument into it
+                        }
+                        else
+                        {
+                            cherr <= "\t" <= "Unkown output type '" <= type <= "'" <= IO.nl();
+                            continue;
+                        }
                     }
-                    
-                    
+                }
+                if ( newI != null )
+                {
                     newI.init(netRecv, inst); // initialise with the OSC recv and the rest of the file
                     chout <= newI.name <= " loaded successfully." <= IO.nl();
                     // put it in the list
