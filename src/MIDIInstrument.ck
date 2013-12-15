@@ -14,6 +14,7 @@ Desc: Base class for all instruments that output MIDI.
 ***********************************************************************/
 
 public class MidiInstrument extends Instrument {
+    false => int debug;
     MidiOut mout;
     0 => int portSet;
     // the number of recognised osc address patterns
@@ -268,13 +269,15 @@ public class MidiInstrument extends Instrument {
     container and send the MidiMsg. */
     fun void handleMessage( OscEvent event, string addrPat )
     {
-        chout <= "received: " <= addrPat <= IO.nl();
+        if (debug)
+            chout <= "received: " <= addrPat <= IO.nl();
         if (transform_table.find(addrPat))
         {
             transform_table[addrPat].getMsg( event ) @=> MidiMsg @ msg;
             if ( msg != null )
             {
-                chout <= "sending MIDI " <= msg.data1 <= "," <= msg.data2 <= "," <= msg.data3 <= IO.nl();
+                if (debug)
+                    chout <= "sending MIDI " <= msg.data1 <= "," <= msg.data2 <= "," <= msg.data3 <= IO.nl();
                 mout.send( msg );
             }
         } 
