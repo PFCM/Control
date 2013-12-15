@@ -1,0 +1,22 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.7cm]{geometry}
+\usepackage{enumerate}
+\usepackage[sc,compact]{titlesec}
+\usepackage{tgcursor}
+\usepackage[T1]{fontenc}
+\usepackage{bigfoot}
+
+\begin{document}
+\section*{Summary}
+\begin{enumerate}[\bf1.]
+	\item Server starts running
+	\begin{enumerate} [\bf a.]
+		\item Searches \texttt{Instruments} directory, attempts to load files (ignores directories)
+		\item Constructs list of instruments from files
+		\begin{enumerate}
+			\item MidiInstrument class sets up MIDI output and translation from OSC
+			\item Base class Instrument sets up OSC listeners according to what is defined in file.
+		\end{enumerate}
+	 \end{enumerate}
+\end{enumerate}
+\end{document}
