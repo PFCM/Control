@@ -106,10 +106,16 @@ else
                 }
                 if ( newI != null )
                 {
-                    newI.init(netRecv, inst); // initialise with the OSC recv and the rest of the file
-                    chout <= newI.name <= " loaded successfully." <= IO.nl();
-                    // put it in the list
-                    instruments<<newI;
+                    if ( newI.init(netRecv, inst) ) // initialise with the OSC recv and the rest of the file
+                    {
+                        chout <= newI.name <= " loaded successfully." <= IO.nl();
+                        // put it in the list
+                        instruments<<newI;
+                    }
+                    else
+                    {
+                        cherr <= "Error initialising " <= newI.name <= IO.nl();
+                    }
                 }
             }
         }
@@ -153,6 +159,7 @@ fun void sendInstruments( OscSend s )
         Util.makeDefaults( instruments[i].name ) @=> string defaults[];
         // add its methods, if they are special
         instruments[i].sendMethods( s );
+        instruments[i].sendNotes( s );
     }
     s.startMsg( "/system/instruments/add", "s" );
     s.addString("END");
@@ -160,6 +167,9 @@ fun void sendInstruments( OscSend s )
     s.addString("END");
     s.addString("END");
     s.addInt(-1);
+    s.startMsg( "/system/instruments/note", "ss" );
+    s.addString("END");
+    s.addString("END");
     chout <= "Finished sending instruments" <= IO.nl();
 }
 

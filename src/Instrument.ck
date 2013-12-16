@@ -22,7 +22,7 @@ public class Instrument {
     // Public initialiser ensures we can init all instruments
     // from the outside.
     // Unsure what arguments this will require
-    fun void init(OscRecv input, FileIO names) {
+    fun int init(OscRecv input, FileIO names) {
         cherr <= "Attempting to initialise base Instrument class directly. Not recommended" <= IO.nl(); 
     }
     
@@ -31,7 +31,8 @@ public class Instrument {
     // needs a list of messages 
     // will use the first point at which they diverge as a prefix for 
     // the standard interface
-    fun void __init(OscRecv input, string names[]) {
+    // returns non 0 on success, 0 on failure (ie boolean)
+    fun int __init(OscRecv input, string names[]) {
         input @=> oscIn;
         // get messages from names
         // want to implement some form of inheritance in the osc 
@@ -72,6 +73,8 @@ public class Instrument {
             "/" + name + "/control,ii" => string controls;
             spork~__listener( oscIn.event( controls ), controls ); 
         }
+        
+        return 1;
     }
     
     // Private method to set the name
@@ -119,4 +122,7 @@ public class Instrument {
     // messages the client needs to receive
     fun void sendMethods( OscSend s )
     {  }
+    
+    // sends any notes that might have been in the file
+    fun void sendNotes( OscSend s ) {}
 }

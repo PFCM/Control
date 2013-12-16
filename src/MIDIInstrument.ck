@@ -24,8 +24,9 @@ public class MidiInstrument extends Instrument {
     // holds the client messages by OSC adress pattern — these are needed for when we enumerate ourselves to the client
     // we only need the non-standard messages here
     int nonstandard_statusbytes[0];
+    string notes[0]; // some notes about the instrument;
     
-    fun void init( OscRecv input, FileIO file ) {
+    fun int init( OscRecv input, FileIO file ) {
         chout <= "Initialising MIDI instrument" <= IO.nl();
         // generic midi instrument uses a table of translations defined
         // in the file
@@ -38,7 +39,7 @@ public class MidiInstrument extends Instrument {
         {
             cherr <= "Expecting: name=something got " <= line <= IO.nl();
             cherr <= "Can’t initialise" <= IO.nl();
-            return;
+            return 0;
         }
         
         __setName(line.substring(5).trim());
@@ -59,6 +60,11 @@ public class MidiInstrument extends Instrument {
             line.find("port=") => int split;
             if (split < 0) // translation
             {
+                if (line.find("note=") != -1)
+                {
+                    notes<<Util.parseNote(line);
+                    continue;
+                }
                 
                 Util.splitString( line, "=" ) @=> string parts[];
                 string pat;
@@ -100,7 +106,7 @@ public class MidiInstrument extends Instrument {
                 if (i >= pat.length() )
                 {
                     cherr <= "(" <= name <= ") Osc message does not appear to have a typetag: " <= pat <= IO.nl();
-                    return;
+                    return 0;
                 }
                 
                 //chout <= i <= "\t" <= pat.length() <= IO.nl();
@@ -136,7 +142,10 @@ public class MidiInstrument extends Instrument {
         }
         
         if(!portSet)
+        {
             cherr <= name <= " — MIDI port not found in file, MIDI not initialised." <= IO.nl();
+            return 0;
+        }
         
         // super sets up default listeners for /note and /control
         // but if we do nothing that will just crash the listener shred
@@ -148,7 +157,7 @@ public class MidiInstrument extends Instrument {
         
         
         // finally, call the super init to set up osc
-        __init( input, osc_patterns );
+        return __init( input, osc_patterns );
     }
     
     /** Checks to see if the defaults are specified, adds them if not */
@@ -241,24 +250,26 @@ public class MidiInstrument extends Instrument {
     
     /** Attempts to open a MIDI port, using a number,
     potentially useful for instruments using hardware MIDI */
-    fun void setMidiPort( int port ) 
+    fun int setMidiPort( int port ) 
     {
-        if ( !mout.open( port ) )
+        mout.open( port ) => portSet;
+        if ( !portSet )
             cherr <= "Error opening port: " <= port <= IO.nl();
         
-        1 => portSet;
+        return portSet;
     }
     
     /** Attempts to open a MIDI port by name, 
     potentially useful for instruments which
     will always present to the system as the 
     same MIDI device */
-    fun void setMidiPort( string port ) 
+    fun int setMidiPort( string port ) 
     {
-        if ( !mout.open( port ) )
+        mout.open( port ) => portSet;
+        if ( !portSet )
             cherr <= "Error opening port: " <= port <= IO.nl();
         
-        1 => portSet;
+        return portSet;
     }
     
     
@@ -311,6 +322,17 @@ public class MidiInstrument extends Instrument {
                 s.addString( patterns[i] );
                 s.addInt( nonstandard_statusbytes[patterns[i]] );
             }
+        }
+    }
+    /** sends any notes */
+    fun void sendNotes( OscSend s )
+    {
+        chout <= name <= " sending notes." <= IO.nl();
+        for ( int i; i < notes.cap(); i++ )
+        {
+            s.startMsg("/system/instruments/note","ss");
+            s.addString( name );
+            s.addString( notes[i] );
         }
     }
 }

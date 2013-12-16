@@ -135,7 +135,7 @@ public class ExtendedType extends MidiInstrument
 {
 	int chan;
 	// need to do some init
-	fun void init( OscRecv input, FileIO file )
+	fun int init( OscRecv input, FileIO file )
 	{
 		// file contains this file
 		// we will just hardcode the default msgs
@@ -161,7 +161,7 @@ public class ExtendedType extends MidiInstrument
 		// let Instrument set up OSC listeners
 		patterns<<"/ext/note,ii";
 		patterns<<"/ext/control,ii";
-		__init( input, patterns );
+		return __init( input, patterns );
 	}
 	
 	fun void handleMessage( OscEvent evt, string addrpat )

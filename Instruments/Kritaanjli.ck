@@ -31,47 +31,25 @@ public class Kritaanjli extends MidiInstrument
     // override the init so MidiInstrument doesn't try read this file
     // it now our responsibility to ensure transform_table gets
     // something for the default messages or we might crash stuff
-    fun void init( OscRecv recv, FileIO file )
+    fun int init( OscRecv recv, FileIO file )
     {
         "Kritaanjli" => name;
-        
-        // note
-       /* MidiMessageContainer noteMsg;
-        MidiDataByte d1, d2;
-        MidiDataByte.INT_VAL => d1.set => d2.set;
-        noteMsg.set( 144, d1, d2 );
-        noteMsg @=> transform_table["/Kritaanjli/note,ii"];
-        
-        // control
-        MidiMessageContainer contMsg;
-        MidiDataByte d3, d4;
-        MidiDataByte.INT_VAL => d3.set => d4.set;
-        contMsg.set( 145, d3, d4 );
-        contMsg @=> transform_table["/Kritaanjli/control,ii"];
-        
-        // noteoff
-        MidiMessageContainer offMsg;
-        MidiDataByte d5, d6;
-        MidiDataByte.INT_VAL => d5.set;
-        0 => d6.set;
-        offMsg.set( 145, d5, d6 );
-        offMsg @=> transform_table["/Kritaanjli/noteoff,ii"];*/
         
         // add nonstandard staus byte so that noteoff gets set up in client
         128 => nonstandard_statusbytes["/Kritaanjli/noteoff,ii"];
         
         // set MIDI port — use chuck ——probe to find the right one (can be a string)
-        setMidiPort( 0 );
-        
-        spork~_noteChecker();
+        //setMidiPort( "KarmetiK_Kritaanjli" );
+        setMidiPort(1);
         ["/Kritaanjli/note,ii", "/Kritaanjli/control,ii", "/Kritaanjli/noteoff,ii"] @=> string names[];
-        __init( recv, names);
+        return __init( recv, names);
     }
     
     // called when a note comes in
     fun void handleMessage( OscEvent event, string addrPat )
     {
-       chout <= "[Kritaanjli] " <= addrPat <= IO.nl();
+       
+       //chout <= "[Kritaanjli] " <= addrPat <= IO.nl();
         // unpack the data
         // if it isn't ii it will complain here
         event.getInt() => int d1;
@@ -96,7 +74,10 @@ public class Kritaanjli extends MidiInstrument
                 _outputMidi( 144, actualNotes[d1-48], 0 );
                 if (_polyphony > 0)
                     _polyphony--;
-                noteOff.broadcast();
+                
+                // separate check so that it actually works
+                if (_polyphony <= 0)
+                    spork~_watchdog();
             }
         }
         else if ( addrPat == "/Kritaanjli/control,ii" )
@@ -112,7 +93,14 @@ public class Kritaanjli extends MidiInstrument
                 {
                     _outputMidi(145,0,0); // make sure
                 }
-            }    
+            }   
+            else if ( d2 == 123 )
+            {
+                // stop message
+                0 => _doMotor;
+                0 => _polyphony;
+                _outputMidi(145,0,0);
+            } 
         }
         else
             cherr <= "[Kritaanjli] Unkown message: " <= addrPat <= IO.nl();
@@ -126,18 +114,17 @@ public class Kritaanjli extends MidiInstrument
         mout.send(msg);
     }
     
-    fun void _noteChecker()
+    fun void _watchdog()
     {
-        while ( true )
+        now => time start;
+        
+        while ( now - start < _motorDelay )
         {
-            noteOff => now;
-            
-            if ( _polyphony <= 0 )
-            {
-                _motorDelay => now;
-                0 => _doMotor;
-                _outputMidi(145, 0, 0);
-            }
+            if ( _polyphony > 0 )
+                me.exit();
+            10::ms => now;
         }
+        // if we make it here without exiting, bellows need to stop
+        _outputMidi(145,0,0);
     }
 }

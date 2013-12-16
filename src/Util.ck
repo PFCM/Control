@@ -82,4 +82,13 @@ public class Util
         if (index < 0) line.length() => index;
         return line.substring(0,index);
     }
+    
+    /** Parses a note field from a text file, returns the note if successful otherwise empty string */
+    fun static string parseNote( string note )
+    {
+        stripComments( note ) => string line;
+        if ( line.find("note=") != 0 )
+            return "";
+        return line.substring(5);
+    }
 }

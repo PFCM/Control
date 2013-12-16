@@ -25,6 +25,8 @@ true => int debug;
 "localhost" => string hostname => string selfIP;
 0 => int portSet => int hostSet => int midiSet => int rcvPortSet => int selfIPSet;
 
+string notes[0][0]; // notes about the instruments
+
 // for now specify port and host on command line
 // one or the other or both
 // if the first character is not a digit OR if it contains full stops
@@ -167,6 +169,7 @@ MessagePair messages[0][0];// and their messages, assumed to be ii or it would b
 spork~instrumentMethodListener();
 // start listening for replies before we actually tell the server we exist, jic
 spork~instrumentAddListener();
+spork~instrumentNoteListener();
 
 // waaait
 500::ms => now;
@@ -294,12 +297,42 @@ fun void instrumentMethodListener()
     }
 }
 
+fun void instrumentNoteListener()
+{
+    orec.event( "/system/instruments/note, ss" ) @=> OscEvent evt;
+    
+    while( evt => now )
+    {
+        while( evt.nextMsg() )
+        {
+            evt.getString() => string name;
+            if (name != "END")
+            {
+                if (notes[name]==null)
+                {
+                    new string[1] @=> notes[name];
+                    evt.getString() => notes[name][0];
+                }
+                else
+                    notes[name]<<evt.getString();
+            }
+            else
+            {
+                if (debug)
+                    chout <= "(Client) Notes listener received END" <= IO.nl();
+                onEnd();
+                me.exit();
+            }
+        }
+    }
+}
+
 // prints the instruments when both the add and the extend listeners
 // have returned
 int numQuit;
 fun void onEnd()
 {
-    if (++numQuit == 2) // both of them
+    if (++numQuit == 3) // all of them
     {
         500::ms => now;
         chout <= "(Client) Server signalled end, received: " <= instruments.size() <= IO.nl();
@@ -313,6 +346,10 @@ fun void onEnd()
                     chout <= "(Client)        " <= messages[name][j].statusbyte+i <= " becomes " <= messages[name][j].addresspattern <= IO.nl();
                 else
                     chout <= "(Client)        " <= messages[name][j].addresspattern <= " available." <= IO.nl();
+            }
+            for ( int j; j < notes[instruments[i]].size(); j++ )
+            {
+                chout <= "(Client)        " <= notes[name][j] <= IO.nl();
             }
         }
     }
@@ -334,6 +371,9 @@ fun void initialiseLastInstrument()
     else
         for ( int i; i < m.cap(); i++ )
             messages[instruments[inst]]<<m[i];
+    
+    if ( notes[instruments[inst]] == null )
+        new string[0] @=> notes[instruments[inst]];
     // i think that is all
 }
 
