@@ -353,7 +353,7 @@ private class MidiDataByte
 }
 
 /** A class to hold midi messages that may require data from an osc message */
-private class MidiMessageContainer 
+public class MidiMessageContainer 
 {
     int status;
     MidiDataByte d1, d2;

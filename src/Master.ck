@@ -1,4 +1,6 @@
 Machine.add(me.dir()+"/Util.ck");
+Machine.add(me.dir()+"/MIDIDataByte.ck");
+Machine.add(me.dir()+"/MIDIMessageContainer.ck");
 Machine.add(me.dir()+"/Instrument.ck");
 Machine.add(me.dir()+"/MIDIInstrument.ck");
 // Add all the instruments — recurse through subdirectories
