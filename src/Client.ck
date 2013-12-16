@@ -18,7 +18,7 @@ OscRecv orec;
 OscSend osend; // client needs to receive data early on and to send throughout
 MidiIn min; // pretty much the point
 
-false => int debug;
+true => int debug;
 
 50000 => int port;
 50001 => int portIn;

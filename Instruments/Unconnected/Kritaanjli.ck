@@ -71,6 +71,7 @@ public class Kritaanjli extends MidiInstrument
     // called when a note comes in
     fun void handleMessage( OscEvent event, string addrPat )
     {
+       chout <= "[Kritaanjli] " <= addrPat <= IO.nl();
         // unpack the data
         // if it isn't ii it will complain here
         event.getInt() => int d1;
