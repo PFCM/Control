@@ -58,7 +58,7 @@ public class Kritaanjli extends MidiInstrument
         offMsg @=> transform_table["/Kritaanjli/noteoff,ii"];*/
         
         // add nonstandard staus byte so that noteoff gets set up in client
-        128 => nonstandard_statusbytes["Kritaanjli/noteoff,ii"];
+        128 => nonstandard_statusbytes["/Kritaanjli/noteoff,ii"];
         
         // set MIDI port — use chuck ——probe to find the right one (can be a string)
         setMidiPort( 0 );
