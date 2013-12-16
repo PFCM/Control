@@ -44,7 +44,6 @@ public class MidiInstrument extends Instrument {
         __setName(line.substring(5).trim());
         
         
-        
         // now read in the translations/port
         string osc_patterns[0];
         while ( file.more() )
@@ -60,6 +59,7 @@ public class MidiInstrument extends Instrument {
             line.find("port=") => int split;
             if (split < 0) // translation
             {
+                
                 Util.splitString( line, "=" ) @=> string parts[];
                 string pat;
                 -1 => int stat;
@@ -105,6 +105,7 @@ public class MidiInstrument extends Instrument {
                 
                 //chout <= i <= "\t" <= pat.length() <= IO.nl();
                 pat.substring(i).trim() => string tt;
+                
                 midiContainerFromString( msg, tt ) @=> transform_table[pat];
                 if ( !RegEx.match( "/note,", pat ) && !RegEx.match( "/control,", pat ) )
                 {
@@ -200,9 +201,9 @@ public class MidiInstrument extends Instrument {
         }
         bytes[0].toInt() => int status;
         MidiDataByte d[2];
-        
         for (int i; i < bytes.cap()-1; i++)
         {
+            
             if ( bytes[i+1].charAt(0) != '$' )
             {
                 bytes[i+1].toInt() => d[i].set;
@@ -213,7 +214,7 @@ public class MidiInstrument extends Instrument {
                 {
                     if (typetag.charAt(0) == 'i') // it is probably i (or should be)
                     {
-                        MidiDataByte.INT_VAL => d[i].set;
+                        MidiDataByte.INT_VAL => d[i].set; // bug here — chuck assertion fail
                         bytes[i+1].substring(1).toInt() => d[i].number;
                     }
                     else if (typetag.charAt(0) == 'f') // warn, but still use
@@ -311,96 +312,5 @@ public class MidiInstrument extends Instrument {
                 s.addInt( nonstandard_statusbytes[patterns[i]] );
             }
         }
-    }
-}
-
-/** A class representing a piece of midi data that might be an osc arg or might be a set value */
-private class MidiDataByte
-{
-    // keep track - if < 0 must be FLOAT_VAL or INT_VAL 
-    int _val;
-    // used for the order in which they should be executed
-    int number;
-    
-    /** constants so instances know what they are */
-    1 => static int CONST_VAL;
-    -2 => static int FLOAT_VAL;
-    -3 => static int INT_VAL;
-    
-    /** First integer is a constant either CONST_VAL, FLOAT_VAL or INT_VAL, second is the value (only used if CONST_VAL specified) */
-    fun void set( int type, int value )
-    {
-        if (type < 0)
-            type => _val;
-        else 
-            value => _val;
-    }
-    /** Sets the type, either CONST_VAL, FLOAT_VAL or INT_VAL, any value >=0 will set type to CONST_VAL and store the value */
-    fun void set( int val )
-    {
-        val => _val;
-    }
-    
-    /** Returns the value represented by this, getting it from the OscEvent if necessary */
-    fun int get(OscEvent evt)
-    {
-        if ( _val == FLOAT_VAL )
-            return evt.getFloat() $ int;
-        if ( _val == INT_VAL )
-            return evt.getInt();
-        return _val;
-    }
-}
-
-/** A class to hold midi messages that may require data from an osc message */
-public class MidiMessageContainer 
-{
-    int status;
-    MidiDataByte d1, d2;
-    
-    fun void set( int s, MidiDataByte data1, MidiDataByte data2 )
-    {
-        s => status;
-        data1 @=> d1;
-        data2 @=> d2;
-    }
-    
-    fun MidiMsg getMsg( OscEvent evt )
-    {
-        MidiMsg msg;
-        
-        status => msg.data1;
-        // TODO — same number, get only second one right, match typetags up right
-        // this whole section probably needs to be redone
-        
-        if ( d1.number < d2.number )
-        {
-            evt => d1.get => msg.data2;
-            evt => d2.get => msg.data3;
-        } 
-        else if ( d1.number > d2.number )
-        {
-            evt => d2.get => msg.data3;
-            evt => d1.get => msg.data2;
-        }
-        // must be the same, will check they are greater than 0
-        else if ( d1.number > 0 )
-        {
-            // need to double check types line up
-            if ( d1.number == 1 )
-                evt => d1.get => msg.data2 => msg.data3;
-            else if ( d1.number == 2 )
-            {
-                evt => d1.get; // burn one
-                evt => d2.get => msg.data2 => msg.data3;
-            }
-        }
-        else // both <= 0, so now we just need to put in the actual values
-        {
-            evt => d1.get => msg.data2;
-            evt => d2.get => msg.data3;
-        }
-        
-        return msg;
     }
 }

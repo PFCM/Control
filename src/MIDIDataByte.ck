@@ -1,6 +1,6 @@
 
 /** A class representing a piece of midi data that might be an osc arg or might be a set value */
-private class MidiDataByte
+public class MidiDataByte
 {
     // keep track - if < 0 must be FLOAT_VAL or INT_VAL 
     int _val;
@@ -13,17 +13,18 @@ private class MidiDataByte
     -3 => static int INT_VAL;
     
     /** First integer is a constant either CONST_VAL, FLOAT_VAL or INT_VAL, second is the value (only used if CONST_VAL specified) */
-    fun void set( int type, int value )
+    fun int set( int type, int value )
     {
         if (type < 0)
             type => _val;
         else 
             value => _val;
     }
-    /** Sets the type, either CONST_VAL, FLOAT_VAL or INT_VAL, any value >=0 will set type to CONST_VAL and store the value */
-    fun void set( int val )
+    /** Sets the type, either CONST_VAL, FLOAT_VAL or INT_VAL, any value >=0 will set type to CONST_VAL and store the value. Returns input for chaining.*/
+    fun int set( int val )
     {
         val => _val;
+        return val;
     }
     
     /** Returns the value represented by this, getting it from the OscEvent if necessary */
