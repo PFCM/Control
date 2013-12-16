@@ -1,3 +1,21 @@
+/***********************************************************************
+   Code for Robot Network -- needs a cool name
+   
+   by Paul Mathews
+   indebted to code by Ness Morris and Bruce Lott
+   
+   
+   Victoria University Wellington, 
+   School of Engineering and Computer Science
+   
+***********************************************************************
+   File: Master.ck
+   Desc: Master file to start up the server. Adds everything necessary.
+         Attempts to find all the instruments available recursing
+         through subdirectories of Instruments. This reduces the 
+         number of things to remember when adding new instruments.
+***********************************************************************/
+
 Machine.add(me.dir()+"/Util.ck");
 Machine.add(me.dir()+"/MIDIDataByte.ck");
 Machine.add(me.dir()+"/MIDIMessageContainer.ck");
@@ -37,11 +55,8 @@ fun void searchDir( FileIO dir, string path )
             FileIO fio;
             if ( !fio.open( path + "/" + files[i] ) )
                 chout <= "Could not open " <= path <= "/" <= files[i] <= " —— skipping." <= IO.nl();
-            else
-            {
-                if ( fio.isDir() )
+            else if ( fio.isDir() )
                     searchDir( fio, path+"/"+files[i] );
-            }
         }
     }
 }
