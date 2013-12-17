@@ -29,6 +29,7 @@
 		\item Any instruments with possible messages beyond the basic two send
 			 \texttt{/system/instruments/extend,ssi} to the client
 			which contain the name of the instrument, the pattern for the message and the MIDI status byte to transform.
+		\item All instruments send any notes they have defined
 		\item Client uses this data to construct a table of MIDI input to OSC output
 		\item Client listens for MIDI input on specified port and translates appropriately.
 	 \end{enumerate}

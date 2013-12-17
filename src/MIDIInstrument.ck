@@ -24,7 +24,6 @@ public class MidiInstrument extends Instrument {
     // holds the client messages by OSC adress pattern — these are needed for when we enumerate ourselves to the client
     // we only need the non-standard messages here
     int nonstandard_statusbytes[0];
-    string notes[0]; // some notes about the instrument;
     
     fun int init( OscRecv input, FileIO file ) {
         chout <= "Initialising MIDI instrument" <= IO.nl();

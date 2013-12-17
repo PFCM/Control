@@ -18,6 +18,7 @@ public class Instrument {
     OscRecv oscIn; // assumed to be initialised and listening on the correct port
     string name;   // some kind of identification
     string patterns[0]; // to store the current address patterns for later queries
+    string notes[0];
     
     // Public initialiser ensures we can init all instruments
     // from the outside.
