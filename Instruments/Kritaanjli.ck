@@ -39,8 +39,8 @@ public class Kritaanjli extends MidiInstrument
         128 => nonstandard_statusbytes["/Kritaanjli/noteoff,ii"];
         
         // set MIDI port — use chuck ——probe to find the right one (can be a string)
-        //setMidiPort( "KarmetiK_Kritaanjli" );
-        setMidiPort(1);
+        setMidiPort( "KarmetiK_Kritaanjli" );
+        //setMidiPort(1);
         ["/Kritaanjli/note,ii", "/Kritaanjli/control,ii", "/Kritaanjli/noteoff,ii"] @=> string names[];
         return __init( recv, names);
     }
@@ -94,8 +94,9 @@ public class Kritaanjli extends MidiInstrument
                     _outputMidi(145,0,0); // make sure
                 }
             }   
-            else if ( d2 == 123 )
+            else if ( d1 == 123 )
             {
+                chout <= "stop" <= IO.nl();
                 // stop message
                 0 => _doMotor;
                 0 => _polyphony;
@@ -104,6 +105,8 @@ public class Kritaanjli extends MidiInstrument
         }
         else
             cherr <= "[Kritaanjli] Unkown message: " <= addrPat <= IO.nl();
+        
+        chout <= _polyphony <= " : " <= _doMotor <= IO.nl();
     }
     
     fun void _outputMidi( int a, int b, int c )
@@ -122,9 +125,11 @@ public class Kritaanjli extends MidiInstrument
         {
             if ( _polyphony > 0 )
                 me.exit();
-            10::ms => now;
+            1::samp => now;
         }
         // if we make it here without exiting, bellows need to stop
+        0 => _doMotor;
         _outputMidi(145,0,0);
+        chout <= "watchdog stop" <= IO.nl();
     }
 }
