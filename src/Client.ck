@@ -20,6 +20,8 @@ MidiIn min; // pretty much the point
 
 true => int debug;
 
+0 => int numQuit;
+
 50000 => int port;
 50001 => int portIn;
 "localhost" => string hostname => string selfIP;
@@ -329,10 +331,10 @@ fun void instrumentNoteListener()
 
 // prints the instruments when both the add and the extend listeners
 // have returned
-int numQuit;
 fun void onEnd()
 {
-    if (++numQuit == 3) // all of them
+    chout <= ++numQuit <= " listeners received END" <= IO.nl();
+    if (numQuit == 3) // all of them
     {
         500::ms => now;
         chout <= "(Client) Server signalled end, received: " <= instruments.size() <= IO.nl();
