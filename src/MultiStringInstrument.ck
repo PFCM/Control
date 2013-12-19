@@ -30,9 +30,9 @@ public class MultiStringInstrument extends MidiInstrument
     fun void setNumStrings( int num )
     {
         num => _numStrings;
-        new int[_numString] @=> _stringMax;
-        new int[_numString] @=> _stringMin;
-        new int[_numString] @=> _stringChannels;
+        new int[_numStrings] @=> _stringMax;
+        new int[_numStrings] @=> _stringMin;
+        new int[_numStrings] @=> _stringChannels;
     }
     /* Sets the number of strings, allocates space and initialises channels going up 
      * by one from the given start.
