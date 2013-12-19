@@ -78,6 +78,12 @@ public class Instrument {
         return 1;
     }
     
+    // slightly less private init method, can be overridden byt abstract classes further down the line
+    fun int _init(OscRecv input, string names[])
+    {
+        return __init(input,names);
+    }
+    
     // Private method to set the name
     fun void __setName(string n)
     {

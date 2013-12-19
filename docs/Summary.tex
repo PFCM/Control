@@ -1,9 +1,15 @@
 \documentclass[11pt]{article}
 \usepackage[a4paper,margin=2.7cm]{geometry}
+
+
+\usepackage{tgcursor}
+%\usepackage{tgheros}
+\usepackage[T1]{fontenc}
+
+%\renewcommand{\familydefault}{\sfdefault}
+
 \usepackage{enumerate}
 \usepackage[sc,compact]{titlesec}
-\usepackage{tgcursor}
-\usepackage[T1]{fontenc}
 \usepackage{bigfoot}
 
 \begin{document}
@@ -11,7 +17,7 @@
 \section*{Summary}
 \begin{enumerate}[\bf1.]
 	\item Server starts running
-	\begin{enumerate} [\bf a.]
+	\begin{enumerate} [\bf a.]                          
 		\item Searches \texttt{Instruments} directory, attempts to load files (ignores directories)
 		\item Constructs list of instruments from files
 		\begin{enumerate}
@@ -20,17 +26,21 @@
 			\item All instruments have two default messages they expect if nothing is specified -- \texttt{/\textit{<name>}/note,ii} and 
 				 \texttt{/\textit{<name>}/control,ii} 
 		\end{enumerate}
-		\item Starts listening over OSC for new clients
+		\item Starts listening for new clients
 	 \end{enumerate}
-	 \item Client starts up
+	 \item Client starts 
 	 \begin{enumerate} [\bf a.]
-	 	\item Sends \texttt{/system/addme,si} to Server (with hostname and port)
+	 	\item Sends \texttt{/system/addme,si} to Server (with own hostname and port)
 		\item Server responds with a series of \texttt{/system/instruments/add,s} messages which list the instruments constructed earlier by name.
 		\item Any instruments with possible messages beyond the basic two send
 			 \texttt{/system/instruments/extend,ssi} to the client
 			which contain the name of the instrument, the pattern for the message and the MIDI status byte to transform.
-		\item All instruments send any notes they have defined
-		\item Client uses this data to construct a table of MIDI input to OSC output
+		\item All instruments send any information they know about themselves in \texttt{/system/instruments/note,ss} messages where the first 
+			string is the name of the instrument and the second is a note about the instrument, probably defined in the data file. \footnote{Confusion
+			between \texttt{/\textit{<name>}/note,ii} and \texttt{/system/instrument/note,ss} should be avoidable given the different typetags and the 
+			\texttt{/system} prefix, although it is an unfortunate homonym.}
+		\item Client uses this data to construct a table of MIDI input to OSC output and prints details about the instruments connected to the server
+			to the console.
 		\item Client listens for MIDI input on specified port and translates appropriately.
 	 \end{enumerate}
 \end{enumerate}

@@ -156,7 +156,7 @@ public class MidiInstrument extends Instrument {
         
         
         // finally, call the super init to set up osc
-        return __init( input, osc_patterns );
+        return _init( input, osc_patterns );
     }
     
     /** Checks to see if the defaults are specified, adds them if not */
