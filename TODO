@@ -29,3 +29,10 @@
 	    value.
 	- Multiple MIDI messages from one OSC 
 	- notes --TEST
+
+20/12/13
+	- string chooser 
+	  - finish
+	  - test in software
+	- keep trying to break the network stuff
+	-

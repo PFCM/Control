@@ -17,15 +17,15 @@
 		\item{Check all the desired instruments are connected correctly.}
 		\item{Start up the server. Once it has booted, log in either remotely---
 		\begin{verbatim}
-			%> ssh sonics@192.168.33.1
-		\end{verbatim}
+			    %> ssh sonics@192.168.33.1
+		\end{verbatim}                                 
 		or using the login screen. If you log in locally to the server, open a terminal window.}
 		\item{Check \texttt{Instruments} directory---
 		\begin{verbatim}
 			cd Documents/RobotNetwork 
 			ls Instruments/
 		\end{verbatim}
-		make sure files are present for each of the instruments.}
+		make sure files are present for each of the instruments you intend to use.}
 		\item Run \texttt{Master.ck} -- in the shell this is (assuming we are still in the root project directory)
 		\begin{verbatim}
 			    %> chuck src/Master
@@ -46,6 +46,16 @@
 			\footnote{ To find the IP address the server is using for the ethernet either look in Network Preferences or use \verb+ifconfig en0 | grep inet+
 			which should print the IPv4 and IPv6 addresses, the former of which is what we are after.}}
 			\item{An address for the client machine, you could use a numerical address or \textit{<your-computer-name>}.local if it is a Mac.}
+			\item{You can also specify the MIDI port, it will default to the first in the list. This can be specified by name or number.}
+			\item{Also optional are send and receive ports for the transmission -- by default the server listens to port 50000 and will communicate back
+				on any port specified by the Client.}
+			\item{Using this information, run \texttt{Client.ck}. The information above must be passed as arguments. For a server at the address 
+				192.168.33.1, a client IP address of 192.168.33.3 and MIDI on the port ``IAC Driver 1 Bus 1'' the command would be as follows:
+				\begin{verbatim}
+					    %> chuck Client.ck:192.168.33.1:self=192.168.33.3:\
+					            midi=IAC Driver 1 Bus 1
+				\end{verbatim}
+				For more detailed examples see the documentation for \texttt{Client.ck}.}
 		\end{enumerate}
 	\end{enumerate}
 

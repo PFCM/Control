@@ -14,6 +14,11 @@ Desc: A basic instrument abstract class that provides some methods to
       choose strings based on their ranges and whatnot
 ***********************************************************************/
 
+// to extend this into a usable instrument
+// call setNumStrings and setRanges appropriately to set the internal state
+// create an appropriate init() method that calls __init() to set up the OSC
+// call setMidiPort() to set the midi output
+// use chooseString() to get the channel number to send stuff
 public class MultiStringInstrument extends MidiInstrument
 {
     // Variables
@@ -42,7 +47,7 @@ public class MultiStringInstrument extends MidiInstrument
          setNumStrings( num );
          for ( int i; i < num; i++ ) 
          {
-             startChan + num => _stringChannels[i];
+             startChan + i => _stringChannels[i];
          }
      }
      
