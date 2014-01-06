@@ -34,14 +34,13 @@ public class MidiInstrument extends Instrument {
         file.readLine() => string line;
         if (line.charAt(0) == '#')
             file.readLine() => string line;
-        if ( line.substring( 0,5 ) != "name=" )
+        line => Parser.parseName => string name;
+        if ( name == "" )
         {
-            cherr <= "Expecting: name=something got " <= line <= IO.nl();
-            cherr <= "Can’t initialise" <= IO.nl();
+            cherr <= "Error parsing name - can not initialise MIDI instrument" <= IO.nl();
             return 0;
-        }
-        
-        __setName(line.substring(5).trim());
+        }        
+        __setName(name);
         
         
         // now read in the translations/port
@@ -59,9 +58,9 @@ public class MidiInstrument extends Instrument {
             line.find("port=") => int split;
             if (split < 0) // translation
             {
-                if (line.find("note=") != -1)
+                if ( Parser.isNote(line) )
                 {
-                    notes<<Util.parseNote(line);
+                    notes<<Parser.parseNote(line);
                     continue;
                 }
                 
