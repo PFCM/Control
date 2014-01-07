@@ -16,12 +16,11 @@ eventually methods to parse whole files.
 
 public class Parser 
 {
-    /** Static fields for caching so that we don't have to do the nastier string operations
-        too often. Adds a slight overhead to some methods to check but on the whole should
-        help a little bit. */
-    static string __lastLine; // the last line parsed
-    static string[] __splitLastLine; // the cached split line
-    
+    /** Static reference to a class that holds info. Have to do it this way because ChucK and static data gets a bit weird.
+        For some reason it refuses to allow static strings claiming they aren't a primitive type (and so only a static reference
+        works at the moment) but it also does not let you make a reference to a string, claiming they are a primitive type. */
+    static LineInfo @ __lastLine;
+    false => static int __lastLineInit;
     
     
     /** Returns a name, if the string is "name=something" this will return 
@@ -59,7 +58,7 @@ public class Parser
         containing an OSC message would return true */
     fun static int isTranslation( string in )
     {
-        return ( Regex.match( "\"(/[a-zA-Z0-9]+)+,[if]+\"", line ))
+        return ( RegEx.match( "^([12][2-9][0-9]=)?\"(/[a-zA-Z0-9]+)+,[ \t]*[ifs]+\"=[0-9]{3},([0-9]{2,3}|\\$[1-2]),([0-9]{2,3}|\\$[1-2])$", in ));
     }
     
     /** Gets the port number (as an int) out of a port description line */
@@ -85,7 +84,7 @@ public class Parser
         if (s.cap() < 2 || s[0] != "port")
         {
             cherr <= "Error parsing MIDI instrument file: expected port=number got " <= line <= IO.nl();
-            return -1;
+            return "";
         }
         return s[1];
     }
@@ -99,62 +98,67 @@ public class Parser
     /** determines whether a port description is a number or not */
     fun static int isMidPortNumber( string in )
     {
-        return Regex.match( "^port=[0-9]+", in.trim() );
+        return RegEx.match( "^port=[0-9]+", in.trim() );
     }
     
     /** determines whether a line is a port description or not */
-    fun static in isMidiPort( string in )
+    fun static int isMidiPort( string in )
     {
-        return Regex.match( "^port=", in.trim() );
+        return RegEx.match( "^port=", in.trim() );
+    }
+    
+    fun static void __checkCache( string in )
+    {
+        if (__lastLineInit == false)
+        {
+            new LineInfo @=> __lastLine;
+            true => __lastLineInit;
+        }
+        
+        if (in != __lastLine.line)
+        {
+            in => __lastLine.line;
+            Util.splitString(in, "=") @=> __lastLine.splitLine;
+        }
     }
     
     /** Returns a status byte if one was specified in the translation, otherwise returns -1 */
     fun static int getMidiTranslationStatusByte( string in )
     {
-        if (in != __lastLine)
-        {
-            in => __lastLine;
-            Util.splitString(in, "=") => __splitLastLine;
-        }
+        __checkCache(in);
         
-        if (__splitLastLine.cap() < 3)
+        if (__lastLine.splitLine.cap() < 3)
         {
             return -1;
         }
-        return __splitLastLine[0].toInt();
+        return __lastLine.splitLine[0].toInt();
     }
     
     /** Returns an OSC address pattern if one was specified in the translation, otherwise warns and returns empty string */
     fun static string getMidiTranslationOscMessage( string in )
     {
-        // have we alreaedy split the string
-        if (in != __lastLine)
-
-        {
- // write a function for this already!!!
-            in => __lastLine;
-            Util.splitString(in, "=") => __splitLastLine;
-        }
+        
+        __checkCache(in);
         
         string pattern;
         
-        if (__splitLastLine.cap() == 3)
+        if (__lastLine.splitLine.cap() == 3)
         {
-            __splitLastLine[1] => pattern;
+            __lastLine.splitLine[1] => pattern;
         } 
-        else if (__splitLastLine.cap() == 2)
+        else if (__lastLine.splitLine.cap() == 2)
         {
-            __splitLastLine[0] => pattern;
+            __lastLine.splitLine[0] => pattern;
         }
         else 
         {
-            cherr <= "Error parsing MIDI file: expecting translation, got " <= __lastLine <= IO.nl();
+            cherr <= "Error parsing MIDI file: expecting translation, got " <= __lastLine.line <= IO.nl();
             return "";
         }
         
         if ( !Util.isOscMsg(Util.trimQuotes(pattern)) )
         {
-            cherr <= "Error parsing MIDI file: failed getting OSC message from " <= __lastLine <= IO.nl();
+            cherr <= "Error parsing MIDI file: failed getting OSC message from " <= __lastLine.line <= IO.nl();
             return "";
         }
         
@@ -164,17 +168,20 @@ public class Parser
     /** Checks a translation line is in fact a translation line and splits it into its components */
     fun static string[] parseTranslationLine( string in )
     {
-       in => Util.stripComments => __lastLine;
+        __checkCache(Util.stripComments(in));
        
-       if (!RegEx.match("^([12][2-9][0-9]=)?\"(/[a-zA-Z0-9]+)+,[ \t]*[ifs]+\"=[0-9]{3},([0-9]{2,3}|\$[1-2]),([0-9]{2,3}|\$[1-2])$", __lastLine))
+       if (!isTranslation(__lastLine.line))
        {
-           cherr <= "Expecting translation line, got " <= __lastLine <= IO.nl();
+           cherr <= "Expecting translation line, got " <= __lastLine.line <= IO.nl();
            return null;
        }
        
-       
-       Util.splitLine(__lastLine, "=") @=> __lastSplitLine;
-       
-       return __lastSplitLine;
+       return __lastLine.splitLine;
     }
+}
+
+private class LineInfo
+{
+    string line;
+    string splitLine[0];
 }
