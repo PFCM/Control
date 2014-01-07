@@ -87,6 +87,6 @@ public class Util
    fun static int isOscMsg( string msg )
    {
        // TEST THIS
-       return Regex.match("^(/[a-zA-Z0-9]+)+,[:blank:]*[ifs]+$", msg);
+       return RegEx.match("^(/[a-zA-Z0-9]+)+,[ \t]*[ifs]+$", msg);
    }
 }

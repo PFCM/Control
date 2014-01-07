@@ -148,16 +148,33 @@ public class Parser
         }
         else 
         {
-            cherr <= "Error parsing MIDI file: expeciting translation, got " <= __lastLine <= IO.nl();
+            cherr <= "Error parsing MIDI file: expecting translation, got " <= __lastLine <= IO.nl();
             return "";
         }
         
-        if ( Util.isOscMsg(Util.trimQuotes(pattern)) )
+        if ( !Util.isOscMsg(Util.trimQuotes(pattern)) )
         {
             cherr <= "Error parsing MIDI file: failed getting OSC message from " <= __lastLine <= IO.nl();
             return "";
         }
         
         return pattern;
+    }
+    
+    /** Checks a translation line is in fact a translation line and splits it into its components */
+    fun static string[] parseTranslationLine( string in )
+    {
+       in => Util.stripComments => __lastLine;
+       
+       if (!RegEx.match("^([12][2-9][0-9]=)?\"(/[a-zA-Z0-9]+)+,[ \t]*[ifs]+\"=[0-9]{3},([0-9]{2,3}|\$[1-2]),([0-9]{2,3}|\$[1-2])$", __lastLine))
+       {
+           cherr <= "Expecting translation line, got " <= __lastLine <= IO.nl();
+           return null;
+       }
+       
+       
+       Util.splitLine(__lastLine, "=") @=> __lastSplitLine;
+       
+       return __lastSplitLine;
     }
 }
