@@ -32,7 +32,7 @@ public class MidiInstrument extends Instrument {
         // assume file has moved past the first line and
         // no more
         file.readLine() => string line;
-        if (line.charAt(0) == '#')
+        while (line.charAt(0) == '#')
             file.readLine() => string line;
         line => Parser.parseName => string name;
         if ( name == "" )
@@ -49,44 +49,43 @@ public class MidiInstrument extends Instrument {
         {
             file.readLine() => line;
             // get rid of whole line comments and empty lines
-            if (line.length() == 0 || (line.length() > 0 && line.charAt(0) == '#'))
+            if (line.length() == 0 || (line.charAt(0) == '#'))
                 continue;
             
             // strip comments (if present) from the end of a line
             Util.stripComments(line).trim() => line;
-            
-            line.find("port=") => int split;
-            if (split < 0) // translation
+           
+            if ( Parser.isNote(line) )
             {
-                if ( Parser.isNote(line) )
+                notes<<Parser.parseNote(line);
+                continue;
+            }
+            else if (Parser.isMidiPort(line))
+            {
+                // is it a number?
+                chout <= "Setting port to " <= line.substring(5) <= IO.nl();
+                if (RegEx.match("[0-9]+$", line))
                 {
-                    notes<<Parser.parseNote(line);
-                    continue;
-                }
-                
-                Util.splitString( line, "=" ) @=> string parts[];
-                string pat;
-                -1 => int stat;
-                
-                if ( parts.cap() == 2 )
-                    parts[0] => pat;
-                else if ( parts.cap() == 3 )
-                {
-                    parts[1] => pat;
-                    // TODO check it is actually OK
-                    parts[0].toInt() & 0xf0 => stat; // be agnostic to channel
-                }
+                    setMidiPort(Parser.parseMidiPortNumber(line));
+                } 
                 else
                 {
-                    cherr <= "This is not a valid line: " <= line <= IO.nl();
-                    cherr <= "Attempting to ignore." <= IO.nl();
-                    continue;
+                    setMidiPort(Util.trimQuotes(Parser.parseMidiPortString(line)));
                 }
+            }
+            else if (Parser.isTranslation(line))
+            {
+                Parser.parseTranslationLine(line) @=> string translation[];
                 
-                Util.trimQuotes( pat ) => pat;
-                parts[parts.cap()-1] => string msg;
+                Parser.getMidiTranslationStatusByte(line) => int stat; // return -1 if not present, which is our sentinel value when we send the translations to the client
                 
+                line => Parser.getMidiTranslationOscMessage => string pat;
                 
+                if (pat == "")
+                {
+                    cherr <= "Expected OSC message in translation line: " <= line <= IO.nl();
+                    return 0;
+                }
                 
                 // now does the pattern start with /name?
                 if ( pat.find( "/" + name ) != 0 )
@@ -110,7 +109,7 @@ public class MidiInstrument extends Instrument {
                 //chout <= i <= "\t" <= pat.length() <= IO.nl();
                 pat.substring(i).trim() => string tt;
                 
-                midiContainerFromString( msg, tt ) @=> transform_table[pat];
+                midiContainerFromString( translation[translation.cap()-1], tt ) @=> transform_table[pat];
                 if ( !RegEx.match( "/note,", pat ) && !RegEx.match( "/control,", pat ) )
                 {
                     // to actually send it to the client as a message it has to have the correct typetag
@@ -122,20 +121,13 @@ public class MidiInstrument extends Instrument {
                     chout <= "Added non standard message: " <= pat <= " with midi status byte: " <= stat<= IO.nl();
                     stat => nonstandard_statusbytes[pat];
                 }
+
             }
-            else // port=something
+            else
             {
-                // is it a number?
-                line.substring(5) => string port;
-                chout <= "Setting port to " <= port <= IO.nl();
-                if (RegEx.match("[0-9]+", port))
-                {
-                    setMidiPort(port.toInt());
-                } 
-                else
-                {
-                    setMidiPort(Util.trimQuotes(port));
-                }
+                cherr <= "This is not a valid line: " <= line <= IO.nl();
+                cherr <= "Attempting to ignore." <= IO.nl();
+                continue;
             }
         }
         
@@ -193,7 +185,8 @@ public class MidiInstrument extends Instrument {
         }
     }
     
-    /** Creates a MidiMessageContainer from the string assumed to be stripped to just the Midi message descriptor. Also needs the OSC typetag. */
+    /** Creates a MidiMessageContainer from the string assumed to be stripped to just the Midi message descriptor. Also needs the OSC typetag.
+        Could potentially be moved to Parser */
     fun MidiMessageContainer midiContainerFromString( string message, string typetag )
     {
         // TODO have the number after $ specify the order in which they are executed but not the order 

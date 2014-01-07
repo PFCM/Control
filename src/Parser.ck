@@ -107,6 +107,7 @@ public class Parser
         return RegEx.match( "^port=", in.trim() );
     }
     
+    /** Checks whether the line has been cahced or not */
     fun static void __checkCache( string in )
     {
         if (__lastLineInit == false)
@@ -156,7 +157,9 @@ public class Parser
             return "";
         }
         
-        if ( !Util.isOscMsg(Util.trimQuotes(pattern)) )
+        pattern => Util.trimQuotes => pattern;
+        
+        if ( !Util.isOscMsg(pattern) )
         {
             cherr <= "Error parsing MIDI file: failed getting OSC message from " <= __lastLine.line <= IO.nl();
             return "";

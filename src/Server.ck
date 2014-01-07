@@ -41,6 +41,11 @@ else
     for ( int i; i < files.cap(); i++ )
     {
         chout <= "File: " <= files[i] <= IO.nl();
+        if (files[i].charAt(0) == '.')
+        {
+            cherr <= "File is probably supposed to be hidden. Ignoring." <= IO.nl();
+            continue;
+        }
         FileIO inst;
         if ( !inst.open( me.dir() + "/../Instruments/" + files[i], FileIO.READ ) )
             cherr <= "Error opening '" <= me.dir() + "/../Instruments/" <= "', ignoring." <= IO.nl();
