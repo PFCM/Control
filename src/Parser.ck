@@ -16,6 +16,14 @@ eventually methods to parse whole files.
 
 public class Parser 
 {
+    /** Static fields for caching so that we don't have to do the nastier string operations
+        too often. Adds a slight overhead to some methods to check but on the whole should
+        help a little bit. */
+    static string __lastLine; // the last line parsed
+    static string[] __splitLastLine; // the cached split line
+    
+    
+    
     /** Returns a name, if the string is "name=something" this will return 
         "something". Ignores comments. */
     fun static string parseName( string line )
@@ -91,6 +99,65 @@ public class Parser
     /** determines whether a port description is a number or not */
     fun static int isMidPortNumber( string in )
     {
+        return Regex.match( "^port=[0-9]+", in.trim() );
+    }
+    
+    /** determines whether a line is a port description or not */
+    fun static in isMidiPort( string in )
+    {
+        return Regex.match( "^port=", in.trim() );
+    }
+    
+    /** Returns a status byte if one was specified in the translation, otherwise returns -1 */
+    fun static int getMidiTranslationStatusByte( string in )
+    {
+        if (in != __lastLine)
+        {
+            in => __lastLine;
+            Util.splitString(in, "=") => __splitLastLine;
+        }
         
+        if (__splitLastLine.cap() < 3)
+        {
+            return -1;
+        }
+        return __splitLastLine[0].toInt();
+    }
+    
+    /** Returns an OSC address pattern if one was specified in the translation, otherwise warns and returns empty string */
+    fun static string getMidiTranslationOscMessage( string in )
+    {
+        // have we alreaedy split the string
+        if (in != __lastLine)
+
+        {
+ // write a function for this already!!!
+            in => __lastLine;
+            Util.splitString(in, "=") => __splitLastLine;
+        }
+        
+        string pattern;
+        
+        if (__splitLastLine.cap() == 3)
+        {
+            __splitLastLine[1] => pattern;
+        } 
+        else if (__splitLastLine.cap() == 2)
+        {
+            __splitLastLine[0] => pattern;
+        }
+        else 
+        {
+            cherr <= "Error parsing MIDI file: expeciting translation, got " <= __lastLine <= IO.nl();
+            return "";
+        }
+        
+        if ( Util.isOscMsg(Util.trimQuotes(pattern)) )
+        {
+            cherr <= "Error parsing MIDI file: failed getting OSC message from " <= __lastLine <= IO.nl();
+            return "";
+        }
+        
+        return pattern;
     }
 }

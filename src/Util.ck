@@ -83,5 +83,10 @@ public class Util
         return line.substring(0,index);
     }
     
-   
+   /** Returns true if the given string is a whole OSC message (pattern,typetags) */
+   fun static int isOscMsg( string msg )
+   {
+       // TEST THIS
+       return Regex.match("^(/[a-zA-Z0-9]+)+,[:blank:]*[ifs]+$", msg);
+   }
 }
