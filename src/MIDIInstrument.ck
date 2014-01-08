@@ -33,14 +33,16 @@ public class MidiInstrument extends Instrument {
         // no more
         file.readLine() => string line;
         while (line.charAt(0) == '#')
-            file.readLine() => string line;
-        line => Parser.parseName => string name;
-        if ( name == "" )
+            file.readLine() => line;
+        line => Parser.parseName => string instName;
+        if ( instName == "" )
         {
+            cherr <= "No appropriate name specifier found in following line: " <= IO.nl();
+            cherr <= line <= IO.nl();
             cherr <= "Error parsing name - can not initialise MIDI instrument" <= IO.nl();
             return 0;
         }        
-        __setName(name);
+        __setName(instName);
         
         
         // now read in the translations/port

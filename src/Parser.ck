@@ -28,13 +28,12 @@ public class Parser
     fun static string parseName( string line )
     {
         line => Util.stripComments => string name;
-        if ( name == "" ) return name;
-        if ( line.substring( 0,5 ) != "name=" )
+        if ( name == "" || name.substring( 0,5 ) != "name=" )
         {
             cherr <= "Expecting: name=something, got " <= line <= IO.nl();
             return "";
         }
-        return line.substring(5).trim();
+        return name.substring(5);
     }
     
     /** Parses a note field from a text file, returns the note if successful otherwise empty string */
