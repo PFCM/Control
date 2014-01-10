@@ -26,7 +26,7 @@ public class MultiStringInstrument extends MidiInstrument
     int _stringMax[0];     // the maximum (highest) MIDI note number per string
     int _stringMin[0];     // the minimum (lowest) MIDI note number per string
     int _stringChannels[0]; // channel for each string
-    int _lastString;
+    int _lastNotes[0];
     
     // the range of string n is taken to be [_stringMin[n], _stringMax[n]] 
     // note the closed interval - the number in stringMax is included
@@ -38,6 +38,7 @@ public class MultiStringInstrument extends MidiInstrument
         new int[_numStrings] @=> _stringMax;
         new int[_numStrings] @=> _stringMin;
         new int[_numStrings] @=> _stringChannels;
+        new int[_numStrings] @=> _lastNotes;
     }
     /* Sets the number of strings, allocates space and initialises channels going up 
      * by one from the given start.
@@ -85,9 +86,8 @@ public class MultiStringInstrument extends MidiInstrument
          }
      }
     
-    /* returns a number (between 0 and _numStrings-1) which represents the best string to
-     * use for the current note. Might try a couple of strategies, but for now will just
-     * alternate if it is in range of two.
+    /* returns a channel for the best string to
+     * use for the current note. Might try a couple of strategies.
      */
      fun int chooseString( int note )
      {
@@ -101,17 +101,25 @@ public class MultiStringInstrument extends MidiInstrument
              }
          }
          
-         // if there are more than one choose one that isn't the last string
-         // perhaps we could set a threshold of a couple of notes from the last note on that
-         // string so that you preserve runs?
+         // if there are more than one choose the one that is the closest     
+         // TODO resolve ties better (choose one nearest the centre of its range?)    
          if (strings.cap() == 1)
-             return strings[0];
+             return stringChannels[strings[0]];
          
+         256 => int dist;
+         -1 => int closest;
          for ( int i; i < strings.cap(); i++ )
-             if ( strings[i] != _lastString )
+             if ( Math.abs(_lastNotes[strings[i]] - note) < dist )
              {
-                 i => _lastString;
-                 return strings[i];
+                 Math.abs(_lastNotes[strings[i]] - note) => dist;
+                 i => closest;
              }
+             
+         if (closest == -1)
+         {
+             cherr <= "Issue choosing string?" <= IO.nl();
+             return -1;
+         }
+         return _stringChannels[strings[closest]];
      }
 }

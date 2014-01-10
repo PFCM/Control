@@ -345,13 +345,13 @@ fun void onEnd()
             for ( int j; j < messages[instruments[i]].size(); j++ )
             {
                 if ( messages[name][j].statusbyte >= 128 )
-                    chout <= "(Client)        " <= messages[name][j].statusbyte+i <= " becomes " <= messages[name][j].addresspattern <= IO.nl();
+                    chout <= "(Client)[" <= name <= "] " <= messages[name][j].statusbyte+i <= " becomes " <= messages[name][j].addresspattern <= IO.nl();
                 else
-                    chout <= "(Client)        " <= messages[name][j].addresspattern <= " available." <= IO.nl();
+                    chout <= "(Client)[" <= name <= "] " <= messages[name][j].addresspattern <= " available." <= IO.nl();
             }
             for ( int j; j < notes[instruments[i]].size(); j++ )
             {
-                chout <= "(Client)        " <= notes[name][j] <= IO.nl();
+                chout <= "(Client)[" <= name <= "] ——— " <= notes[name][j] <= IO.nl();
             }
         }
     }

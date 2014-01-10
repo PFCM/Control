@@ -2,3 +2,4 @@ type=MIDI
 name=MechBass/string1
 port=0
 128="/damp,ii"=128,$1,$2
+note=Velocity controls pick wheel height, notes with velocity 1 (or is it 0???) move to position but to not pick string.

@@ -20,6 +20,8 @@ Instrument @ instruments[0]; // array of references, initialises to null rather 
 /*******************BEGIN CUSTOM INSTRUMENT NAMES**********************/
 
 "KRITAANJLI" => string KRITAANJLI;
+"ONECHANNELSWIVEL" => string ONECHANNELSWIVEL;
+"ONECHANNELMECHBASS" => string ONECHANNELMECHBASS;
 
 /********************END CUSTOM INSTRUMENT NAMES***********************/
 // Global OSC receiver, just needs to listen
@@ -75,11 +77,20 @@ else
                         else
                         {
                             // HERE IS WHERE WE FIND SUBCLASSES FOR SPECIFIC INSTRUMENTS
+                            // if we get a lot of these it might make more sense to try be a bit more generic
                             type.substring(5) => type;
                             
                             if ( type == KRITAANJLI )
                             {
                                 new Kritaanjli @=> newI;
+                            }
+                            else if ( type == ONECHANNELSWIVEL )
+                            {
+                                new OneChannelSwivel @=> newI;
+                            }
+                            else if ( type == ONECHANNELMECHBASS )
+                            {
+                                new OneChannelMechBass @=> newI;
                             }
                             else
                             {

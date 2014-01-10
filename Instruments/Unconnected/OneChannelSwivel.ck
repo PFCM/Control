@@ -1,4 +1,4 @@
-//type=OneChannelSwivel
+//type=ONECHANNELSWIVEL
 
 public class OneChannelSwivel extends MultiStringInstrument
 {
