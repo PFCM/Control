@@ -38,7 +38,8 @@
 		\item All instruments send any information they know about themselves in \texttt{/system/instruments/note,ss} messages where the first 
 			string is the name of the instrument and the second is a note about the instrument, probably defined in the data file. \footnote{Confusion
 			between \texttt{/\textit{<name>}/note,ii} and \texttt{/system/instrument/note,ss} should be avoidable given the different typetags and the 
-			\texttt{/system} prefix, although it is an unfortunate homonym.}
+			\texttt{/system} prefix, although it is an unfortunate homonym.} The notes get displayed by the client to give the user any information
+			the instrument's designer feels useful.
 		\item Client uses this data to construct a table of MIDI input to OSC output and prints details about the instruments connected to the server
 			to the console.
 		\item Client listens for MIDI input on specified port and translates appropriately.

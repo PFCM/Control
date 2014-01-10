@@ -1,0 +1,29 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.7cm]{geometry}
+\usepackage{enumerate}
+\usepackage[sc,compact]{titlesec}
+\usepackage{tgcursor}
+\usepackage[T1]{fontenc}
+\usepackage{bigfoot}
+
+\begin{document}
+\section{Server.ck}
+
+This is the main file for the Server. It initialises the attached instruments and triggers them to send information about themselves to new clients.
+The server discovers which instruments are available by looking in the \texttt{Instruments} directory, ignoring all subdirectories. When it discovers
+a file it attempts to load the appropriate instrument based on the first line of the file. The Server listens for UDP traffic on port 50000 by default, this can be 
+changed by altering \texttt{Server.ck}. The server initialises instruments to share a reference to a send \texttt{OscRecv} object, all instruments listen on the same 
+port. The handling of instrument input is handled entirely within \texttt{Instrument} and its subclasses. 
+
+When initialising instruments, the server reads the first line of the file to determine what sort of file it is. It then constructs and instance of the appropriate subclass
+and calls its \texttt{init()} method, passing the the \texttt{OscRecv} and the file object. The instrument then handles configuring itself based on the file, with the 
+return value of \texttt{init()} indicating whether or not it was successful.
+
+Once all the instruments have been loaded, the server shred begins listening for new clients. A new client announces itself by sending a \texttt{/system/addme,si} 
+OSC message to the server, where the two arguments are the hostname or IP address and the port for return communication. Using this information, the client 
+iterates through the list of instruments and calls each ones \texttt{sendMethods()} and \texttt{sendNotes()} methods. These messages all take an \texttt{OscSend}
+object as their sole argument which they use to send relevant data describing the instrument back to the client.
+
+
+
+\end{document}

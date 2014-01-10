@@ -1,0 +1,30 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.7cm]{geometry}
+\usepackage{enumerate}
+\usepackage[sc,compact]{titlesec}
+\usepackage{tgcursor}
+\usepackage[T1]{fontenc}
+\usepackage{bigfoot}
+
+\begin{document}
+\section{Master.ck}
+\texttt{Master.ck} is the file which starts the server running. In order to do this it adds all the required files to the virtual machine. In order for the server to work 
+properly with any possible number of new types of instruments it also adds any \texttt{.ck} files in the \texttt{instruments} directory. To make it easy to move
+ instruments to and from the \texttt{Unconnected} directory, \texttt{Master.ck} searches recursively through all subdirectories of \texttt{Instruments} adding 
+everything it finds. The order in which the files are added to the virtual machine is below.
+
+\begin{enumerate} [\bf 1.]
+	\item\texttt{Util.ck}
+	\item\texttt{Parser.ck}
+	\item\texttt{MIDIDataByte.ck}
+	\item\texttt{MIDIMessageContainer.ck}
+	\item\texttt{Instrument.ck}
+	\item\texttt{MIDIIInstrument.ck}
+	\item\texttt{MultiStringInstrument.ck}
+	\item Instruments found in \texttt{Instruments} and subdirectories. This is done with a pre-order depth first search.\footnote{All files with a \texttt{.ck} 
+	extension are added in the current directory (beginning in \texttt{Instruments}) and the process is repeated for each subdirectory in turn. Note that if you
+	want to add a new type of abstract instrument or extend a custom instrument, you may need to pay attention to this order and probably edit 
+	\texttt{Master.ck} to ensure everything is added in the correct order.}
+\end{enumerate}
+
+\end{document}
