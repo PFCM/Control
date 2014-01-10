@@ -7,7 +7,10 @@ public class OneChannelMechBass extends MultiStringInstrument
     // set up info for chooser
     fun int init( OscRecv input, FileIO file )
     {
-        setNumStrings(4);
+        
+         if (debug)
+             chout <= "[OneChannelMechBass] Initialising one channel mechbass" <= IO.nl();
+        setNumStrings(4,0);
         
         __setName("MechBass");
         
@@ -16,7 +19,8 @@ public class OneChannelMechBass extends MultiStringInstrument
         [44,39,34,29] @=> int maxes[]; // the highest notes
         
         setRanges(maxes, mins);
-        setMidiPort(0); // something
+        if (!setMidiPort(0))
+            return false; // something
         
         string osc_patterns[0];
         patterns<<"/MechBass/noteoff,ii";
@@ -31,10 +35,10 @@ public class OneChannelMechBass extends MultiStringInstrument
         
         
         // might add and addNote function to Instrument to make this a bit less weird
-        notes<<"Attempts to choose a string for an oncoming note based on which string that can play the note is the closest to it, breaking ties by which is most comfortably within the range.";
+       // notes<<"Attempts to choose a string for an oncoming note based on which string that can play the note is the closest to it, breaking ties by which is most comfortably within the range.";
         
         
-        _init( input, patterns );
+        return _init( input, patterns );
     }
     
     // overriding this to make use of the MultiStringinstrument.chooseString
@@ -52,7 +56,7 @@ public class OneChannelMechBass extends MultiStringInstrument
             vel => msg.data3;
             mout.send(msg);
         }
-        else if (RegEx.match("/noteoff,", addrpat))
+        else if (RegEx.match("/noteoff,", addrPat))
         {
             evt.getInt() => int note;
             evt.getInt() => int vel;
@@ -61,18 +65,18 @@ public class OneChannelMechBass extends MultiStringInstrument
             vel => msg.data3;
             mout.send(msg);
         }
-        else if (RegEx.match("/control,", addrpat))
+        else if (RegEx.match("/control,", addrPat))
         {
          // note —— do this
          // intent is to duplicate all the control messages for each
          // string so that you can in fact send them all
          // because it does not make much sense to send individual ones   
         }
-        else if (RegEx.match("/pluck,", addrpat))
+        else if (RegEx.match("/pluck,", addrPat))
         {
             // how to just make it pluck?
         }
-        else if (RegEx.match("/position,", addrpat))
+        else if (RegEx.match("/position,", addrPat))
         {
             evt.getInt() => int which;
             evt.getInt() => int note;
@@ -82,7 +86,7 @@ public class OneChannelMechBass extends MultiStringInstrument
             mout.send(msg);
         }
         // clamps a given string at a given note
-        else if (RegEx.match("/clamp,", addrpat))
+        else if (RegEx.match("/clamp,", addrPat))
         {
             evt.getInt() => int which;
             evt.getInt() => int note;
@@ -92,7 +96,7 @@ public class OneChannelMechBass extends MultiStringInstrument
             mout.send(msg);
             
         }
-        else if (RegEx.match("/damp,", addrpat))
+        else if (RegEx.match("/damp,", addrPat))
         {
             evt.getInt() => int which;
             128+which => msg.data1;
@@ -102,7 +106,7 @@ public class OneChannelMechBass extends MultiStringInstrument
         }
         else
         {
-            cherr <= "[MechBass] Received unknown message somehow: " <= addrpat <= IO.nl();
+            cherr <= "[MechBass] Received unknown message somehow: " <= addrPat <= IO.nl();
         }
     }
 }

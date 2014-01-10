@@ -35,17 +35,25 @@ public class MultiStringInstrument extends MidiInstrument
     fun void setNumStrings( int num )
     {
         num => _numStrings;
+         if (debug)
+             chout <= "[MultiStringInstrument] allocating space" <= IO.nl();
         new int[_numStrings] @=> _stringMax;
         new int[_numStrings] @=> _stringMin;
         new int[_numStrings] @=> _stringChannels;
         new int[_numStrings] @=> _lastNotes;
+         if (debug)
+             chout <= "[MultiStringInstrument] allocated space" <= IO.nl();
     }
     /* Sets the number of strings, allocates space and initialises channels going up 
      * by one from the given start.
      */
      fun void setNumStrings( int num, int startChan )
      {
+         if (debug)
+             chout <= "[MultiStringInstrument] Setting channels" <= IO.nl();
          setNumStrings( num );
+         if (debug)
+             chout <= "[MultiStringInstrument] filling channels" <= IO.nl();
          for ( int i; i < num; i++ ) 
          {
              startChan + i => _stringChannels[i];

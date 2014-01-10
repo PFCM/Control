@@ -14,7 +14,7 @@ Desc: Base class for all instruments that output MIDI.
 ***********************************************************************/
 
 public class MidiInstrument extends Instrument {
-    false => int debug;
+    true => int debug;
     MidiOut mout;
     0 => int portSet;
     // the number of recognised osc address patterns
