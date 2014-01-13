@@ -155,8 +155,8 @@ public class MultiStringInstrument extends MidiInstrument
                  
                  if (debug)
                  {
-                     chout <= "[MultiString] \t" <= a <= " midpoint: " <= amid <= IO.nl();
-                     chout <= "[MultiString] \t" <= b <= " midpoint: " <= bmid <= IO.nl();
+                     chout <= "[MultiString] \t" <= a <= " midpoint: " <= amid <= ", distance: " <= Math.abs(amid-note) <= IO.nl();
+                     chout <= "[MultiString] \t" <= b <= " midpoint: " <= bmid <= ", distance: " <= Math.abs(bmid-note) <= IO.nl();
                  }
                  
                  // if a wins it is the new closest, otherwise the old closest remains
