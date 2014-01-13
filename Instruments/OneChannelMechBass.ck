@@ -10,7 +10,7 @@ public class OneChannelMechBass extends MultiStringInstrument
         
          if (debug)
              chout <= "[OneChannelMechBass] Initialising one channel mechbass" <= IO.nl();
-        setNumStrings(4,0);
+        setNumStrings(4,3);
         
         __setName("MechBass");
         
