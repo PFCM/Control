@@ -19,7 +19,7 @@ public class OneChannelMechBass extends MultiStringInstrument
         [44,39,34,29] @=> int maxes[]; // the highest notes
         
         setRanges(maxes, mins);
-        if (!setMidiPort(0))
+        if (!setMidiPort(1))
             return false; // something
         
         string osc_patterns[0];
