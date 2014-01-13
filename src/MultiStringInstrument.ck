@@ -115,8 +115,7 @@ public class MultiStringInstrument extends MidiInstrument
              }
          }
          
-         // if there are more than one choose the one that is the closest     
-         // TODO resolve ties better (choose one nearest the centre of its range?)    
+         // if there are more than one choose the one that is the closest
          if (strings.cap() == 1)
          {
              note => _lastNotes[strings[0]];
@@ -127,14 +126,33 @@ public class MultiStringInstrument extends MidiInstrument
          -1 => int closest;
          for ( int i; i < strings.cap(); i++ )
          {
+             Math.abs(_lastNotes[strings[i]] - note) => int temp;
              if (debug) 
              {
-                 chout <= "[MultString] String " <= strings[i] <= " distance " <= Math.abs(_lastNotes[strings[i]] - note) <= IO.nl();
+                 chout <= "[MultString] String " <= strings[i] <= " distance " <= temp <= IO.nl();
              }
-             if ( Math.abs(_lastNotes[strings[i]] - note) < dist )
+             if ( temp < dist )
              {
-                 Math.abs(_lastNotes[strings[i]] - note) => dist;
+                 temp => dist;
                  i => closest;
+             }
+             else if (temp == dist)
+             {
+                 // tie
+                 // compare distance of desired note from centre of range
+                 strings[i] => int a;
+                 strings[closest] => int b;
+                 
+                 // get midpoint of a range
+                 0.5 * (_stringMin[a] + _stringMax[a]) => int amid;
+                 // midpoint of b range
+                 0.5 * (_stringMin[b] + _stringMax[b]) => int bmid;
+                 // if a wins it is the new closest, otherwise the old closest remains
+                 if ( Math.abs(amid-note) < Math.abs(bmid-note) )
+                 {
+                     a => closest;
+                     temp => dist;
+                 }
              }
          }
              
