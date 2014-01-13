@@ -41,8 +41,8 @@ public class MultiStringInstrument extends MidiInstrument
         new int[_numStrings] @=> _stringMin;
         new int[_numStrings] @=> _stringChannels;
         new int[_numStrings] @=> _lastNotes;
-       /* for (int i; i < _lastNotes.cap(); i++)
-            1000 => _lastNotes[i];*/
+        for (int i; i < _lastNotes.cap(); i++)
+            1000 => _lastNotes[i];
          if (debug)
              chout <= "[MultiStringInstrument] allocated space" <= IO.nl();
     }
@@ -130,7 +130,7 @@ public class MultiStringInstrument extends MidiInstrument
                  i => closest;
                  if (debug)
                  {
-                     chout <= "[MultiString] — new closest: " <= i <= ", distance " <= dist <= IO.nl();
+                     chout <= "[MultiString] — new closest: " <= i <= ", distance " <= dist <= ", previous " <= _lastNotes[i] <= IO.nl();
                  }
              }
          }
