@@ -143,13 +143,26 @@ public class MultiStringInstrument extends MidiInstrument
                  strings[i] => int a;
                  strings[closest] => int b;
                  
+                 
+                 if (debug)
+                     chout <= "[MultiString] resolving tie between " <= a <= " and " <= b <= IO.nl();
+                 
+                 
                  // get midpoint of a range
                  (0.5 * (_stringMin[a] + _stringMax[a]))$int => int amid;
                  // midpoint of b range
                  (0.5 * (_stringMin[b] + _stringMax[b]))$int => int bmid;
+                 
+                 if (debug)
+                 {
+                     chout <= "[MultiString] \t" <= a <= " midpoint: " <= amid <= IO.nl();
+                     chout <= "[MultiString] \t" <= b <= " midpoint: " <= bmid <= IO.nl();
+                 }
+                 
                  // if a wins it is the new closest, otherwise the old closest remains
                  if ( Math.abs(amid-note) < Math.abs(bmid-note) )
                  {
+                     
                      a => closest;
                      temp => dist;
                  }
