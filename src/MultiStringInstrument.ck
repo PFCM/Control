@@ -60,6 +60,12 @@ public class MultiStringInstrument extends MidiInstrument
          }
      }
      
+     fun void setChannels( int[] chans )
+     {
+         for (int i; i < _numStrings; i++)
+             chans[i] => _stringChannels[i];
+     }
+     
     /* Sets the ranges of the strings, needs an array of the maximums and the minimums. 
      * Copies all the data to ensure the dimensions are correct.
      */
