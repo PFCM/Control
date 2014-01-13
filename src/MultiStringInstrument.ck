@@ -92,7 +92,7 @@ public class MultiStringInstrument extends MidiInstrument
              max[i] => _stringMax[i];
              min[i] => _stringMin[i];
              // assume strings start at their lowest note
-             min[i] => _lastNote[i];
+             min[i] => _lastNotes[i];
          }
      }
     
