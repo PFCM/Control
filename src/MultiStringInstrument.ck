@@ -103,11 +103,15 @@ public class MultiStringInstrument extends MidiInstrument
      {
          int strings[0];
          // find possible strings
+         if (debug)
+             chout <= "[MultiString] Possible String: " <= IO.nl();
          for (int i; i < _numStrings; i++)
          {
              if (note <= _stringMax[i] && note >= _stringMin[i])
              {
                  strings<<i;
+                 if (debug)
+                     chout <= "\t" <= i <= IO.nl();
              }
          }
          
@@ -123,6 +127,10 @@ public class MultiStringInstrument extends MidiInstrument
              {
                  Math.abs(_lastNotes[strings[i]] - note) => dist;
                  i => closest;
+                 if (debug)
+                 {
+                     chout <= "[MultiString] — new closest: " <= i <= ", distance " <= dist <= IO.nl();
+                 }
              }
              
          if (closest == -1)
