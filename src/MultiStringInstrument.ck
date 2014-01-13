@@ -174,6 +174,10 @@ public class MultiStringInstrument extends MidiInstrument
              cherr <= "Issue choosing string?" <= IO.nl();
              return -1;
          }
+         
+         if (debug)
+             chout <= "[MultiString] Chosen string " <= strings[closest] <= IO.nl();
+         
          note => _lastNotes[strings[closest]];
          return _stringChannels[strings[closest]];
      }
