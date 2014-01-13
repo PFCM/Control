@@ -124,14 +124,14 @@ public class MultiStringInstrument extends MidiInstrument
          -1 => int closest;
          for ( int i; i < strings.cap(); i++ )
          {
+             if (debug) 
+             {
+                 chout <= "[MultString] String " <= strings[i] <= " distance " <= Math.abs(_lastNotes[strings[i]] - note) <= IO.nl();
+             }
              if ( Math.abs(_lastNotes[strings[i]] - note) < dist )
              {
                  Math.abs(_lastNotes[strings[i]] - note) => dist;
                  i => closest;
-                 if (debug)
-                 {
-                     chout <= "[MultiString] — new closest: " <= i <= ", distance " <= dist <= ", previous " <= _lastNotes[i] <= IO.nl();
-                 }
              }
          }
              
