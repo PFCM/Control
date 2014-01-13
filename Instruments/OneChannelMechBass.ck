@@ -35,7 +35,7 @@ public class OneChannelMechBass extends MultiStringInstrument
         
         
         // might add and addNote function to Instrument to make this a bit less weird
-       // notes<<"Attempts to choose a string for an oncoming note based on which string that can play the note is the closest to it, breaking ties by which is most comfortably within the range.";
+        notes<<"Attempts to choose a string for an oncoming note based on which string that can play the note is the closest to it, breaking ties by which is most comfortably within the range.";
         
         
         return _init( input, patterns );
