@@ -60,7 +60,7 @@ public class MultiStringInstrument extends MidiInstrument
          }
      }
      
-     fun void setChannels( int[] chans )
+     fun void setChannels( int chans[] )
      {
          for (int i; i < _numStrings; i++)
              chans[i] => _stringChannels[i];
