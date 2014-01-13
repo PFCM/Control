@@ -163,7 +163,7 @@ public class MultiStringInstrument extends MidiInstrument
                  if ( Math.abs(amid-note) < Math.abs(bmid-note) )
                  {
                      
-                     a => closest;
+                     i => closest;
                      temp => dist;
                  }
              }
