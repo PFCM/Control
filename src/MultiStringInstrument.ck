@@ -119,7 +119,7 @@ public class MultiStringInstrument extends MidiInstrument
          // TODO resolve ties better (choose one nearest the centre of its range?)    
          if (strings.cap() == 1)
          {
-             note => _lastNotes[strings[strings[0]]];
+             note => _lastNotes[strings[0]];
              return _stringChannels[strings[0]];
          }
          
