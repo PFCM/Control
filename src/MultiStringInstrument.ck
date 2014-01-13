@@ -54,7 +54,7 @@ public class MultiStringInstrument extends MidiInstrument
          setNumStrings( num );
          if (debug)
              chout <= "[MultiStringInstrument] filling channels" <= IO.nl();
-         for ( startChan => int i; i > 0; i—- ) 
+         for ( startChan => int i; i > 0; i-- ) 
          {
              i => _stringChannels[i];
          }
