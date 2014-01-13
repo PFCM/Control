@@ -144,9 +144,9 @@ public class MultiStringInstrument extends MidiInstrument
                  strings[closest] => int b;
                  
                  // get midpoint of a range
-                 0.5 * (_stringMin[a] + _stringMax[a]) => int amid;
+                 (0.5 * (_stringMin[a] + _stringMax[a]))$int => int amid;
                  // midpoint of b range
-                 0.5 * (_stringMin[b] + _stringMax[b]) => int bmid;
+                 (0.5 * (_stringMin[b] + _stringMax[b]))$int => int bmid;
                  // if a wins it is the new closest, otherwise the old closest remains
                  if ( Math.abs(amid-note) < Math.abs(bmid-note) )
                  {
