@@ -118,7 +118,10 @@ public class MultiStringInstrument extends MidiInstrument
          // if there are more than one choose the one that is the closest     
          // TODO resolve ties better (choose one nearest the centre of its range?)    
          if (strings.cap() == 1)
+         {
+             note => _lastNotes[strings[closest]];
              return _stringChannels[strings[0]];
+         }
          
          256 => int dist;
          -1 => int closest;
