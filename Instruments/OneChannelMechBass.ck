@@ -18,8 +18,8 @@ public class OneChannelMechBass extends MultiStringInstrument
         __setName("MechBass");
         
         // mins and maxes
-        [31,26,21,16] @=> int mins[]; // the lowest frequencies (GDEA)
-        [44,39,34,29] @=> int maxes[]; // the highest notes
+        [44,39,33,28] @=> int mins[]; // the lowest frequencies (GDEA)
+        [56,51,46,41] @=> int maxes[]; // the highest notes
         
         setRanges(maxes, mins);
         if (!setMidiPort(1))
