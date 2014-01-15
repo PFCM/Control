@@ -39,7 +39,10 @@ public class Kritaanjli extends MidiInstrument
         128 => nonstandard_statusbytes["/Kritaanjli/noteoff,ii"];
         
         // set MIDI port — use chuck ——probe to find the right one (can be a string)
-        setMidiPort( "KarmetiK_Kritaanjli" );
+        // need to check if this succeeds - if it fails then we are in trouble and should return false
+        
+        if ( !setMidiPort( "KarmetiK_Kritaanjli" ) )
+            return false;
         //setMidiPort(1);
         ["/Kritaanjli/note,ii", "/Kritaanjli/control,ii", "/Kritaanjli/noteoff,ii"] @=> string names[];
         return __init( recv, names);
