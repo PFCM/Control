@@ -26,6 +26,7 @@ true => int debug;
 50001 => int portIn;
 "localhost" => string hostname => string selfIP;
 0 => int portSet => int hostSet => int midiSet => int rcvPortSet => int selfIPSet;
+"" => string testList; // the list of instruments we want to test on client startup
 
 string notes[0][0]; // notes about the instruments
 
@@ -40,7 +41,9 @@ if ( me.args() > 0 )
 {
     for ( int i; i < me.args(); i++ ) 
     {
-        // is it the port or the hostname?
+        // this is structured poorly
+        // should tidy it up
+        // and everyone will be happy
         
         // is it the server's address
         if ( RegEx.match( "([0-9]{1,3}\\.){3}[0-9]{1,3}", me.arg(i) ) && me.arg(i).find("self=") == -1 )
@@ -138,6 +141,12 @@ if ( me.args() > 0 )
                 {
                     cherr <= "(Client) Error: attempting to set self IP more than once in the same arguments" <= IO.nl();
                 }
+            }
+            else if ( me.arg(i).find("test=") >= 0 ) // do we want to test some biz
+            {
+                // don't check it yet, we don't try run the test until after handshaking (at the end of onEnd())
+                me.arg(i).substring(5) => testList;
+                chout <= "(Client) got \"" <= testList <= "\" to test." <= IO.nl();
             }
             else // we assume server's address as a name, note that this is not good, we need better error checking here
             {
@@ -363,7 +372,56 @@ fun void onEnd()
                 chout <= "(Client)[" <= name <= "] ——— " <= notes[name][j] <= IO.nl();
             }
         }
+        
+        // now we can test
+        doTests();
     }
+}
+
+// does the tests
+fun void doTests()
+{
+    if (testList == "")
+        chout <= "(Client) No tests specified." <= IO.nl();
+    else
+    {
+        if (debug)
+            chout <= "(Client) (debug) double checking test list: " <= testList <= IO.nl();
+        
+        splitString(testList, ",") @=> string toTest[];
+        string actualList;
+        
+        for (int i; i < toTest.cap(); i++)
+        {
+            if (toTest[i].lower() == "all")
+            {
+                "all" => actualList;
+                break;
+            }
+            false => int exists;
+            for (int j; j < instruments.cap(); j++)
+            {
+                if (instruments[j].lower() == toTest[i].lower())
+                {
+                    true => exists;
+                    if (actualList != "")
+                        actualList + "," => actualList;
+                    actualList + instruments[j] => actualList;
+                    break;
+                }
+            }
+            if (!exists)
+            {
+                chout <= "(Client) Instrument " <= toTest[i] <= " not present on server, not asking to test." <= IO.nl();
+            }
+        }
+        
+        chout <= "(Client) Asking server to test: " <= actualList <= IO.nl();
+        
+        // actually send
+        osend.startMsg("/system/test", "s");
+        osend.addString(actualList);
+    }   
 }
 
 // initialises the last instrument in the list
@@ -430,6 +488,32 @@ fun string trimQuotes( string in )
     return in.substring(front, in.length()-(front+back));
     
 }
+/** Copied from Util.ck */
+/** splits the string by the given pattern (not regex, just == )*/
+fun string[] splitString( string in, string pattern )
+{
+    string s[0];
+    __split(in, pattern, s);
+    return s;
+}
+
+/** private recursive call */
+fun void __split( string in, string pat, string results[] )
+{
+    // find the pattern
+    in.find( pat ) => int where;
+    
+    if ( where >= 0 )
+    {
+        results.size( results.size()+1 );
+        in.substring( 0,where ) => results[results.size()-1];
+        return __split( in.substring(where + pat.length()), pat, results );
+    }
+    results.size( results.size()+1 );
+    in => results[results.size()-1];
+    return;
+}
+
 
 // defines a translation between a midi message and an osc message
 private class MessagePair
