@@ -68,11 +68,13 @@ public class MidiInstrument extends Instrument {
                 chout <= "Setting port to " <= line.substring(5) <= IO.nl();
                 if (RegEx.match("[0-9]+$", line))
                 {
-                    setMidiPort(Parser.parseMidiPortNumber(line));
+                    if ( !setMidiPort(Parser.parseMidiPortNumber(line)) )
+                        return false;
                 } 
                 else
                 {
-                    setMidiPort(Util.trimQuotes(Parser.parseMidiPortString(line)));
+                    if ( !setMidiPort(Util.trimQuotes(Parser.parseMidiPortString(line))) )
+                        return false;
                 }
             }
             else if (Parser.isTranslation(line))
