@@ -41,12 +41,15 @@ public class InstrumentTester
         {
             "/" + instruments[i].name + "/note"=> string addrpat;
             // for each instrument, for each octave
-            for (int root; root < 128; 12 += root)
+            chout <= "TESTING: " <= instruments[i].name <= IO.nl();
+            for (int root; root < 128; 12 +=> root)
             {
                 // send a note message
-                osend.startMsg(addrpat, ii)
-                osend.addInt(root + scale[Math.random(scale.cap())]);
+                osend.startMsg(addrpat, "ii");
+                root + scale[Math.random2(0,scale.cap()-1)] => int note;
+                osend.addInt(note);
                 osend.addInt(64);
+                chout <= "        sent note: " <= note <= IO.nl();
                 .5::second => now;
             }
         }

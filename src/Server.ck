@@ -15,7 +15,7 @@ instruments and sets them up receiving OSC and sending
 whatever they send.
 ***********************************************************************/
 
-Instrument @ instruments[0]; // array of references, initialises to null rather than default objects
+Instrument @ instruments[0]; // array of references, initialises to null rather than default objects as a bit of safety
 
 /*******************BEGIN CUSTOM INSTRUMENT NAMES**********************/
 
@@ -120,6 +120,7 @@ else
                         }
                     }
                 }
+                // now add the instrument
                 if ( newI != null )
                 {
                     if ( newI.init(netRecv, inst) ) // initialise with the OSC recv and the rest of the file
@@ -144,6 +145,8 @@ OscSend clients[0];
 
 // add the client loop
 spork~newClientListener();
+// add the test loop
+spork~testInstrumentsListener();
 
 fun void newClientListener()
 {
@@ -154,6 +157,7 @@ fun void newClientListener()
         while ( evt.nextMsg() )
         {
             // TODO check if already exists
+            // but do we even need to keep these around? I suspect not.
             evt.getString() => string sendIp;
             evt.getInt() => int sendPort;
             OscSend s;
@@ -161,6 +165,25 @@ fun void newClientListener()
             chout <= "Found new client at " <= sendIp <= ":" <= sendPort <= IO.nl();
             sendInstruments( s );
             clients << s;
+        }
+    }
+}
+
+/** Listens for a message telling the server to test the instruments */
+fun void testInstrumentsListener()
+{
+    netRecv.event("/system/test") @=> OscEvent evt;
+    while ( evt => now )
+    {
+        while ( evt.nextMsg() )
+        {
+            chout <= "Beginning tests..." <= IO.nl();
+            InstrumentTester it;
+            // we probably don't want to allow two tests running at the same time
+            // could roll a mutex
+            // could have this loop block until it finishes (probably easiest)
+            it.run(instruments);
+            chout <= "Tests finished." <= IO.nl();
         }
     }
 }

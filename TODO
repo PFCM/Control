@@ -40,3 +40,20 @@
 
 10/1/14
 	- test string chooser
+
+16/1/14
+	- auto device detection (map of known midi ports to devices?)
+	  - definitely fix up devices opening on unknown midi ports
+	    - potential issue with numerically specified
+	- abstract multi channel instruments to 1 ch
+	  - mechbass done, how to Swivel??
+	- Keep channels on client as constant as possible
+	- delay compensation
+	  - check as many instruments as possible
+	  - test time between server sending note and audio coming in
+	  - build a delay into Instrument
+	  - set delays of all instruments to maximum-own
+	- string picking (as in choosing? What does this mean?)
+	- harmonium failsafe (done) general writing about motor control
+	- system check / screensaver mode (test, make better)
+	- parametric encodings (talk to Jim)
