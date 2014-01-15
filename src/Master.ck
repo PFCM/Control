@@ -23,6 +23,7 @@ Machine.add(me.dir()+"/MIDIMessageContainer.ck");
 Machine.add(me.dir()+"/Instrument.ck");
 Machine.add(me.dir()+"/MIDIInstrument.ck");
 Machine.add(me.dir()+"/MultiStringInstrument.ck");
+Machine.add(me.dir()+"/InstrumentTester.ck");
 // Add all the instruments — recurse through subdirectories
 // this just makes sure we can refer to unconnected instruments in code
 // and still have it compile
