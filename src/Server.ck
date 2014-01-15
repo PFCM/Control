@@ -172,12 +172,15 @@ fun void newClientListener()
 /** Listens for a message telling the server to test the instruments */
 fun void testInstrumentsListener()
 {
-    netRecv.event("/system/test") @=> OscEvent evt;
+    netRecv.event("/system/test,s") @=> OscEvent evt;
     while ( evt => now )
     {
         while ( evt.nextMsg() )
         {
             chout <= "Beginning tests..." <= IO.nl();
+            
+            // TODO grab string and construct list
+            
             InstrumentTester it;
             // we probably don't want to allow two tests running at the same time
             // could roll a mutex
