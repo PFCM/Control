@@ -42,12 +42,12 @@ if ( me.args() > 0 )
     {
         // is it the port or the hostname?
         
-        // is it in the format AAA.BBB.CCC.DDD?
+        // is it the server's address
         if ( RegEx.match( "([0-9]{1,3}\\.){3}[0-9]{1,3}", me.arg(i) ) && me.arg(i).find("self=") == -1 )
         {
             setHost( me.arg(i) );
         }
-        else if ( RegEx.match( "^[0-9]+$", me.arg(i) ) ) // if it is just a number
+        else if ( RegEx.match( "^(out=){0,1}[0-9]+$", me.arg(i) ) ) // if it is just a number
         {
             if ( portSet ) // should probably not do this twice
             {
@@ -55,8 +55,16 @@ if ( me.args() > 0 )
             }
             else
             {
-                chout <= "(Client) Setting port to " <= me.arg(i).toInt() <= IO.nl();
-                me.arg(i).toInt() => port;
+                me.arg(i) => string outport;
+                if (RegEx.match("^out=",me.arg(i)))
+                {
+                    if (debug)
+                        chout <= "(Client) (debug) stripping out= from output port" <= IO.nl();
+                    
+                    outport.substring(4) => outport;
+                }
+                chout <= "(Client) Setting port to " <= outport.toInt() <= IO.nl();
+                outport.toInt() => port;
                 1 => portSet; 
             }
         }
@@ -131,7 +139,7 @@ if ( me.args() > 0 )
                     cherr <= "(Client) Error: attempting to set self IP more than once in the same arguments" <= IO.nl();
                 }
             }
-            else
+            else // we assume server's address as a name, note that this is not good, we need better error checking here
             {
                 setHost( trimQuotes( me.arg(i) ) );
             }
@@ -200,7 +208,7 @@ while ( true )
         if ( chan >= instruments.cap() )
         {
             if (debug) 
-                cherr <= "(Client) Received MIDI on channel " <= chan+1 <= " without a registered instrument." <= IO.nl();
+                cherr <= "(Client) (debug) Received MIDI on channel " <= chan+1 <= " without a registered instrument." <= IO.nl();
             break;
         }
         instruments[chan] => string name;
@@ -210,7 +218,7 @@ while ( true )
             if ( messages[name][i].statusbyte == msgtype )
             {
                 if (debug)
-                    chout <= "(Client) [" <= name <= "] " <= messages[name][i].addresspattern <= IO.nl();
+                    chout <= "(Client) (debug) [" <= name <= "] " <= messages[name][i].addresspattern <= IO.nl();
                 osend.startMsg( messages[name][i].addresspattern, "ii" );
                 osend.addInt( msg.data2 );
                 osend.addInt( msg.data3 );
@@ -239,12 +247,12 @@ fun void instrumentAddListener()
                 if ( instruments.size() > 16 )
                     chout <= "(Client) More than 16 instruments present on server, I hope you weren’t trying to use MIDI for them all." <= IO.nl();
                if (debug)
-                chout <= "(Client) Added instrument '" <= instruments[instruments.cap()-1] <= "' on channel: " <= instruments.size() <= IO.nl();
+                chout <= "(Client) (debug) Added instrument '" <= instruments[instruments.cap()-1] <= "' on channel: " <= instruments.size() <= IO.nl();
             }
             else
             {
                 if (debug)
-                    chout <= "(Client) new instrument listener received END" <= IO.nl();
+                    chout <= "(Client) (debug) new instrument listener received END" <= IO.nl();
                 onEnd();
                 me.exit();
             }
@@ -266,7 +274,7 @@ fun void instrumentMethodListener()
             if ( name == "END" )
             {
                 if (debug)
-                    chout <= "(Client) Method listener received END" <= IO.nl();
+                    chout <= "(Client) (debug) Method listener received END" <= IO.nl();
                 onEnd();
                 me.exit();
             }
@@ -275,7 +283,7 @@ fun void instrumentMethodListener()
             evt.getInt() => int status; // get desired midi message type to plug
             
             if (debug)
-                chout <= "(Client) Received method for " <= name <= IO.nl();
+                chout <= "(Client) (debug) Received method for " <= name <= IO.nl();
             
             if ( pat.find( name ) != 1 ) // not preceded by /name, attempt to recover
             {
@@ -322,7 +330,7 @@ fun void instrumentNoteListener()
             else
             {
                 if (debug)
-                    chout <= "(Client) Notes listener received END" <= IO.nl();
+                    chout <= "(Client) (debug) Notes listener received END" <= IO.nl();
                 onEnd();
                 me.exit();
             }
@@ -365,7 +373,7 @@ fun void initialiseLastInstrument()
 {
     instruments.size() -1 => int inst;
     if (debug)
-        chout <= "(Client) Adding standard messages to " <= instruments[inst] <= IO.nl();
+        chout <= "(Client) (debug) Adding standard messages to " <= instruments[inst] <= IO.nl();
     // set up the defaults
     getDefaultMessages(instruments[inst]) @=> MessagePair m[];
     // sync, no explicit locks, have no idea how granular things actually are
@@ -393,14 +401,21 @@ fun MessagePair[] getDefaultMessages( string name )
 
 fun void setHost( string newhost )
 {   
+    newhost => string host;
+    if (RegEx.match("^server=", host))
+    {
+        if (debug)
+            chout <= "(Client) (debug) Stripping server= from hostname" <= IO.nl();
+        newhost.substring(7) => host;
+    }
     if ( hostSet )
     {
         cherr <= "(Client) Error: setting host a second time, ignoring." <= IO.nl();
     }
     else
     {
-        chout <= "(Client) Setting host to " <= newhost <= IO.nl();
-        newhost => hostname;
+        chout <= "(Client) Setting host to " <= host <= IO.nl();
+        host => hostname;
         1 => hostSet;
     }
 }

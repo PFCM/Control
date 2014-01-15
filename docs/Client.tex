@@ -1,9 +1,10 @@
 \documentclass{article}
 \usepackage[a4paper,margin=2.7cm]{geometry}
-\usepackage{enumerate}
+\usepackage[shortlabels]{enumitem}
 \usepackage[sc,small,compact]{titlesec}
 \usepackage{tgcursor}
 \usepackage[T1]{fontenc}
+\usepackage{calc}
 
 \begin{document}
 
@@ -11,9 +12,9 @@
 This file is ideally all that needs to be run on a client machine to enable easy communication. Note that it is not necessary to communicate over OSC,
 but translates MIDI into OSC to be sent over the network. As such there is some comunication required. The necessary elements are as follows.
 
-\begin{enumerate} [a)]
+\begin{enumerate} [\bf a)]
 	\item The host, consisting of
-	\begin{enumerate} [i)]
+	\begin{enumerate} [\bf i)]
 		\item 4-byte IP address (eg. \texttt{192.168.0.1}) or hostname (eg. \texttt{localhost})
 		\item a port number, which is just an unsigned integer.
 	\end{enumerate}
@@ -41,7 +42,7 @@ also likely to be necessary to specify, with no input it will default to 0, whic
 \subsection{Standard Interface}
 The standard interface for which all instruments must do something consists only of two standard messages: note and control.
 Refer to per instrument specifications for detail, they may interpret these slightly differently.
-\begin{description} 
+\begin{description} [style=multiline, labelwidth=\widthof{\bfseries Control}]
 	\item [Note] This message is intended to initiate a note event. The MIDI representation is a standard Note On, a 3 byte message in which the first
 			   four bits of the first byte are always binary 1001 and the second four bits are the channel (note on channel 1 is therefore 144 and
 			    channel 16 159). The channel determines the instrument
@@ -49,7 +50,7 @@ Refer to per instrument specifications for detail, they may interpret these slig
 			   note and the second some other information, for example the desired volume. This MIDI mesage is translated into an OSC message
 			   with the address pattern \texttt{/instrument/note,ii} where \texttt{instrument} is the name of the instrument and the two integers 
 			   specified in the type tag are the two midi data bytes, in the same order.
-	\item [Control] This message is intended to supply some kind of control data. The MIDI representation is a Control Change message, again 
+	\item [\hbox{Control}] This message is intended to supply some kind of control data. The MIDI representation is a Control Change message, again 
 			       this is 3 bytes, with the first four bits of the first channel in this case 1011 (giving the whole byte a range from 176--191). The 
 			       next byte typically specifies which control and the third the value, which are defined per-instrument.
 			       The OSC representation is \texttt{/instrument/control,ii}, exactly as above.
@@ -57,5 +58,20 @@ Refer to per instrument specifications for detail, they may interpret these slig
 \end{description}
 
 Instruments will define exactly what these do and may define more complicated systems for control if required.
+
+\subsection{Full list of Arguments}
+In addition to those above there are a number of optional arguments available to access more extended functionality. All of these are specifed as \emph{<key>=<value>} with exceptions
+noted.
+\begin{description} [style=multiline, labelwidth=\widthof{\bfseries server}]
+	\item[self] IP address or hostname of the client machine. Either a string such as \texttt{Pauls-MacBook-Pro.local} or a numerical IP adress such as \texttt{192.168.33.3}. 
+			Defaults to \texttt{localhost}.
+	\item[in] Port for return communication from the server, defaults to 50001.
+	\item[server] IP address or hostname for server, specifed as for \textbf{self}. Defaults to \texttt{localhost}, if an IP address is passed as an argument without a key, it is assumed to 
+			    the server IP.
+	\item[out] Port to send to the server on, defaults to 50000 (this has to match what is defined in \texttt{Server.ck}. A number without a key is assumed to be this.
+	\item[midi] The MIDI port on which to listen, this can be specifed as an index into the list of available ports (beginning at 0) or an explicit name, with or without quotations.
+	\item[test] Whether or not to test and if so which instruments. Possible values are \texttt{all} to test every instrument on the server or a comma separated list of names
+			for the server to test. Misspelled instruments will trigger a warning, any present instruments in the list will be tested.
+\end{description}
 
 \end{document}
