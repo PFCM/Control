@@ -11,7 +11,7 @@
 ***********************************************************************
    File: Instrument.ck
    Desc: Base class for all instruments attached to the server,
-         by itself does almost nothing
+         by itself does almost nothing, just sets up OSC listening
 ***********************************************************************/
 
 public class Instrument {
