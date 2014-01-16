@@ -42,7 +42,7 @@ public class InstrumentTester
             "/" + instruments[i].name + "/note"=> string addrpat;
             // for each instrument, for each octave
             chout <= "TESTING: " <= instruments[i].name <= IO.nl();
-            for (int root; root < 128; 12 +=> root)
+            for (int root; root < 127; 12 +=> root)
             {
                 // send a note message
                 osend.startMsg(addrpat, "ii");
@@ -52,7 +52,7 @@ public class InstrumentTester
                 chout <= "        sent note: " <= note <= IO.nl();
                 .7::second => now;
             }
-            for (127 => int root; root >= 0; 12 -=> root)
+            for (127 => int root; root >= 12; 12 -=> root)
             {
                 osend.startMsg(addrpat, "ii");
                 root -scale[Math.random2(0,scale.cap()-1)] => int note;
