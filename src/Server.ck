@@ -216,6 +216,137 @@ fun void testInstrumentsListener()
     }
 }
 
+/** Listens for an OSC message telling the server to re calibrate the delays */
+fun void calibrateLatencyListener()
+{
+    netRecv.event("/system/calibrate,s") @=> OscEvent evt;
+    
+    while ( evt => now )
+    {
+        while ( evt.nextMsg() )
+        {
+            chout <= "BEGINNING LATENCY CALIBRATION" <= IO.nl();
+            // tell the clients we are starting so they can be quiet
+            for (int i; i < clients.cap(); i++)
+            {
+                clients[i].startMsg("/system/calibrate/beginning");
+            }
+            // make a list of instruments
+            Util.splitString(evt.getString(),",") @=> string list[];
+            Instrument @ insts[0];
+            
+            for (int i; i < list.cap(); i++)
+            {
+                false => int found;
+                for (int j; j < instruments.cap(); j++)
+                {
+                    if (instruments[j].name == list[i])
+                    {
+                        insts << instruments[j];
+                        true => found;
+                        break;
+                    }
+                }
+                if (!found)
+                {
+                    chout <= "Could not find " <= list[i] <= " to calibrate" <= IO.nl();
+                }
+                
+            }
+            // now we have the actual instruments
+            // we have to send them a message, start timing until we 
+            //a) reach a maximum threshold or b) hear enough sound
+            dur delays[insts.cap()];
+            OscSend selfSend;
+            selfSend.setHost("localhost", 50000);
+            
+            // set up signal processing chain
+            adc => FFT fft =^ Flux flux => blackhole;
+            fft =^ RMS rms => blackhole;
+            
+            for (int i; i < insts.cap(); i++)
+            {
+                getLatency(insts[i], selfSend, flux, rms) => delays[i];
+                if (delays[i] == 1::second)
+                {
+                    chout <= "Unable to get response for " <= insts[i].name <= "; either not plugged in or absurdly slow, assuming 0 latency." <= IO.nl();
+                    0::ms => delays[i];
+                }
+                chout <= "Determined latency of " <= delays[i]/1::ms <= " for " <= insts[i].name <= IO.nl();
+            }
+            // now we find the maximum
+            0::ms => dur max;
+            for (int i; i < insts.cap(); i++)
+            {
+                if (delays[i] > max)
+                    delays[i] => max;
+                insts[i].setDelay(delays[i]); // store delays here for now
+            }
+            
+            // now loop every instrument and set the delay to max - its current delay
+            for (int i; i < instruments.cap(); i++)
+            {
+                instruments[i].setDelay(max-instruments[i].delay);
+            }
+            
+            // now we are done
+            chout <= "ENDING LATENCY CALIBRATION" <= IO.nl();
+            // tell the clients to go back to normal
+            for (int i; i < clients.cap(); i++)
+            {
+                clients[i].startMsg("/system/calibrate/end");
+            }
+        }
+    }
+}
+
+// Attempts to send a note to the given Instrument and listen to the default adc until either spectral flux or RMS reaches a threshold
+fun dur getLatency( Instrument instrument, OscSend send, Flux flux, RMS rms )
+{
+    // make sure the instrument is not already applying delay
+    instrument.setDelay(0::ms);
+    // in order to ensure we get a note, we're going to have to cover the full range. Then we can take
+    // the mean of successful results
+    1::second => dur maximum;
+    // grab the address patter
+    "/" + instrument.name + "/note" => string pattern;
+    dur times[0];
+    
+    for (int i; i < 127; 12 +=> i)
+    {
+        // set up the message to send when the velocity is added
+        send.startMsg(pattern, "ii");
+        send.addInt(i);
+        // grab the time
+        now => time start;
+        // send the msg and start listening
+        send.addInt(64);
+        while(rms.fval(0)*100 < 0.1 || flux.fval(0) < 0.8)
+        {
+            1024::samp => now;
+            flux.upchuck();
+            rms.upchuck();
+            
+            if ((now-start) >= maximum)
+            {
+                break;
+            }
+        }
+        now - start => dur t;
+        if (t < maximum)
+            times << t;
+    }
+    if (times.cap() == 0)
+        return maximum;
+    dur total;
+    // take the mean of the successful results
+    for (int i; i < times.cap(); i++) {
+        times[i] +=> total;
+    }
+    
+    return total/times.cap();
+}
+
 fun void sendInstruments( OscSend s )
 {
     chout <= "Sending " <= instruments.size() <= " instruments to new client" <= IO.nl();

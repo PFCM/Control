@@ -237,6 +237,12 @@ while ( true )
     }
 }
 
+// listens for messages from the server indicating it is calibrating and we should not be sending anything
+fun void serverCalibrateListener()
+{
+    
+}
+
 // listens for messages from the server to construct the list of messages
 // should terminate when the list is done, the server will send a special
 // string for this
