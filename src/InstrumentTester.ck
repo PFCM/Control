@@ -58,7 +58,7 @@ public class InstrumentTester
                 // check for noteoff, jic
                 for (int j; j < instruments[i].patterns.cap(); i++)
                 {
-                    if ( RegEx.match("noteoff,",instruments[i].patterns[j]))
+                    if ( RegEx.match("/noteoff,",instruments[i].patterns[j]))
                     {
                         osend.startMsg("/" + instruments[i].name + "/noteoff", "ii");
                         osend.addInt(note);
