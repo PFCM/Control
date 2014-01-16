@@ -184,11 +184,11 @@ fun void testInstrumentsListener()
             Instrument @ test[0];
             for (int i; i < toTest.cap(); i++)
             {
-                for (int i; i < instruments.cap(); i++)
+                for (int j; j < instruments.cap(); j++)
                 {
-                    if (instruments[i].name == toTest[i])
+                    if (instruments[j].name == toTest[i])
                     {
-                        test<<instruments[i];
+                        test<<instruments[j];
                         break;
                     }
                 }
