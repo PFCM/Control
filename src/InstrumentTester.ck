@@ -55,6 +55,17 @@ public class InstrumentTester
                 osend.addInt(64);
                 chout <= "Sent " <= addrpats[i] <= "with note: " <= note <= IO.nl();
                 1::second => now;
+                // check for noteoff, jic
+                for (int j; j < instruments[i].patterns.cap(); i++)
+                {
+                    if ( RegEx.match("noteoff,ii$",instruments[i].patterns[j]))
+                    {
+                        osend.startMsg("/" + instruments[i].name + "/noteoff", "ii");
+                        osend.addInt(note);
+                        osend.addInt(64);
+                        break;
+                    }
+                }
             }
         }
         for (127 => int root; root >= 12; 12 -=> root)
@@ -69,6 +80,20 @@ public class InstrumentTester
                 chout <= "Sent " <= addrpats[i] <= "with note: " <= note <= IO.nl();
             }
             1::second => now;
+            for (int i; i < instruments.cap(); i++)
+            {
+                // check for noteoff, jic
+                for (int j; j < instruments[i].patterns.cap(); i++)
+                {
+                    if ( RegEx.match("noteoff,ii$",instruments[i].patterns[j]))
+                    {
+                        osend.startMsg("/" + instruments[i].name + "/noteoff", "ii");
+                        osend.addInt(note);
+                        osend.addInt(64);
+                        break;
+                    }
+                }
+            }
         }
     }
 }
