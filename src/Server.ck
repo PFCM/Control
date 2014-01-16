@@ -339,7 +339,6 @@ fun dur getLatency( Instrument instrument, OscSend send, Flux flux, RMS rms )
             chout <= instrument.name <= " needs note off" <= IO.nl();
             "/" + instrument.name + "/noteoff" => string offPattern;
             break;
-            
         }
     }
     
@@ -370,13 +369,14 @@ fun dur getLatency( Instrument instrument, OscSend send, Flux flux, RMS rms )
         if (t < maximum)
             times << t;
         
-        if (offPattern != "")
+        if (offPattern.length() > 0)
         {
             send.startMsg(offPattern, "ii");
             send.addInt(i);
             send.addInt(64);
             500::ms => now; // in case of tail
         }
+        200::ms => now;
     }
     if (times.cap() == 0)
         return maximum;
