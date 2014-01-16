@@ -159,14 +159,14 @@ fun void newClientListener()
             // TODO check if already exists
             // but do we even need to keep these around? I suspect not.
             evt.getString() => string sendIp;
-            evt.getInt() => int sendPort;
-            OscSend s;
-            s.setHost( sendIp, sendPort );
-            chout <= "Found new client at " <= sendIp <= ":" <= sendPort <= IO.nl();
-            sendInstruments( s );
-            clients << s;
-        }
+        evt.getInt() => int sendPort;
+        OscSend s;
+        s.setHost( sendIp, sendPort );
+        chout <= "Found new client at " <= sendIp <= ":" <= sendPort <= IO.nl();
+        sendInstruments( s );
+        clients << s;
     }
+}
 }
 
 /** Listens for a message telling the server to test the instruments */
@@ -182,23 +182,35 @@ fun void testInstrumentsListener()
             // Construct list of instruments based on comma separated list we just received
             (evt.getString(), ",") => Util.splitString @=> string toTest[];
             Instrument @ test[0];
-            for (int i; i < toTest.cap(); i++)
+            InstrumentTester it;
+            if (toTest[0] != "all")
             {
-                for (int j; j < instruments.cap(); j++)
+                for (int i; i < toTest.cap(); i++)
                 {
-                    if (instruments[j].name == toTest[i])
+                    false => int found;
+                    for (int j; j < instruments.cap(); j++)
                     {
-                        test<<instruments[j];
-                        break;
+                        if (instruments[j].name == toTest[i])
+                        {
+                            test<<instruments[j];
+                            true => found;
+                            break;
+                        }
+                    }
+                    if (!found)
+                    {
+                        chout <= "Could not find instrument: " <= toTest[i] <= " must not be plugged in/exist." <= IO.nl();
                     }
                 }
+                // we probably don't want to allow two tests running at the same time
+                // could roll a mutex
+                // could have this loop block until it finishes (probably easiest)
+                it.run(test);
             }
-            
-            InstrumentTester it;
-            // we probably don't want to allow two tests running at the same time
-            // could roll a mutex
-            // could have this loop block until it finishes (probably easiest)
-            it.run(test);
+            else
+            {
+                it.run(instruments);
+            }
             chout <= "Tests finished." <= IO.nl();
         }
     }
