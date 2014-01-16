@@ -330,6 +330,18 @@ fun dur getLatency( Instrument instrument, OscSend send, Flux flux, RMS rms )
     1::second => dur maximum;
     // grab the address patter
     "/" + instrument.name + "/note" => string pattern;
+    // does instrument need a noteoff ?
+    false => int off;
+    for (int i; i < instrument.patterns.cap(); i++)
+    {
+        RegEx.match("noteoff,", instrument.patterns[i]) => off;
+        if (off) break;
+    }
+    "" => string offPattern;
+    if (off)
+        "/" + instrument.name + "/noteoff" => string offPattern;
+        
+    
     dur times[0];
     
     for (int i; i < 127; 12 +=> i)
@@ -355,6 +367,14 @@ fun dur getLatency( Instrument instrument, OscSend send, Flux flux, RMS rms )
         now - start => dur t;
         if (t < maximum)
             times << t;
+        
+        if (off)
+        {
+            send.startMsg(offPattern, "ii");
+            send.addInt(i);
+            send.addInt(64);
+            200::ms => now; // in case of tail
+        }
     }
     if (times.cap() == 0)
         return maximum;

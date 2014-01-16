@@ -466,6 +466,7 @@ fun void doCalibrate()
             if (toDelay[i].lower() == "off")
             {
                 "off" => actualList;
+                break;
             }
             if (toDelay[i].lower() == "on")
             {
