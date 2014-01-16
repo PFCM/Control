@@ -53,12 +53,12 @@ public class InstrumentTester
                 root + scale[Math.random2(0,scale.cap()-1)] => int note;
                 osend.addInt(note);
                 osend.addInt(64);
-                chout <= "Sent " <= addrpats[i] <= "with note: " <= note <= IO.nl();
+                chout <= "Sent " <= addrpats[i] <= " with note: " <= note <= IO.nl();
                 1::second => now;
                 // check for noteoff, jic
                 for (int j; j < instruments[i].patterns.cap(); i++)
                 {
-                    if ( RegEx.match("noteoff,ii$",instruments[i].patterns[j]))
+                    if ( RegEx.match("noteoff,",instruments[i].patterns[j]))
                     {
                         osend.startMsg("/" + instruments[i].name + "/noteoff", "ii");
                         osend.addInt(note);
@@ -77,7 +77,7 @@ public class InstrumentTester
                 osend.startMsg(addrpats[i], "ii");
                 osend.addInt(note);
                 osend.addInt(64);
-                chout <= "Sent " <= addrpats[i] <= "with note: " <= note <= IO.nl();
+                chout <= "Sent " <= addrpats[i] <= " with note: " <= note <= IO.nl();
             }
             1::second => now;
             for (int i; i < instruments.cap(); i++)
@@ -85,7 +85,7 @@ public class InstrumentTester
                 // check for noteoff, jic
                 for (int j; j < instruments[i].patterns.cap(); i++)
                 {
-                    if ( RegEx.match("noteoff,ii$",instruments[i].patterns[j]))
+                    if ( RegEx.match("noteoff,",instruments[i].patterns[j]))
                     {
                         osend.startMsg("/" + instruments[i].name + "/noteoff", "ii");
                         osend.addInt(note);
