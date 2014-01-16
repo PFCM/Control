@@ -50,7 +50,16 @@ public class InstrumentTester
                 osend.addInt(note);
                 osend.addInt(64);
                 chout <= "        sent note: " <= note <= IO.nl();
-                .5::second => now;
+                .7::second => now;
+            }
+            for (127 => int root; root >= 0; 12 -=> root)
+            {
+                osend.startMsg(addrpat, "ii");
+                root -scale[Math.random2(0,scale.cap()-1)] => int note;
+                osend.addInt(note);
+                osend.addInt(64);
+                chout <= "        sent note: " <= note <= IO.nl();
+                .7::second => now;
             }
         }
     }
