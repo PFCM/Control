@@ -177,7 +177,7 @@ fun void testInstrumentsListener()
     {
         while ( evt.nextMsg() )
         {
-            chout <= "Beginning tests… <= IO.nl();
+            chout <= "Beginning tests.." <= IO.nl();
             
             // Construct list of instruments based on comma separated list we just received
             evt.getString() => Util.splitString => string toTest[];
