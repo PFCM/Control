@@ -292,7 +292,7 @@ fun void calibrateLatencyListener()
                     chout <= "Unable to get response for " <= insts[i].name <= "; either not plugged in or absurdly slow, assuming 0 latency." <= IO.nl();
                     0::ms => delays[i];
                 }
-                chout <= "Determined latency of " <= delays[i]/1::ms <= " for " <= insts[i].name <= IO.nl();
+                chout <= "Determined latency of " <= delays[i]/1::ms <= " ms for " <= insts[i].name <= IO.nl();
             }
             // now we find the maximum
             0::ms => dur max;
@@ -339,7 +339,11 @@ fun dur getLatency( Instrument instrument, OscSend send, Flux flux, RMS rms )
     }
     "" => string offPattern;
     if (off)
+    {
+        if (debug)
+            chout <= instrument.name <= " needs note off" <= IO.nl();
         "/" + instrument.name + "/noteoff" => string offPattern;
+    }
         
     
     dur times[0];
