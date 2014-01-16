@@ -177,15 +177,28 @@ fun void testInstrumentsListener()
     {
         while ( evt.nextMsg() )
         {
-            chout <= "Beginning tests..." <= IO.nl();
+            chout <= "Beginning tests… <= IO.nl();
             
-            // TODO grab string and construct list
+            // Construct list of instruments based on comma separated list we just received
+            evt.getString() => Util.splitString => string toTest[];
+            Instrument @ test[0];
+            for (int i; i < toTest.cap(); i++)
+            {
+                for (int i; i < instruments.cap(); i++)
+                {
+                    if (instruments[i].name == toTest[i])
+                    {
+                        test<<instruments[i];
+                        break;
+                    }
+                }
+            }
             
             InstrumentTester it;
             // we probably don't want to allow two tests running at the same time
             // could roll a mutex
             // could have this loop block until it finishes (probably easiest)
-            it.run(instruments);
+            it.run(tests);
             chout <= "Tests finished." <= IO.nl();
         }
     }
