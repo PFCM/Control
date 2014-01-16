@@ -198,7 +198,7 @@ fun void testInstrumentsListener()
             // we probably don't want to allow two tests running at the same time
             // could roll a mutex
             // could have this loop block until it finishes (probably easiest)
-            it.run(tests);
+            it.run(test);
             chout <= "Tests finished." <= IO.nl();
         }
     }
