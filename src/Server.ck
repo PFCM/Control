@@ -337,7 +337,7 @@ fun dur getLatency( Instrument instrument, OscSend send, Flux flux, RMS rms )
         if (RegEx.match("/noteoff,", instrument.patterns[i]));
         {
             chout <= instrument.name <= " needs note off" <= IO.nl();
-            "/" + instrument.name + "/noteoff" => string offPattern;
+            instrument.patterns[i] => string offPattern;
             break;
         }
     }
