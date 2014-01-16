@@ -19,6 +19,7 @@ public class Instrument {
     string name;   // some kind of identification
     string patterns[0]; // to store the current address patterns for later queries
     string notes[0];
+    0::samp => dur delay;
     
     // Public initialiser ensures we can init all instruments
     // from the outside.
@@ -78,7 +79,7 @@ public class Instrument {
         return 1;
     }
     
-    // slightly less private init method, can be overridden by abstract classes further down the line
+    // slightly less private init method, can be overridden by abstract classes further down the line for when they need to insert additional init
     fun int _init(OscRecv input, string names[])
     {
         return __init(input,names);
@@ -88,6 +89,13 @@ public class Instrument {
     fun void __setName(string n)
     {
         n => name;
+    }
+    
+    // Sets the delay applied prior to handling new notes. This is used as part of the servers
+    // latency compensation.
+    fun void setDelay(dur newDelay)
+    {
+        newDelay => delay;
     }
     
     // Returns the highest level of this Instruments address pattern
@@ -118,6 +126,7 @@ public class Instrument {
         {
             while ( evt.nextMsg() )
             {
+                delay => now;
                 handleMessage( evt, pat );
             }
         }

@@ -72,6 +72,9 @@ noted.
 	\item[midi] The MIDI port on which to listen, this can be specifed as an index into the list of available ports (beginning at 0) or an explicit name, with or without quotations.
 	\item[test] Whether or not to test and if so which instruments. Possible values are \texttt{all} to test every instrument on the server or a comma separated list of names
 			for the server to test. Misspelled instruments will trigger a warning, any present instruments in the list will be tested.
+	\item[delay] Sets the latency compensation mode. Possible values are: \texttt{off} for no compensation (default), \texttt{on} attempt to run latency compensation for all instruments
+			   or a comma separated list of names in which case the system will run delay compensation on the named instruments and assume a latency of 0 for any that are
+			   not named. For a more detailed discussion of the latency compensation mechanism and when it might be desirable, see the documentation for \texttt{Server.ck}.
 \end{description}
 
 \end{document}
