@@ -147,6 +147,8 @@ OscSend clients[0];
 spork~newClientListener();
 // add the test loop
 spork~testInstrumentsListener();
+// add the calibrate loop
+spork~calibrateLatencyListener();
 
 fun void newClientListener()
 {
@@ -225,6 +227,15 @@ fun void calibrateLatencyListener()
     {
         while ( evt.nextMsg() )
         {
+            evt.getString() => string msg;
+            if (msg == "off")
+            {
+                chout <= "LATENCY CALIBRATION OFF" <= IO.nl();
+                for (int i; i < instruments.cap(); i++)
+                    instruments[i].setDelay(0::ms);
+                continue;
+            }
+            
             chout <= "BEGINNING LATENCY CALIBRATION" <= IO.nl();
             // tell the clients we are starting so they can be quiet
             for (int i; i < clients.cap(); i++)
@@ -232,26 +243,31 @@ fun void calibrateLatencyListener()
                 clients[i].startMsg("/system/calibrate/beginning");
             }
             // make a list of instruments
-            Util.splitString(evt.getString(),",") @=> string list[];
+            Util.splitString(msg,",") @=> string list[];
             Instrument @ insts[0];
             
-            for (int i; i < list.cap(); i++)
+            if (list[0] == "on")
+                instruments @=> insts;
+            else
             {
-                false => int found;
-                for (int j; j < instruments.cap(); j++)
+                for (int i; i < list.cap(); i++)
                 {
-                    if (instruments[j].name == list[i])
+                    false => int found;
+                    for (int j; j < instruments.cap(); j++)
                     {
-                        insts << instruments[j];
-                        true => found;
-                        break;
+                        if (instruments[j].name == list[i])
+                        {
+                            insts << instruments[j];
+                            true => found;
+                            break;
+                        }
                     }
+                    if (!found)
+                    {
+                        chout <= "Could not find " <= list[i] <= " to calibrate" <= IO.nl();
+                    }
+                    
                 }
-                if (!found)
-                {
-                    chout <= "Could not find " <= list[i] <= " to calibrate" <= IO.nl();
-                }
-                
             }
             // now we have the actual instruments
             // we have to send them a message, start timing until we 

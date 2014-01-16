@@ -19,6 +19,7 @@ OscSend osend; // client needs to receive data early on and to send throughout
 MidiIn min; // pretty much the point
 
 true => int debug;
+false => int isCalibrating; // is the server calculating latencies? We'd better not send during that
 
 0 => int numQuit;
 
@@ -27,6 +28,7 @@ true => int debug;
 "localhost" => string hostname => string selfIP;
 0 => int portSet => int hostSet => int midiSet => int rcvPortSet => int selfIPSet;
 "" => string testList; // the list of instruments we want to test on client startup
+"" => string delayList;
 
 string notes[0][0]; // notes about the instruments
 
@@ -148,6 +150,12 @@ if ( me.args() > 0 )
                 me.arg(i).substring(5) => testList;
                 chout <= "(Client) got \"" <= testList <= "\" to test." <= IO.nl();
             }
+            else if ( me.arg(i).find("delay=") >= 0 ) // do we want to try compensate for instrument latency
+            {
+                // like with test we just want to store this until a bit later
+                me.arg(i).substring(6) => delayList;
+                chout <= "(Client) got \"" <= delayList <= "\" to use for latency calibration." <= IO.nl();
+            }
             else // we assume server's address as a name, note that this is not good, we need better error checking here
             {
                 setHost( trimQuotes( me.arg(i) ) );
@@ -190,8 +198,9 @@ spork~instrumentMethodListener();
 // start listening for replies before we actually tell the server we exist, jic
 spork~instrumentAddListener();
 spork~instrumentNoteListener();
+spork~serverCalibrateListener();
 
-// waaait
+// waaait (this actually fixed a bunch of problems)
 500::ms => now;
 // now tell the server we exist
 osend.startMsg( "/system/addme", "si" );
@@ -228,9 +237,12 @@ while ( true )
             {
                 if (debug)
                     chout <= "(Client) (debug) [" <= name <= "] " <= messages[name][i].addresspattern <= IO.nl();
-                osend.startMsg( messages[name][i].addresspattern, "ii" );
-                osend.addInt( msg.data2 );
-                osend.addInt( msg.data3 );
+                if (!isCalibrating) // only send it if the server wants us to
+                {
+                    osend.startMsg( messages[name][i].addresspattern, "ii" );
+                    osend.addInt( msg.data2 );
+                    osend.addInt( msg.data3 );
+                }
                 break;
             }
         }
@@ -240,7 +252,41 @@ while ( true )
 // listens for messages from the server indicating it is calibrating and we should not be sending anything
 fun void serverCalibrateListener()
 {
+    orec.event("/system/calibrate/beginning") @=> OscEvent evt;
     
+    while (evt => now)
+    {
+        while (evt.nextMsg()
+        {
+            // begin
+            chout <= "(Client) SERVER IS CALIBRATING LATENCIES." <= IO.nl();
+            spork~calibrationDoneListener();
+            true => isCalibrating;
+            while (isCalibrating)
+            {
+                10::ms => now;
+                if (now % 1::second)
+                    chout <= ". . ." <= IO.nl();
+            }
+        }
+    }
+}
+
+// listens for the end of the calibration, setting isCalibrating to false and returning client to normal operation.
+fun void calibrationDoneListener()
+{
+    orec.event("/system/calibrate/end") @=> OscEvent evt;
+    
+    while (evt => now)
+    {
+        while (evt.nextMsg())
+        {
+            chout <= "(Client) CALIBRATION DONE." <= IO.nl();
+            chout <= "(Client) See server console for details." <= IO.nl();
+            false => isCalibrating;
+            me.exit();
+        }
+    }
 }
 
 // listens for messages from the server to construct the list of messages
@@ -261,8 +307,8 @@ fun void instrumentAddListener()
                 initialiseLastInstrument();
                 if ( instruments.size() > 16 )
                     chout <= "(Client) More than 16 instruments present on server, I hope you weren’t trying to use MIDI for them all." <= IO.nl();
-               if (debug)
-                chout <= "(Client) (debug) Added instrument '" <= instruments[instruments.cap()-1] <= "' on channel: " <= instruments.size() <= IO.nl();
+                if (debug)
+                    chout <= "(Client) (debug) Added instrument '" <= instruments[instruments.cap()-1] <= "' on channel: " <= instruments.size() <= IO.nl();
             }
             else
             {
@@ -381,6 +427,57 @@ fun void onEnd()
         
         // now we can test
         doTests();
+        // and initiate calibration
+        doCalibrate();
+    }
+}
+
+// does the calibration
+fun void doCalibrate()
+{
+    if (delayList == "")
+        chout <= "(Client) No delay calibration specified, not telling the server to do so." <= IO.nl();
+    else
+    {
+        // lots of similarity between this and the tester stuff, should really re use
+        if (debug)
+            chout <= "(Client) (debug) double checking calibrate list: " <= delayList <= IO.nl();
+        splitString(delayList, ",") @=> string toDelay[];
+        string actualList;
+        
+        for (int i; i < toDelay.cap(); i++)
+        {
+            if (toDelay[i].lower() == "off")
+            {
+                "off" => actualList;
+            }
+            if (toDelay[i].lower() == "on")
+            {
+                "on" => actualList;
+                break;
+            }
+            
+            false => int exists;
+            for (int j; j < instruments.cap(); j++)
+            {
+                if (instruments[j].lower() == toDelay[i].lower())
+                {
+                    true => exists;
+                    if (actualList != "")
+                        actualList + "," => actualList;
+                    actualList + instruments[j] => actualList;
+                    break;
+                }
+            }
+            if (!exists)
+            {
+                chout <= "(Client) Instrument " <= toDelay[i] <= " not present on server, not asking to calibrate." <= IO.nl();
+            }
+        }
+        chout <= "(Client) asking server to calibrate: " <= actualList <= IO.nl();
+        
+        osend.startMsg("/system/calibrate", "s");
+        osend.addString(actualList);
     }
 }
 
