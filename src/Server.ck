@@ -180,7 +180,7 @@ fun void testInstrumentsListener()
             chout <= "Beginning tests.." <= IO.nl();
             
             // Construct list of instruments based on comma separated list we just received
-            evt.getString() => Util.splitString => string toTest[];
+            (evt.getString(), ",") => Util.splitString => string toTest[];
             Instrument @ test[0];
             for (int i; i < toTest.cap(); i++)
             {
