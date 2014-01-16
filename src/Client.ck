@@ -19,7 +19,7 @@ OscSend osend; // client needs to receive data early on and to send throughout
 MidiIn min; // pretty much the point
 
 true => int debug;
-false => int isCalibrating; // is the server calculating latencies? We'd better not send during that
+true => int canSend; // is the server calculating latencies? We'd better not send during that
 
 0 => int numQuit;
 
@@ -237,7 +237,7 @@ while ( true )
             {
                 if (debug)
                     chout <= "(Client) (debug) [" <= name <= "] " <= messages[name][i].addresspattern <= IO.nl();
-                if (!isCalibrating) // only send it if the server wants us to
+                if (canSend) // only send it if the server wants us to
                 {
                     osend.startMsg( messages[name][i].addresspattern, "ii" );
                     osend.addInt( msg.data2 );
@@ -256,23 +256,22 @@ fun void serverCalibrateListener()
     
     while (evt => now)
     {
-        while (evt.nextMsg()
+        while (evt.nextMsg())
         {
             // begin
             chout <= "(Client) SERVER IS CALIBRATING LATENCIES." <= IO.nl();
             spork~calibrationDoneListener();
-            true => isCalibrating;
-            while (isCalibrating)
+            false => canSend;
+            while (!canSend)
             {
-                10::ms => now;
-                if (now % 1::second)
-                    chout <= ". . ." <= IO.nl();
+                2::second => now;
+                chout <= ". . ." <= IO.nl();
             }
         }
     }
 }
 
-// listens for the end of the calibration, setting isCalibrating to false and returning client to normal operation.
+// listens for the end of the calibration, setting canSend to true and returning client to normal operation.
 fun void calibrationDoneListener()
 {
     orec.event("/system/calibrate/end") @=> OscEvent evt;
@@ -283,11 +282,28 @@ fun void calibrationDoneListener()
         {
             chout <= "(Client) CALIBRATION DONE." <= IO.nl();
             chout <= "(Client) See server console for details." <= IO.nl();
-            false => isCalibrating;
+            true => canSend;
             me.exit();
         }
     }
 }
+
+// listens for the end of the tests, setting canSend to true and returning client to normal operation.
+fun void testEndListener()
+{
+    orec.event("/system/test/end") @=> OscEvent evt;
+    
+    while (evt => now)
+    {
+        while (evt.nextMsg())
+        {
+            chout <= "(Client) TESTS DONE. Sound ok?" <= IO.nl();
+            true => canSend;
+            me.exit();
+        }
+    }
+}
+
 
 // listens for messages from the server to construct the list of messages
 // should terminate when the list is done, the server will send a special
@@ -488,6 +504,7 @@ fun void doTests()
         chout <= "(Client) No tests specified." <= IO.nl();
     else
     {
+        false => canSend; // let's not confuse things
         if (debug)
             chout <= "(Client) (debug) double checking test list: " <= testList <= IO.nl();
         
@@ -524,6 +541,13 @@ fun void doTests()
         // actually send
         osend.startMsg("/system/test", "s");
         osend.addString(actualList);
+        
+        spork~testEndListener();
+        while (!canSend)
+        {
+            2::second => now;
+            chout <= ". . ." <= IO.nl();
+        }
     }   
 }
 

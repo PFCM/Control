@@ -214,6 +214,10 @@ fun void testInstrumentsListener()
                 it.run(instruments);
             }
             chout <= "Tests finished." <= IO.nl();
+            for (int i; i < clients.cap(); i++)
+            {
+                clients[i].startMsg("/system/test/end", "");
+            }
         }
     }
 }
@@ -240,7 +244,7 @@ fun void calibrateLatencyListener()
             // tell the clients we are starting so they can be quiet
             for (int i; i < clients.cap(); i++)
             {
-                clients[i].startMsg("/system/calibrate/beginning");
+                clients[i].startMsg("/system/calibrate/beginning", "");
             }
             // make a list of instruments
             Util.splitString(msg,",") @=> string list[];
@@ -310,7 +314,7 @@ fun void calibrateLatencyListener()
             // tell the clients to go back to normal
             for (int i; i < clients.cap(); i++)
             {
-                clients[i].startMsg("/system/calibrate/end");
+                clients[i].startMsg("/system/calibrate/end", "");
             }
         }
     }
