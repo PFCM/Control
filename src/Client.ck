@@ -264,7 +264,7 @@ fun void serverCalibrateListener()
             false => canSend;
             while (!canSend)
             {
-                if ((now%1::second)/1::samp == 0)
+                if ((now%2::second)/1::samp == 0)
                 {
                     chout <= ". . ." <= IO.nl();
                 }
@@ -549,7 +549,7 @@ fun void doTests()
         spork~testEndListener();
         while (!canSend)
         {
-            if ((now%1::second)/1::samp == 0)
+            if ((now%2::second)/1::samp == 0)
             {
                 chout <= ". . ." <= IO.nl();
             }
