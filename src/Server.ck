@@ -141,7 +141,7 @@ else
 
 netRecv.listen(); // now we want to hear
 // need somewhere to keep the clients
-OscSend clients[0];
+Client clients[0];
 
 // add the client loop
 spork~newClientListener();
@@ -158,17 +158,30 @@ fun void newClientListener()
     {
         while ( evt.nextMsg() )
         {
-            // TODO check if already exists
-            // but do we even need to keep these around? I suspect not.
             evt.getString() => string sendIp;
-        evt.getInt() => int sendPort;
-        OscSend s;
-        s.setHost( sendIp, sendPort );
-        chout <= "Found new client at " <= sendIp <= ":" <= sendPort <= IO.nl();
-        sendInstruments( s );
-        clients << s;
+            evt.getInt() => int sendPort;
+            Client s;
+            s.setHost( sendIp, sendPort );
+            chout <= "Found new client at " <= sendIp <= ":" <= sendPort <= IO.nl();
+            sendInstruments( s );
+            
+            // definitely re send, but only add if we don't already have it in the list
+            // becasue otherwise the calibrate and whatnot will send twice, this
+            // can cause client side issues.
+            // have to linearly search the list now.
+            true => int add;
+            for (int i; i < clients.cap(); i++)
+            {
+                if ( (clients[i].hostname == sendIp) && (clients[i].port == sendPort) )
+                {
+                    false => add; // already here
+                    break;
+                }
+            }
+            if (add)
+                clients << s;
+        }
     }
-}
 }
 
 /** Listens for a message telling the server to test the instruments */
@@ -390,7 +403,7 @@ fun dur getLatency( Instrument instrument, OscSend send, Flux flux, RMS rms )
     return total/times.cap();
 }
 
-fun void sendInstruments( OscSend s )
+fun void sendInstruments( Client s )
 {
     chout <= "Sending " <= instruments.size() <= " instruments to new client" <= IO.nl();
     for ( int i; i < instruments.size(); i++ )
@@ -399,8 +412,8 @@ fun void sendInstruments( OscSend s )
         s.addString( instruments[i].name );
         Util.makeDefaults( instruments[i].name ) @=> string defaults[];
         // add its methods, if they are special
-        instruments[i].sendMethods( s );
-        instruments[i].sendNotes( s );
+        instruments[i].sendMethods( s.oscSend );
+        instruments[i].sendNotes( s.oscSend );
     }
     s.startMsg( "/system/instruments/add", "s" );
     s.addString("END");
@@ -416,3 +429,36 @@ fun void sendInstruments( OscSend s )
 
 // loop
 while ( true ) 1::second => now;
+
+// ChucK OscSend provides a setHost() but no way to get that info back.
+// Here we define a wrapper around it that gives us this functionality.
+private class Client // if we could call methods on the super we could extend it
+{
+    OscSend oscSend;
+    string hostname;
+    int port;
+    
+    fun void setHost(string newhost, int newport)
+    {
+        newhost => hostname;
+        newport => port;
+        oscSend.setHost(hostname, port);
+    }
+    
+    fun void startMsg(string pattern, string typetag)
+    {
+        oscSend.startMsg(pattern, typetag);
+    }
+    fun void addInt(int i)
+    {
+        oscSend.addInt(i);
+    }
+    fun void addFloat(float i)
+    {
+        oscSend.addFloat(i);
+    }
+    fun void addString(string i)
+    {
+        oscSend.addString(i);
+    }
+}
