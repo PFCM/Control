@@ -192,7 +192,8 @@ if ( !midiSet )
 string instruments[0]; // the names of the instruments
 MessagePair messages[0][0];// and their messages, assumed to be ii or it would be a challenge to transform from midi
 
-
+// listen to see if the server is in the middle of calibrating
+spork~serverCalibrateIsRunningListener() => Shred @ calibrateRunningListener; // store it because this doesn't have to run except at the start.
 // start listening for non-default messages available
 spork~instrumentMethodListener();
 // start listening for replies before we actually tell the server we exist, jic
@@ -244,6 +245,30 @@ while ( true )
                     osend.addInt( msg.data3 );
                 }
                 break;
+            }
+        }
+    }
+}
+
+// used at the beginning in case we join the network during calibration
+fun void serverCalibrateIsRunningListener()
+{
+    orec.event("/system/calibrate/running") @=> OscEvent evt;
+    
+    while (evt => now)
+    {
+        while (evt.nextMsg()) // if the server is in the middle of calibration, make it obvious, stop main loop from sending
+        {
+            chout <= "(Client) SERVER IS CALIBRATING LATENCIES." <= IO.nl();
+            spork~calibrationDoneListener();
+            false => canSend;
+            while (!canSend)
+            {
+                if ((now%2::second)/1::samp == 0)
+                {
+                    chout <= ". . ." <= IO.nl();
+                }
+                1::samp => now;
             }
         }
     }
@@ -418,7 +443,7 @@ fun void instrumentNoteListener()
     }
 }
 
-// prints the instruments when both the add and the extend listeners
+// prints the instruments when both the add and the extend (and note) listeners
 // have returned
 fun void onEnd()
 {
@@ -447,10 +472,11 @@ fun void onEnd()
         // and initiate calibration
         doCalibrate();
         // block until calibration done
-        false => canSend; // this will get sety back if everything goes according to plan
+        false => canSend; // this will get set back if everything goes according to plan
         while ( !canSend )
             10::ms => now;
         // now we can test
+        calibrationRunningListener.exit();
         doTests();
     }
 }
@@ -458,6 +484,11 @@ fun void onEnd()
 // does the calibration
 fun void doCalibrate()
 {
+    if (!canSend)
+    {
+        chout <= "(Client) Server busy, probably calibrating already, not asking to repeat." <= IO.nl();
+        return;
+    }
     if (delayList == "")
         chout <= "(Client) No delay calibration specified, not telling the server to do so." <= IO.nl();
     else

@@ -30,6 +30,9 @@ OscRecv netRecv;
 // port is now 50000
 50000 => netRecv.port;
 
+// are we in the middle of calibration?
+false => int isCalibrating;
+
 
 // Get all the files, this will tell us what robots to load
 FileIO dir;
@@ -164,6 +167,10 @@ fun void newClientListener()
             s.setHost( sendIp, sendPort );
             chout <= "Found new client at " <= sendIp <= ":" <= sendPort <= IO.nl();
             sendInstruments( s );
+            if (isCalibrating)
+            {
+                s.startMsg("/system/calibrate/running", "");
+            }
             
             // definitely re send, but only add if we don't already have it in the list
             // becasue otherwise the calibrate and whatnot will send twice, this
@@ -192,6 +199,11 @@ fun void testInstrumentsListener()
     {
         while ( evt.nextMsg() )
         {
+            if (isCalibrating)
+            {
+                chout <= "Test request received while calibrating, ignoring" <= IO.nl();
+                continue;
+            }
             chout <= "Beginning tests.." <= IO.nl();
             
             // Construct list of instruments based on comma separated list we just received
@@ -254,6 +266,7 @@ fun void calibrateLatencyListener()
             }
             
             chout <= "BEGINNING LATENCY CALIBRATION" <= IO.nl();
+            true => isCalibrating;
             // tell the clients we are starting so they can be quiet
             for (int i; i < clients.cap(); i++)
             {
@@ -324,6 +337,7 @@ fun void calibrateLatencyListener()
             
             // now we are done
             chout <= "ENDING LATENCY CALIBRATION" <= IO.nl();
+            false => isCalibrating;
             // tell the clients to go back to normal
             for (int i; i < clients.cap(); i++)
             {
