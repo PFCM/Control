@@ -447,6 +447,7 @@ fun void onEnd()
         // and initiate calibration
         doCalibrate();
         // block until calibration done
+        false => canSend; // this will get sety back if everything goes according to plan
         while ( !canSend )
             10::ms => now;
         // now we can test
