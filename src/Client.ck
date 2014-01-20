@@ -531,6 +531,10 @@ fun void doCalibrate()
         }
         chout <= "(Client) asking server to calibrate: " <= actualList <= IO.nl();
         
+        if (actualList == "off")
+        {
+            spork~calibrationDonelistener();
+        }
         osend.startMsg("/system/calibrate", "s");
         osend.addString(actualList);
     }

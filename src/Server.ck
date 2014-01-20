@@ -340,7 +340,7 @@ fun void calibrateLatencyListener()
             chout <= "ENDING LATENCY CALIBRATION" <= IO.nl();
         }
             false => isCalibrating;
-            // tell the clients to go back to normal, otherwise if clients turn it off, they might still block
+            // tell the clients to go back to normal, otherwise if clients turn it off, they might still block"
             for (int i; i < clients.cap(); i++)
             {
                 clients[i].startMsg("/system/calibrate/end", "");
