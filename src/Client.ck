@@ -469,14 +469,14 @@ fun void onEnd()
             }
         }
         
+        // now we can test
+        calibrationRunningListener.exit();
         // and initiate calibration
         doCalibrate();
         // block until calibration done
         false => canSend; // this will get set back if everything goes according to plan
         while ( !canSend )
             10::ms => now;
-        // now we can test
-        calibrationRunningListener.exit();
         doTests();
     }
 }
