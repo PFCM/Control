@@ -262,8 +262,9 @@ fun void calibrateLatencyListener()
                 chout <= "LATENCY CALIBRATION OFF" <= IO.nl();
                 for (int i; i < instruments.cap(); i++)
                     instruments[i].setDelay(0::ms);
-                continue;
             }
+            else 
+            {
             
             chout <= "BEGINNING LATENCY CALIBRATION" <= IO.nl();
             true => isCalibrating;
@@ -337,8 +338,9 @@ fun void calibrateLatencyListener()
             
             // now we are done
             chout <= "ENDING LATENCY CALIBRATION" <= IO.nl();
+        }
             false => isCalibrating;
-            // tell the clients to go back to normal
+            // tell the clients to go back to normal, otherwise if clients turn it off, they might still block
             for (int i; i < clients.cap(); i++)
             {
                 clients[i].startMsg("/system/calibrate/end", "");
