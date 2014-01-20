@@ -193,7 +193,7 @@ string instruments[0]; // the names of the instruments
 MessagePair messages[0][0];// and their messages, assumed to be ii or it would be a challenge to transform from midi
 
 // listen to see if the server is in the middle of calibrating
-spork~serverCalibrateIsRunningListener() @=> Shred @ calibrateRunningListener; // store it because this doesn't have to run except at the start.
+spork~serverCalibrateIsRunningListener() @=> Shred @ calibrationRunningListener; // store it because this doesn't have to run except at the start.
 // start listening for non-default messages available
 spork~instrumentMethodListener();
 // start listening for replies before we actually tell the server we exist, jic
