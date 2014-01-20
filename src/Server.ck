@@ -142,6 +142,12 @@ else
     }
 }
 
+if (instruments.cap() == 0)
+{
+    chout <= "NO INSTRUMENTS CONNECTED, EXITING." <= IO.nl();
+    me.exit();
+}
+
 netRecv.listen(); // now we want to hear
 // need somewhere to keep the clients
 Client clients[0];
@@ -265,80 +271,80 @@ fun void calibrateLatencyListener()
             }
             else 
             {
-            
-            chout <= "BEGINNING LATENCY CALIBRATION" <= IO.nl();
-            true => isCalibrating;
-            // tell the clients we are starting so they can be quiet
-            for (int i; i < clients.cap(); i++)
-            {
-                clients[i].startMsg("/system/calibrate/beginning", "");
-            }
-            // make a list of instruments
-            Util.splitString(msg,",") @=> string list[];
-            Instrument @ insts[0];
-            
-            if (list[0] == "on")
-                instruments @=> insts;
-            else
-            {
-                for (int i; i < list.cap(); i++)
+                
+                chout <= "BEGINNING LATENCY CALIBRATION" <= IO.nl();
+                true => isCalibrating;
+                // tell the clients we are starting so they can be quiet
+                for (int i; i < clients.cap(); i++)
                 {
-                    false => int found;
-                    for (int j; j < instruments.cap(); j++)
+                    clients[i].startMsg("/system/calibrate/beginning", "");
+                }
+                // make a list of instruments
+                Util.splitString(msg,",") @=> string list[];
+                Instrument @ insts[0];
+                
+                if (list[0] == "on")
+                    instruments @=> insts;
+                else
+                {
+                    for (int i; i < list.cap(); i++)
                     {
-                        if (instruments[j].name == list[i])
+                        false => int found;
+                        for (int j; j < instruments.cap(); j++)
                         {
-                            insts << instruments[j];
-                            true => found;
-                            break;
+                            if (instruments[j].name == list[i])
+                            {
+                                insts << instruments[j];
+                                true => found;
+                                break;
+                            }
                         }
+                        if (!found)
+                        {
+                            chout <= "Could not find " <= list[i] <= " to calibrate" <= IO.nl();
+                        }
+                        
                     }
-                    if (!found)
-                    {
-                        chout <= "Could not find " <= list[i] <= " to calibrate" <= IO.nl();
-                    }
-                    
                 }
-            }
-            // now we have the actual instruments
-            // we have to send them a message, start timing until we 
-            //a) reach a maximum threshold or b) hear enough sound
-            dur delays[insts.cap()];
-            OscSend selfSend;
-            selfSend.setHost("localhost", 50000);
-            
-            // set up signal processing chain
-            adc => FFT fft =^ Flux flux => blackhole;
-            fft =^ RMS rms => blackhole;
-            
-            for (int i; i < insts.cap(); i++)
-            {
-                getLatency(insts[i], selfSend, flux, rms) => delays[i];
-                if (delays[i] == 1::second)
+                // now we have the actual instruments
+                // we have to send them a message, start timing until we 
+                //a) reach a maximum threshold or b) hear enough sound
+                dur delays[insts.cap()];
+                OscSend selfSend;
+                selfSend.setHost("localhost", 50000);
+                
+                // set up signal processing chain
+                adc => FFT fft =^ Flux flux => blackhole;
+                fft =^ RMS rms => blackhole;
+                
+                for (int i; i < insts.cap(); i++)
                 {
-                    chout <= "Unable to get response for " <= insts[i].name <= "; either not plugged in or absurdly slow, assuming 0 latency." <= IO.nl();
-                    0::ms => delays[i];
+                    getLatency(insts[i], selfSend, flux, rms) => delays[i];
+                    if (delays[i] == 1::second)
+                    {
+                        chout <= "Unable to get response for " <= insts[i].name <= "; either not plugged in or absurdly slow, assuming 0 latency." <= IO.nl();
+                        0::ms => delays[i];
+                    }
+                    chout <= "Determined latency of " <= delays[i]/1::ms <= " ms for " <= insts[i].name <= IO.nl();
                 }
-                chout <= "Determined latency of " <= delays[i]/1::ms <= " ms for " <= insts[i].name <= IO.nl();
+                // now we find the maximum
+                0::ms => dur max;
+                for (int i; i < insts.cap(); i++)
+                {
+                    if (delays[i] > max)
+                        delays[i] => max;
+                    insts[i].setDelay(delays[i]); // store delays here for now
+                }
+                
+                // now loop every instrument and set the delay to max - its current delay
+                for (int i; i < instruments.cap(); i++)
+                {
+                    instruments[i].setDelay(max-instruments[i].delay);
+                }
+                
+                // now we are done
+                chout <= "ENDING LATENCY CALIBRATION" <= IO.nl();
             }
-            // now we find the maximum
-            0::ms => dur max;
-            for (int i; i < insts.cap(); i++)
-            {
-                if (delays[i] > max)
-                    delays[i] => max;
-                insts[i].setDelay(delays[i]); // store delays here for now
-            }
-            
-            // now loop every instrument and set the delay to max - its current delay
-            for (int i; i < instruments.cap(); i++)
-            {
-                instruments[i].setDelay(max-instruments[i].delay);
-            }
-            
-            // now we are done
-            chout <= "ENDING LATENCY CALIBRATION" <= IO.nl();
-        }
             false => isCalibrating;
             // tell the clients to go back to normal, otherwise if clients turn it off, they might still block"
             for (int i; i < clients.cap(); i++)
