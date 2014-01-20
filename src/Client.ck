@@ -446,6 +446,9 @@ fun void onEnd()
         
         // and initiate calibration
         doCalibrate();
+        // block until calibration done
+        while ( !canSend )
+            10::ms => now;
         // now we can test
         doTests();
     }
