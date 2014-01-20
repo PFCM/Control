@@ -533,7 +533,7 @@ fun void doCalibrate()
         
         if (actualList == "off")
         {
-            spork~calibrationDonelistener();
+            spork~calibrationDoneListener();
         }
         osend.startMsg("/system/calibrate", "s");
         osend.addString(actualList);
