@@ -444,10 +444,10 @@ fun void onEnd()
             }
         }
         
-        // now we can test
-        doTests();
         // and initiate calibration
         doCalibrate();
+        // now we can test
+        doTests();
     }
 }
 
