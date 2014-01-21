@@ -317,6 +317,9 @@ fun void calibrateLatencyListener()
                 adc => FFT fft =^ Flux flux => blackhole;
                 fft =^ RMS rms => blackhole;
                 
+                1024 => fft.size;
+                Windowing.hann(1024) => fft.window;
+                
                 for (int i; i < insts.cap(); i++)
                 {
                     getLatency(insts[i], selfSend, flux, rms) => delays[i];
@@ -389,12 +392,18 @@ fun dur getLatency( Instrument instrument, OscSend send, Flux flux, RMS rms )
         now => time start;
         // send the msg and start listening
         send.addInt(64);
-        while(rms.fval(0)*100 < 0.1 || flux.fval(0) < 0.8)
+        float rmsval, fluxval;
+        while(rmsval*100 < 0.9 || fluxval < 0.5)
         {
-            1024::samp => now;
-            flux.upchuck();
-            rms.upchuck();
+            512::samp => now;
+            flux.upchuck() @=> UAnaBlob fluxblob;
+            rms.upchuck() @=> UAnaBlob rmsblob;
             
+            rmsblob.fval(0) *100 => rmsval;
+            fluxblob.fval(0) => fluxval;
+            
+            
+            chout <= "RMS: " <= rms.fval(0)*100 <= " flux: " <= flux.fval(0) <= IO.nl();
             if ((now-start) >= maximum)
             {
                 break;
@@ -410,9 +419,9 @@ fun dur getLatency( Instrument instrument, OscSend send, Flux flux, RMS rms )
             send.startMsg(offPattern, "ii");
             send.addInt(i);
             send.addInt(64);
-            500::ms => now; // in case of tail
+            1000::ms => now; // in case of tail
         }
-        200::ms => now;
+        2000::ms => now;
     }
     if (times.cap() == 0)
         return maximum;

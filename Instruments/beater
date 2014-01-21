@@ -1,6 +1,6 @@
 type=MIDI
-name=Nudge
-port=2 # this will need to change soon
+name=xczcxz
+port=3 # this will need to change soon
 # MIDI messages are:
 # 		    note on          — drumstick solenoid on
 #		    note off         — drumstick solenoid off
@@ -9,10 +9,10 @@ port=2 # this will need to change soon
 #
 # We can leave the default note and control, but we are going to need  messages for CC 
 # and pitch bend
-128="/noteoff,ii"=134,$1,$2 # note off passes straight through
-224="/position,ii"=230,$1,$2 # pitch bend also passes straight through
-144="/note,ii"=150,$1,$2
-176="/control,ii"=182,$1,$2
+128="/noteoff,ii"=128,$1,$2 # note off passes straight through
+224="/position,ii"=224,$1,$2 # pitch bend also passes straight through
+144="/note,ii"=144,$1,$2
+176="/control,ii"=176,$1,$2
 # Good idea to add some notes so users get a chance to see what does what
 note=Note on — drumstick solenoid on (down)
 note=Note off — drumstick solenoid off (up)
