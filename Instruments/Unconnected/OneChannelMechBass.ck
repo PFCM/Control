@@ -14,6 +14,7 @@ public class OneChannelMechBass extends MultiStringInstrument
         
         [0,1,2,3] @=> int chans[];
         setChannels(chans);
+        setAlgorithm(MultiStringInstrument.CHOOSER_MONOPHONIC);
         
         __setName("MechBass");
         
