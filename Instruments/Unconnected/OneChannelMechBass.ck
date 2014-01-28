@@ -64,7 +64,7 @@ public class OneChannelMechBass extends MultiStringInstrument
         {
             evt.getInt() => int note;
             evt.getInt() => int vel;
-            128 + chooseString(note) => msg.data1;
+            128 + chooseString(note) => msg.data1; // this may get confused if the note offs do not come in the right order
             note => msg.data2;
             vel => msg.data3;
             mout.send(msg);
