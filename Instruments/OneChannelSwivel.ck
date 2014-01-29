@@ -44,7 +44,7 @@ public class OneChannelSwivel extends MultiStringInstrument
         more polyphonic results. Requires SwivelAutotune to be running on the SERVER";
         
         
-        return _init();
+        return _init(input, osc_patterns);
     }
     
     // override the event handler to choose strings properly
