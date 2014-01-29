@@ -8,7 +8,9 @@ public class OneChannelSwivel extends MultiStringInstrument
     // need to set ranges and number of strings in init
     fun int init( OscRecv input, FileIO file )
     {
-        setNumStrings(6,0);
+        setNumStrings(6);
+        [0,1,2,3,4,5] @=> int chans[];
+        setChannels(chans);
         // set minimum and maximum ranges (in midi notes, these will have to be determined)
         // this approach will not scale well to a great number of strings, but should be fine for a practical number (ie 6)
         
@@ -22,7 +24,7 @@ public class OneChannelSwivel extends MultiStringInstrument
         setAlgorithm(MultiStringInstrument.CHOOSER_POLYPHONIC);
         
         __setName("OneChannelSwivel");
-        if (!setMidiPort(1))
+        if (!setMidiPort("HIDUINO")) // for testing
             return false; // USE A NAME
         
         // get set up for osc,both midis etc
@@ -44,7 +46,7 @@ public class OneChannelSwivel extends MultiStringInstrument
     }
     
     // override the event handler to choose strings properly
-    fun void handleMessage( OscEvent evt, string addrpat )
+    fun void handleMessage( OscEvent evt, string addrPat )
     {
         MidiMsg msg; 
         if (RegEx.match("/note,", addrPat))
@@ -69,15 +71,17 @@ public class OneChannelSwivel extends MultiStringInstrument
         }
         else if (RegEx.match("/pluck,", addrPat)) // CC 7
         {
-            // how to just make it pluck?
+            176 + _stringChannels[evt.getInt()] => msg.data1;
+            7 => msg.data2;
+            127 => msg.data3;
         }
         // clamps (or releases) a given string wherever it happens to be 
         else if (RegEx.match("/clamp,", addrPat)) // CC 8
         {
             evt.getInt() => int which;
             176 + _stringChannels[which] => msg.data1;
-            note => msg.data2;
-            64 => msg.data3;
+            8 => msg.data2;
+            5 => msg.data3;
             mout.send(msg);
             
         }
@@ -179,15 +183,15 @@ public class OneChannelSwivel extends MultiStringInstrument
         }
         
         MidiMsg damp;
-        176+which => msg.data1;
-        9 => msg.data2;
-        vel => msg.data3;
+        176+which => damp.data1;
+        9 => damp.data2;
+        vel => damp.data3;
         
-        if (velocity == 0)
+        if (vel == 0)
         {
             // do nothing
         }
-        else if (velocity < 64) // damp, do not raise clamp
+        else if (vel < 64) // damp, do not raise clamp
         {
             mout.send(damp);
         }
