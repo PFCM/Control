@@ -143,7 +143,7 @@ public class MultiStringInstrument extends MidiInstrument
          {
              // fail silently unless debugging turned on
              if (debug)
-                 chout <= "[MultiString] No possible strings for note: " <= note <= IO.nl();\
+                 chout <= "[MultiString] No possible strings for note: " <= note <= IO.nl();
              return -1;
          }
          if ( _algorithm == CHOOSER_MONOPHONIC )
