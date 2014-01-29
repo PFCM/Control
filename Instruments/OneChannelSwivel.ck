@@ -106,8 +106,18 @@ public class OneChannelSwivel extends MultiStringInstrument
     
     fun void handleNote(int note, int vel)
     {
-        
+        if (debug)
+            chout <= "[OneChannelSwivel] Handling note: " <= note <= " : " <= vel <= IO.nl();
         note => chooseString => int which;
+       if (which == -1)
+        {
+            if (debug)
+                chout <= "[OneChannelSwivel] no string available" <= IO.nl();
+            return;
+        } 
+        if (debug)
+            chout <= "[OnechannelSwivel] chose string: " <= which <= IO.nl();
+        
         // most of them clamp
         MidiMsg clamp;
         176+which => clamp.data1;
@@ -169,6 +179,8 @@ public class OneChannelSwivel extends MultiStringInstrument
      
     fun void handleNoteOff(int note, int vel) // damp, unclamp
     { 
+        if (debug)
+            chout <= "[OneChannelSwivel] handling note off - " <= note <= " : " <= vel <= IO.nl();
         -1 => int which;
         for (int i; i <  currentNotes.cap(); i++)
         {

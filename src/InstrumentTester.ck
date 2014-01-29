@@ -56,7 +56,9 @@ public class InstrumentTester
                 chout <= "Sent " <= addrpats[i] <= " with note: " <= note <= IO.nl();
                 1::second => now;
                 // check for noteoff, jic
-                for (int j; j < instruments[i].patterns.cap(); i++)
+                // bit messy, should really just check once and make a list
+                // but hey, iterative development
+                for (int j; j < instruments[i].patterns.cap(); j++)
                 {
                     if ( RegEx.match("/noteoff,",instruments[i].patterns[j]))
                     {
@@ -83,7 +85,7 @@ public class InstrumentTester
             for (int i; i < instruments.cap(); i++)
             {
                 // check for noteoff, jic
-                for (int j; j < instruments[i].patterns.cap(); i++)
+                for (int j; j < instruments[i].patterns.cap(); j++)
                 {
                     if ( RegEx.match("noteoff,",instruments[i].patterns[j]))
                     {
