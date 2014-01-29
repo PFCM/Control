@@ -8,6 +8,10 @@ public class OneChannelSwivel extends MultiStringInstrument
     // need to set ranges and number of strings in init
     fun int init( OscRecv input, FileIO file )
     {
+        true => debug;
+        
+        if (debug)
+            chout <= "[OneChannelSwivel] is initialising." <= IO.nl();
         setNumStrings(6);
         [0,1,2,3,4,5] @=> int chans[];
         setChannels(chans);
@@ -23,20 +27,20 @@ public class OneChannelSwivel extends MultiStringInstrument
         setRanges(maxs,mins);
         setAlgorithm(MultiStringInstrument.CHOOSER_POLYPHONIC);
         
-        __setName("OneChannelSwivel");
+        __setName("Swivel");
         if (!setMidiPort(1)) // for testing
             return false; // USE A NAME
         
         // get set up for osc,both midis etc
         string osc_patterns[0];
         // some handy messages for pure osc use
-        patterns<<"/Swivel/pluck,i"; // should specifically send cc 7 with a big number (note, check)
-        patterns<<"/Swivel/clamp,ii"; // clamp given string a certain amount (cc 8)
-        patterns<<"/Swivel/damp,i"; // damps given string (cc9)
+        osc_patterns<<"/Swivel/pluck,i"; // should specifically send cc 7 with a big number (note, check)
+        osc_patterns<<"/Swivel/clamp,ii"; // clamp given string a certain amount (cc 8)
+        osc_patterns<<"/Swivel/damp,i"; // damps given string (cc9)
         // doesn't make sense to accept pitchbend as it wouldn't make sense to run autotune
         // on the client because the channels would be all jacked up
         // but we could do with a note off which could damp and maybe raise the clamp
-        patterns<<"/Swivel/noteoff,ii";
+        osc_patterns<<"/Swivel/noteoff,ii";
         128 => nonstandard_statusbytes["/Swivel/noteoff,ii"];
         
         // Add a note
@@ -62,8 +66,6 @@ public class OneChannelSwivel extends MultiStringInstrument
             evt.getInt() => int note;
             evt.getInt() => int vel;
             handleNoteOff(note, vel);
-            
-            
         }
         else if (RegEx.match("/control,", addrPat))
         {
