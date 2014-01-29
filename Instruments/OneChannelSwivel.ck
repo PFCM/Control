@@ -194,7 +194,7 @@ public class OneChannelSwivel extends MultiStringInstrument
         if (which == -1)
         {
             if(debug)
-                chout <= "[Swivel] received not off for a note I don't have on??" <= IO.nl();
+                chout <= "[Swivel] received note off for a note I don't have on??" <= IO.nl();
             return;
         }
         

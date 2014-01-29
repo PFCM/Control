@@ -239,20 +239,25 @@ public class MultiStringInstrument extends MidiInstrument
              }
          }
          
+         
          // now we have the highest
          if (highest == -1)
          {
              cherr <= "[MultiString] Issue choosing string in polyphonic mode —— no rankings?" <= IO.nl();
              return -1;
          }
+         
+         if (debug)
+             chout <= "[OneChannelSwivel] Chosen string " <= highestString <= " with ranking " <= highest <= IO.nl();
+         
          // now we set the chosen string to the lowest priority and increment the rest of the strings that were possible
-         0 => _lastNotes[highest];
-         for (int i; i , strings.cap(); i++)
+         0 => _lastNotes[highestString];
+         for (int i; i < strings.cap(); i++)
          {
-             if (i != highest)
-                 _lastNotes[i]++;
+             if (strings[i] != highestString)
+                 _lastNotes[strings[i]]++;
          }
          
-         return _stringChannels[highest];
+         return _stringChannels[highestString];
      }
 }
