@@ -24,7 +24,7 @@ public class OneChannelSwivel extends MultiStringInstrument
         setAlgorithm(MultiStringInstrument.CHOOSER_POLYPHONIC);
         
         __setName("OneChannelSwivel");
-        if (!setMidiPort("HIDUINO")) // for testing
+        if (!setMidiPort(1)) // for testing
             return false; // USE A NAME
         
         // get set up for osc,both midis etc
