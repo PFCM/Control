@@ -43,6 +43,8 @@ public class OneChannelSwivel extends MultiStringInstrument
         notes << "Attempts to choose a string for Swivel. Uses an algorithm that should favour
         more polyphonic results. Requires SwivelAutotune to be running on the SERVER";
         
+        
+        return _init();
     }
     
     // override the event handler to choose strings properly
