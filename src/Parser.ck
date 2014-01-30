@@ -54,10 +54,10 @@ public class Parser
     /** Returns true if the line is a translation or note. It would
         be wise to check whether it is a note first, this method only 
         checks to see whether the line contains an OSC message, a note 
-        containing an OSC message would return true */
+        containing an OSC message would return true. Need to make quotes optional */
     fun static int isTranslation( string in )
     {
-        return ( RegEx.match( "^([12][2-9][0-9]=)?\"(/[a-zA-Z0-9]+)+,[ \t]*[ifs]+\"=[0-9]{3},([0-9]{2,3}|\\$[1-2]),([0-9]{2,3}|\\$[1-2])$", in ));
+        return ( RegEx.match( "^([12][2-9][0-9]=)?(\")?(/[a-zA-Z0-9]+)+,[ \t]*[ifs]+(\")?=[0-9]{3},([0-9]{2,3}|\\$[1-2]),([0-9]{2,3}|\\$[1-2])$", in ));
     }
     
     /** Gets the port number (as an int) out of a port description line */
