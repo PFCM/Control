@@ -28,7 +28,7 @@ public class OneChannelSwivel extends MultiStringInstrument
         setAlgorithm(MultiStringInstrument.CHOOSER_POLYPHONIC);
         
         __setName("Swivel");
-        if (!setMidiPort(1)) // for testing
+        if (!setMidiPort("Micro Express USB #4 Port 2ßßßßßßß")) // for testing
             return false; // USE A NAME
         
         // get set up for osc,both midis etc
