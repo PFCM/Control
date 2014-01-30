@@ -1,6 +1,6 @@
 type=MIDI
-name=xczcxz
-port=3 # this will need to change soon
+name=Edward
+port=Edward # this will need to change soon
 # MIDI messages are:
 # 		    note on          — drumstick solenoid on
 #		    note off         — drumstick solenoid off
