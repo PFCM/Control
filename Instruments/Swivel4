@@ -2,4 +2,5 @@ type=MIDI
 # Simple pass-through for swivel
 # note on will probably not do anything
 name=Swivel/string4
+port=Micro Express USB #4 Port 2
 224=setpos,ii=224,$1,$2
