@@ -3,4 +3,4 @@ type=MIDI
 # note on will probably not do anything
 name=Swivel/string4
 port=2
-224=setpos,ii=224,$1,$2
+224=/setpos,ii=224,$1,$2
