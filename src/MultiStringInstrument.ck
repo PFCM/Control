@@ -34,6 +34,12 @@ public class MultiStringInstrument extends MidiInstrument
     0 => static int CHOOSER_MONOPHONIC; // just chooses the nearest string (default)
     int _algorithm; // which one we're actually using
     // Static fields to determine the tie-breaking behaviour
+    1 => static int BREAK_UP; // break towards higher range
+    2 => static int BREAK_DOWN; // break towards lower range
+    3 => static int BREAK_MID; // break by shortest distance to midpoint of range
+    4 => static int BREAK_LOW; // break towards shortest distance to lowest note in range
+    5 => static int BREAK_HIGH; // break by distance from highest note in range
+    int _tiebreaker; //ccco
     
     // the range of string n is taken to be [_stringMin[n], _stringMax[n]] 
     // note the closed interval - the number in stringMax is included
@@ -170,38 +176,13 @@ public class MultiStringInstrument extends MidiInstrument
              if ( temp < dist )
              {
                  temp => dist;
-                 i => closest;
+                 strings[i] => closest;
              }
              else if (temp == dist)
              {
                  // tie
-                 // compare distance of desired note from centre of range
-                 strings[i] => int a;
-                 strings[closest] => int b;
-                 
-                 
-                 if (debug)
-                     chout <= "[MultiString] resolving tie between " <= a <= " and " <= b <= IO.nl();
-                 
-                 
-                 // get midpoint of a range
-                 (0.5 * (_stringMin[a] + _stringMax[a]))$int => int amid;
-                 // midpoint of b range
-                 (0.5 * (_stringMin[b] + _stringMax[b]))$int => int bmid;
-                 
-                 if (debug)
-                 {
-                     chout <= "[MultiString] \t" <= a <= " midpoint: " <= amid <= ", distance: " <= Math.abs(amid-note) <= IO.nl();
-                     chout <= "[MultiString] \t" <= b <= " midpoint: " <= bmid <= ", distance: " <= Math.abs(bmid-note) <= IO.nl();
-                 }
-                 
-                 // if a wins it is the new closest, otherwise the old closest remains
-                 if ( Math.abs(amid-note) < Math.abs(bmid-note) )
-                 {
-                     
-                     i => closest;
-                     temp => dist;
-                 }
+                 // resolve tie
+                 breakTie(closest, i, note) => closest;
              }
          }
          
@@ -230,13 +211,12 @@ public class MultiStringInstrument extends MidiInstrument
              {
                  strings[i] => highestString;
                  _lastNotes[strings[i]] => highest;
-                 // TODO tie breaking, ties are possible. For Swivel we want ot break ties to the higher string (lower notes are more accurate)
-                 // perhaps this behaviour should be more modular
-                 // ie could have a few options
-                 // BREAK_MIDPOINT for nearest midpoint
-                 // BREAK_UP breaks to the higher range
-                 // BREAK_LOW breaks to the lower
-                 // tie breaking could pretty easily be a function
+             }
+             else if (_lastnotes[strings[i]] == highest) // break tie
+             {
+                 _breakTie(strings[i], highestString, note) => int winner;
+                 // highest stays the same
+                 winner => highestString;
              }
          }
          
@@ -264,8 +244,51 @@ public class MultiStringInstrument extends MidiInstrument
      
      // breaks a tie, takes two string numbers (indices) and a note and returns the best one
      // according to the current tie breaking behaviour
-     fun int breakTie( int a, int b, int note )
+     fun int _breakTie( int a, int b, int note )
      {
-         
+         // Dear ChucK, for Christmas I would like switch/case. Regards, Paul.
+         if (_tiebreaker == 0)
+         {
+             return a;
+         }
+         else if (_tiebreaker == BREAK_UP) // returns range with highest mid
+         {
+             if (_getMid(a) > _getMid(b)) // if equal, we return b. This is clearly optimal behaviour
+                 return a;
+             return b;
+         }
+         else if (_tiebreaker == BREAK_DOWN) // returns range with lowest mid
+         {
+             if (_getMid(a) <= _getMid(b)) // opposite of above
+                 return a;
+             return b;
+         }
+         // this is probably one of the most useful
+         else if (_tiebreaker == BREAK_MID) // returns range with mid closest to note
+         {
+             if ( Math.abs(_getMid(a)-note) < Math.abs(_getMid(b)-note) )
+                 return a;
+             return b;
+         }
+         else if (_tiebreaker == BREAK_LOW) // return range with lowest note nearest note
+         {
+             if ( Math.abs(_stringMin[a]-note) < Math.abs(_stringMin[b]-note) )
+                 return a;
+             return b;
+         }
+         else if (_tiebreaker == BREAK_HIGH) // return range with highest note nearest note
+         {
+             if ( Math.abs(_stringMax[a]-note) < Math.abs(_stringMax[b]-note) )
+                 return a;
+             return b;
+         }
+         cherr <= "[MultiStringInstrument] Unknown tie breaker: " <= _tiebreaker <= IO.nl();
+     }
+     
+     // returns the midpoint of the range for a given string
+     // note returns int
+     fun int _getMid( int str )
+     {
+         return ((_stringMax[str] + _stringMin[str])/2);
      }
 }
