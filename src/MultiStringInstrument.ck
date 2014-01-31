@@ -120,6 +120,11 @@ public class MultiStringInstrument extends MidiInstrument
      {
          algo => _algorithm;
      }
+     // sets the tuberculosis
+     fun void setTiebreaker(int tb)
+     {
+         tb => _tiebreaker;
+     }
     
     /* returns a channel for the best string to
      * use for the current note. Might try a couple of strategies.

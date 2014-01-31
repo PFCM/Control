@@ -15,6 +15,7 @@ public class OneChannelMechBass extends MultiStringInstrument
         [0,1,2,3] @=> int chans[];
         setChannels(chans);
         setAlgorithm(MultiStringInstrument.CHOOSER_MONOPHONIC);
+        setTieBreaker(MultiStringInstrument.BREAK_MID); // break ties to mid, so it is more liekyl to be close to as many notes as possible
         
         __setName("MechBass");
         
