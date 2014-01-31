@@ -95,7 +95,7 @@ public class Parser
     }
     
     /** determines whether a port description is a number or not */
-    fun static int isMidPortNumber( string in )
+    fun static int isMidiPortNumber( string in )
     {
         return RegEx.match( "^port=[0-9]+", in.trim() );
     }

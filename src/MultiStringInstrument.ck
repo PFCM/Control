@@ -33,6 +33,7 @@ public class MultiStringInstrument extends MidiInstrument
     1 => static int CHOOSER_POLYPHONIC; // favours spreading the notes across the strings
     0 => static int CHOOSER_MONOPHONIC; // just chooses the nearest string (default)
     int _algorithm; // which one we're actually using
+    // Static fields to determine the tie-breaking behaviour
     
     // the range of string n is taken to be [_stringMin[n], _stringMax[n]] 
     // note the closed interval - the number in stringMax is included
@@ -259,5 +260,12 @@ public class MultiStringInstrument extends MidiInstrument
          }
          
          return _stringChannels[highestString];
+     }
+     
+     // breaks a tie, takes two string numbers (indices) and a note and returns the best one
+     // according to the current tie breaking behaviour
+     fun int breakTie( int a, int b, int note )
+     {
+         
      }
 }

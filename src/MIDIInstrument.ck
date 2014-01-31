@@ -66,7 +66,7 @@ public class MidiInstrument extends Instrument {
             {
                 // is it a number?
                 chout <= "Setting port to " <= line.substring(5) <= IO.nl();
-                if (RegEx.match("^[0-9]+$", line))
+                if (RegEx.match("port=[0-9]+$", line))
                 {
                     if ( !setMidiPort(Parser.parseMidiPortNumber(line)) )
                         return false;
