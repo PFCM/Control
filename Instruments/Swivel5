@@ -2,5 +2,5 @@ type=MIDI
 # Simple pass-through for swivel
 # note on will probably not do anything
 name=Swivel/string5
-port=Express 128  Port 1
+port=Express  128 Port 2
 224=/setpos,ii=224,$1,$2
