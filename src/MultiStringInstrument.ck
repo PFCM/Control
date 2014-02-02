@@ -121,7 +121,7 @@ public class MultiStringInstrument extends MidiInstrument
          algo => _algorithm;
      }
      // sets the tuberculosis
-     fun void setTiebreaker(int tb)
+     fun void setTieBreaker(int tb)
      {
          tb => _tiebreaker;
      }

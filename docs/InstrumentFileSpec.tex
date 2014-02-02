@@ -20,8 +20,8 @@
 
 \begin{document}
 
-This section defines the data files which specify what instruments are available. A precise definition of the file syntax is provided in 
-Backaus-Naur form below. 
+This section defines the data files which specify what instruments are available. 
+%A precise definition of the file syntax is provided in  Backaus-Naur form below. 
 It must 
 \begin{enumerate} [\bfseries 1.]
 \item{begin with a ``type'' field consisting of \texttt{type=} followed by a description of a type which the system knows. This can be
@@ -50,56 +50,56 @@ they will be added. A file with 0 translation lines would cause the server to in
 
 The files may also contain comments. These are indicated by a \texttt{\#}, anything between a \texttt{\#} and a linebreak is ignored.
 
-\subsection{Grammar}
-\setlength{\grammarindent}{10em}
-\begin{grammar}
-	<file> ::= <type> <linebreak>  (<comment> <linebreak>)* <name> <linebreak> (<comment> <linebreak>)* ( <file-element> | <comment> <linebreak> ) *
-	
-	<type> ::= ``type=''<type-string> [<comment>] <linebreak> 
-	
-	<type-string> ::= ``MIDI''
-	
-	<name> ::= ``name=''<name-string> [<comment>] <linebreak>
-	
-	<name-string> ::= `[a-zA-Z][a-zA-Z0-9_]*'
-	
-	<file-element> ::= <midi-port> \alt <translation> \alt <note>
-	
-	<note> ::= `note=' `[^\\n]*'
-	
-	<midi-port> ::= `port=' <midi-port-desc>
-	
-	<midi-port-desc> ::= `[a-zA-Z][a-zA-Z0-9]*' \alt `[0-9]+'
-	
-	<translation> ::= [<input-status-byte> `='] <osc-message-desc> `=' <output-message-desc>  [<comment>] <linebreak>
-	
-	<input-status-byte> ::= <midi-stat-byte>
-	
-	<osc-message-desc> ::= `"'<osc-addr-pat>  <osc-typetag> `"'
-	
-	<osc-addr-pat> ::= (`/' <osc-string> )+
-	
-	<osc-typetag> ::= `,' <osc-type>+
-	
-	<osc-type> ::= `i' \alt `f' \alt `s' \alt `b'
-	
-	<osc-string> ::= `[^\\0]+'
-	
-	<output-message-desc> ::= <midi-message> \alt future message types
-	
-	<midi-message> ::= <midi-stat-byte> `,' <midi-data-byte> `,' <midi-data-byte>
-	
-	<midi-stat-byte> ::= 128--255
-	
-	<midi-data-byte> ::= 0--127 \alt <osc-arg>
-	
-	<osc-arg> ::= `$'[1-2]
-	
-	<comment> ::= `#' any characters
-
-\end{grammar}
-
-\clearpage
+%\subsection{Grammar}
+%\setlength{\grammarindent}{10em}
+%\begin{grammar}
+%	<file> ::= <type> <linebreak>  (<comment> <linebreak>)* <name> <linebreak> (<comment> <linebreak>)* ( <file-element> | <comment> <linebreak> ) *
+%	
+%	<type> ::= ``type=''<type-string> [<comment>] <linebreak> 
+%	
+%	<type-string> ::= ``MIDI''
+%	
+%	<name> ::= ``name=''<name-string> [<comment>] <linebreak>
+%	
+%	<name-string> ::= `[a-zA-Z][a-zA-Z0-9_]*'
+%	
+%	<file-element> ::= <midi-port> \alt <translation> \alt <note>
+%	
+%	<note> ::= `note=' `[^\\n]*'
+%	
+%	<midi-port> ::= `port=' <midi-port-desc>
+%	
+%	<midi-port-desc> ::= `[a-zA-Z][a-zA-Z0-9]*' \alt `[0-9]+'
+%	
+%	<translation> ::= [<input-status-byte> `='] <osc-message-desc> `=' <output-message-desc>  [<comment>] <linebreak>
+%	
+%	<input-status-byte> ::= <midi-stat-byte>
+%	
+%	<osc-message-desc> ::= `"'<osc-addr-pat>  <osc-typetag> `"'
+%	
+%	<osc-addr-pat> ::= (`/' <osc-string> )+
+%	
+%	<osc-typetag> ::= `,' <osc-type>+
+%	
+%	<osc-type> ::= `i' \alt `f' \alt `s' \alt `b'
+%	
+%	<osc-string> ::= `[^\\0]+'
+%	
+%	<output-message-desc> ::= <midi-message> \alt future message types
+%	
+%	<midi-message> ::= <midi-stat-byte> `,' <midi-data-byte> `,' <midi-data-byte>
+%	
+%	<midi-stat-byte> ::= 128--255
+%	
+%	<midi-data-byte> ::= 0--127 \alt <osc-arg>
+%	
+%	<osc-arg> ::= `$'[1-2]
+%	
+%	<comment> ::= `#' any characters
+%
+%\end{grammar}
+%
+%\clearpage
 
 \subsection{Example}
 \subsubsection{Basic MIDI File}
