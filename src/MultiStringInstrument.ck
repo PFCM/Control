@@ -181,7 +181,7 @@ public class MultiStringInstrument extends MidiInstrument
              if ( temp < dist )
              {
                  temp => dist;
-                 strings[i] => closest;
+                 i => closest;
              }
              else if (temp == dist)
              {
