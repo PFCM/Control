@@ -4,3 +4,5 @@ type=MIDI
 name=Swivel/string1
 port=Express  128 Port 2
 224=/setpos,ii=224,$1,$2
+144=/note,ii=144,$1,$2
+176=/control,ii=176,$1,$2
