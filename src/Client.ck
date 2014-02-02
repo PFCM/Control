@@ -543,7 +543,7 @@ fun void doCalibrate()
 // does the tests
 fun void doTests()
 {
-    if (testList == "")
+    if (testList == "" || testList == "none")
         chout <= "(Client) No tests specified." <= IO.nl();
     else
     {

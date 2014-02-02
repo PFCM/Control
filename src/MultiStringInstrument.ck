@@ -187,7 +187,7 @@ public class MultiStringInstrument extends MidiInstrument
              {
                  // tie
                  // resolve tie
-                 breakTie(closest, i, note) => closest;
+                 _breakTie(closest, i, note) => closest;
              }
          }
          
@@ -217,7 +217,7 @@ public class MultiStringInstrument extends MidiInstrument
                  strings[i] => highestString;
                  _lastNotes[strings[i]] => highest;
              }
-             else if (_lastnotes[strings[i]] == highest) // break tie
+             else if (_lastNotes[strings[i]] == highest) // break tie
              {
                  _breakTie(strings[i], highestString, note) => int winner;
                  // highest stays the same
