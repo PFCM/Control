@@ -29,7 +29,7 @@ public class OneChannelSwivel extends MultiStringInstrument
         setTieBreaker(MultiStringInstrument.BREAK_UP); // break toward higher range, Swivel is more accurate at lower notes so we want to favour them.
         
         __setName("Swivel");
-        if (!setMidiPort("Micro Express USB #4 Port 2")) // for testing
+        if (!setMidiPort("Express 128  Port 2")) // for testing
             return false; // USE A NAME
         
         // get set up for osc,both midis etc
