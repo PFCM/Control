@@ -1,0 +1,8 @@
+type=MIDI
+# Simple pass-through for swivel
+# note on will probably not do anything
+name=Swivel/string4
+port=Express  128 Port 2
+224=/setpos,ii=227,$1,$2
+144=/note,ii=147,$1,$2
+176=/control,ii=179,$1,$2
