@@ -1,13 +1,5 @@
-\documentclass[11pt]{article}
-\usepackage[a4paper,margin=2.7cm]{geometry}
-\usepackage{enumerate}
-\usepackage[sc,compact]{titlesec}
-\usepackage{tgcursor}
-\usepackage[T1]{fontenc}
-\usepackage{bigfoot}
-
+\documentclass[../main.tex]{subfiles}
 \begin{document}
-\section{Server.ck}
 
 This is the main file for the Server. It initialises the attached instruments and triggers them to send information about themselves to new clients.
 The server discovers which instruments are available by looking in the \texttt{Instruments} directory, ignoring all subdirectories. When it discovers
