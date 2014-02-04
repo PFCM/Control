@@ -1,8 +1,0 @@
-type=MIDI
-# Simple pass-through for swivel
-# note on will probably not do anything
-name=Swivel/string3
-port=Express  128 Port 2
-224=/setpos,ii=226,$1,$2
-144=/note,ii=146,$1,$2
-176=/control,ii=178,$1,$2
