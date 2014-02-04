@@ -81,7 +81,7 @@ public class InstrumentTester
                 osend.addInt(64);
                 chout <= "Sent " <= addrpats[i] <= " with note: " <= note <= IO.nl();
             }
-            1::second => now;
+            .5::second => now;
             for (int i; i < instruments.cap(); i++)
             {
                 // check for noteoff, jic
@@ -96,6 +96,7 @@ public class InstrumentTester
                     }
                 }
             }
+            .5::second => now;
         }
     }
 }
