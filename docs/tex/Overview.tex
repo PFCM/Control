@@ -1,17 +1,23 @@
-\documentclass[11pt]{article}
-\usepackage[a4paper]{geometry}
-\usepackage{enumerate}
-\usepackage[sc,small,compact]{titlesec}
-\usepackage{tgcursor}
-\usepackage[T1]{fontenc}
+\documentclass[../main.tex]{subfiles}
 
 \begin{document}
-\section{Overview}
 The system is divided into two parts, the {\em client} and the {\em server}. The server runs on a single computer, connected to the various devices and listens to incoming Open Sound 
 Control (OSC) messages and translates them to the appropriate control for the target device. 
 
 The client runs on any number of computers networked to the server and serves to translate MIDI into OSC which it then relays to the server. This is optional, users
 can interface with the server directly through OSC (via UDP) if desired.
+
+\begin{figure}[htp]
+	\centering
+	\includegraphics[page=2]{./img/Diagram-specific.pdf}
+	\caption{Overview of the system.}
+	\label{fig:overview}
+\end{figure}
+
+Figure \ref{fig:overview} provides an overview of the system. The server interfaces directly with an arbitrary number of instruments, translating messages received from
+some number of clients.
+
+
 
 \subsection{Server}
 The server determines what instruments are available by reading files in the \texttt{Instruments} directory of the project folder; it assumes every file present represents an instrument
@@ -32,10 +38,14 @@ their channel and what they expect.
 \subsection{Standard Interface}
 All instruments in the system should respond to to at least two types of message: note and control. The OSC address
 patterns they expect these on is \texttt{/<name>/note,ii} and \texttt{/<name>/control,ii} where \texttt{<name>} is the name
-of the instrument. By default the client will produce these from incoming MIDI note on and control change messages 
+of the instrument. 
+
+By default the client will produce these from incoming MIDI note on and control change messages 
 respectively, choosing the instrument from the channel and sending each of the data bytes as the two OSC integer 
-arguments. The server will listen for these messages even if not defined in the file for the instrument and the MIDI 
-instrument class produces default messages of a note on or control changeon channel 1, with the two OSC arguments 
-making up the two data bytes.
+arguments. The server will listen for these messages even if not defined in the file for the instrument, and the MIDI 
+instrument class produces default messages of a note on or control change on channel 1, with the two OSC arguments 
+making up the two data bytes. 
+
+The \texttt{/note} message is used by the server for startup tests and latency calibration, so it would be ideal if it elicited a sonic reaction. 
 
 \end{document}

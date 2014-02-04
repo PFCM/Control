@@ -1,0 +1,74 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.7cm]{geometry}
+\usepackage{subfiles}
+
+\usepackage{syntax}
+\usepackage{enumerate}
+\usepackage[sc,small,compact]{titlesec}
+\usepackage{bigfoot}
+
+\usepackage{enumerate}
+\usepackage{xcolor}
+\usepackage{listings}
+\lstset{numbers=left, 
+	  stepnumber=2, 
+	  numbersep=1em,
+	  numberstyle=\tiny,
+	  basicstyle=\small\ttfamily,
+	  showstringspaces=false}
+\lstloadlanguages{bash}
+
+\usepackage{graphicx}
+
+
+\usepackage[shortlabels]{enumitem}
+\usepackage{tgcursor}
+\usepackage[T1]{fontenc}
+\usepackage{calc}
+
+\usepackage[sorting=none,
+		     backend=biber,
+		     style=numeric,
+		     firstinits=true]
+		     {biblatex}
+\addbibresource{network.bib}
+\AtEveryBibitem {%
+	\ifentrytype{online}{}
+		{\clearfield{url}%
+		 \clearfield{urldate}}
+	\clearfield{note}
+	\clearfield{issue}
+	\clearfield{urldate}
+}
+
+\DeclareFieldFormat{urldate}{}
+
+
+\title{Control: a Performance and Composition System for Robotic Instruments}
+\author{Paul Mathews}
+%\date{}
+
+\begin{document}
+\maketitle
+
+\section{Background}
+\subfile{./tex/Background.tex}
+
+\section{Overview}
+\subfile{./tex/Overview.tex}
+
+\section{Client (Client.ck)}
+\subfile{./tex/Client.tex}
+
+\section{Server (Server.tex)}
+\subfile{./tex/Server.tex}
+\subsection{Master.ck}
+\subfile{./tex/Master.tex}
+
+\section{Instrument Data Files}
+\subfile{./tex/InstrumentFileSpec.tex}
+
+\section{Summary of Process}
+\subfile{./tex/Summary.tex}
+
+\end{document}
