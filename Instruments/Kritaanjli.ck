@@ -45,7 +45,7 @@ public class Kritaanjli extends MidiInstrument
             return false;
         //setMidiPort(1);
         ["/Kritaanjli/note,ii", "/Kritaanjli/control,ii", "/Kritaanjli/noteoff,ii"] @=> string names[];
-        return __init( recv, names);
+        return _init( recv, names);
     }
     
     // called when a note comes in

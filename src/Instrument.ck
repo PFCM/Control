@@ -126,10 +126,17 @@ public class Instrument {
         {
             while ( evt.nextMsg() )
             {
-                delay => now;
-                handleMessage( evt, pat );
+                spork~__delayAndHandle( evt, pat );
+                /*delay => now;
+                handleMessage( evt, pat );*/
             }
         }
+    }
+    
+    fun void __delayAndHandle( OscEvent evt, string pat )
+    {
+        delay => now;
+        handleMessage( evt, pat );
     }
     
     // Sends the non-default methods
