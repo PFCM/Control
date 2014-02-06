@@ -1,0 +1,156 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.7cm]{geometry}
+\usepackage{enumerate}
+\usepackage[sc,compact]{titlesec}
+\usepackage{tgcursor}
+\usepackage[T1]{fontenc}
+\usepackage{bigfoot}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\usepackage{microtype}
+
+\begin{document}
+\title{Tangle User Manual}
+\maketitle
+
+\tableofcontents
+\newpage
+\section{Quick start instructions}
+\begin{enumerate} [\bf 1.]
+\item {\large Server}
+	\begin{enumerate} [\bf i.]
+
+		\item{Check all the desired instruments are connected correctly.}
+		\item{Start up the server. Once it has booted, log in either remotely---
+		\begin{verbatim}
+			    %> ssh sonics@192.168.33.1
+		\end{verbatim}                                 
+		or using the login screen. If you log in locally to the server, open a terminal window.}
+		\item{Check \texttt{Instruments} directory---
+		\begin{verbatim}
+			cd ~/Network/Tangle
+			ls Instruments/
+		\end{verbatim}
+		make sure files are present for each of the instruments you intend to use.}
+		\item Run \texttt{Master.ck} -- in the shell this is (assuming we are still in the root project directory)
+		\begin{verbatim}
+			    %> chuck src/Master
+		\end{verbatim}
+		\item  It will produce a lot of text, double check to make sure no errors were emitted. You could run the 
+			  server from the miniAudicle, but this is often less stable over long periods of time.
+	\end{enumerate}
+\item {\large On your own machine}
+	\begin{enumerate} [\bf i.]
+		\item {If you want to use your own OSC}
+		\begin{enumerate} [\bf a.]
+			\item{Double check the address patterns the server printed at the end of its initialisation, you should be good to go.}
+		\end{enumerate}
+		\item {If you want to use MIDI run \texttt{Client.ck} -- it needs some information to function correctly.
+			  The minimum is: }
+		\begin{enumerate} [\bf a.]
+			\item{An address for the server; hopefully 192.168.33.1 or \texttt{leoadmins-Mac-mini.local} will work
+			\footnote{ To find the IP address the server is using for the ethernet either look in the settings or use \verb+ifconfig+
+			to find the IPv4 address.}}
+			\item{An IP address for the client machine}
+			\item Using this information, run \texttt{Client.ck}. The information above must be passed as arguments. For a server at the address 
+				192.168.33.1, a client IP address of 192.168.33.3 and MIDI on the port ``IAC Driver 1 Bus 1'' the command would be as follows:
+				\begin{verbatim}
+					    %> chuck Client.ck:server=192.168.33.1:self=192.168.33.3:\
+					            midi=IAC Driver 1 Bus 1
+				\end{verbatim}
+				A full list of options an be found in section \ref{sec:clientopts}.
+		\end{enumerate}
+	\end{enumerate}
+
+\end{enumerate}
+
+\section{Start Up Procedure}
+\label{sec:startupproc}
+What actually happens when the above instructions are followed:
+
+\begin{flushleft}
+\begin{enumerate}[\bf1.]
+	\item Server starts running
+	\begin{enumerate} [\bf a.]                          
+		\item Searches \texttt{Instruments} directory, attempts to load files (ignores directories)
+		\item Constructs list of instruments from files
+		\begin{enumerate}
+			\item MidiInstrument class sets up MIDI output and translation from OSC
+			\item Base class Instrument sets up OSC listeners according to what is defined in file.
+			\item All instruments have two default messages they expect if nothing is specified -- \texttt{/\textit{<name>}/note,ii} and 
+				 \texttt{/\textit{<name>}/control,ii} 
+		\end{enumerate}
+		\item Starts listening for new clients
+	 \end{enumerate}
+	 \item Client starts 
+	 \begin{enumerate} [\bf a.]
+	 	\item Sends \texttt{/system/addme,si} to Server (with own hostname and port)
+		\item Server responds with a series of \texttt{/system/instruments/add,s} messages which list the instruments constructed earlier by name.
+		\item Any instruments with possible messages beyond the basic two send 
+			 \texttt{/system/instruments/extend,ssi} to the client
+			which contain the name of the instrument, the pattern for the message and the MIDI status byte to transform.
+		\item All instruments send any information they know about themselves in \texttt{/system/instruments/note,ss} messages where the first 
+			string is the name of the instrument and the second is a note about the instrument, probably defined in the data file.\footnote{Confusion
+			between \texttt{/\textit{<name>}/note,ii} and \texttt{/system/instrument/note,ss} should be avoidable given the different typetags and the 
+			\texttt{/system} prefix, although it is an unfortunate homonym.} The notes get displayed by the client to give the user any information
+			the instrument's designer feels useful.
+		\item Client uses this data to construct a table of MIDI input to OSC output and prints details about the instruments connected to the server
+			to the console.
+		\item Client checks if any latency calibration has been specified, if so sends to server. Blocks until server indicates it is complete.
+		\item Client checks if any test patterns have been asked for, if so sends to server, blocking until notified of completion.
+		\item Client listens for MIDI input on specified port and translates appropriately.
+	 \end{enumerate}
+\end{enumerate}
+\end{flushleft}
+
+\section{Client.ck options}
+\label{sec:clientopts}
+Options for \texttt{Client.ck} are specified via a colon separated list of arguments. All arguments are specifed in the form \texttt{<key>=<value>}. A full list of options
+is in table \ref{tab:clientopts}.
+
+\begin{table} [h]
+\caption {\texttt{Client.ck} options}
+\label{tab:clientopts}
+\begin{tabularx} {\textwidth} { | >{\bfseries}r | X | X |}
+\hline
+key			& values											& Description \\
+\hline \hline
+server		& url or numerical IP in the format AAA.BBB.CCC.DDD & Tells the client the IP address of the server. \\
+\hline
+self			& same as for server							    & Gives the server a return address to send information about connected instruments. \\
+\hline
+in 			& an integer								    & Port on which Client listens for communication from server (default 50001). \\
+\hline
+out		         & an integer								    & Port which server is listening on (default 50000). \\
+\hline
+midi			& an integer or the name of a MIDI port			    & MIDI port on which the client listens, defaults to 0. It is better to use a name as the order
+														of these can shift. Available MIDI ports can be found by running \texttt{chuck --probe}. \\
+\hline
+test			& a comma separate list of names of instruments (ignores case) & Tells the client whether or not to ask the server to run a test pattern, and if so on
+														which instruments. An empty string or \texttt{none} will not cause any tests, \texttt{all} will
+														ask the server to test all instruments connected. \\
+\hline
+delay		& a comma separate list of names, as for test. 		    & Tells the client whether or not to ask the server to begin the delay calibration process. 
+														Special values \texttt{on} or \texttt{off} tell the server to calibrate all or no instruments
+														respectively. \\
+\hline
+\end{tabularx}
+
+\end{table}
+
+An example of a likely command to run the client might then be:
+\begin{verbatim}
+	%> chuck Client.ck:self=192.168.33.3:server=192.168.33.1:\
+			midi=IAC Driver 1 Bus 1:test=all:delay=on
+\end{verbatim}
+
+\section{Adding New Instruments}
+The server discovers instruments by searching the \texttt{Tangle/Instruments}. Each instrument requires a file which tels the server how to talk to it. This can be a 
+configuration file to be read in or a ChucK source file which contains a sub-class of Instrument.
+
+\subsection{MIDI Instrument Config Files}
+
+
+\subsection{Subclassing Instrument}
+
+\end{document}
