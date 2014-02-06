@@ -10,9 +10,9 @@ public class OneChannelMechBass extends MultiStringInstrument
         true => debug;
          if (debug)
              chout <= "[OneChannelMechBass] Initialising one channel mechbass" <= IO.nl();
-        setNumStrings(4);
+        setNumStrings(3);
         
-        [0,1,2,3] @=> int chans[];
+        [0,1,2]/*,3]*/ @=> int chans[];
         setChannels(chans);
         setAlgorithm(MultiStringInstrument.CHOOSER_MONOPHONIC);
         setTieBreaker(MultiStringInstrument.BREAK_MID); // break ties to mid, so it is more liekyl to be close to as many notes as possible
@@ -20,8 +20,8 @@ public class OneChannelMechBass extends MultiStringInstrument
         __setName("MechBass");
         
         // mins and maxes
-        [44,39,33,28] @=> int mins[]; // the lowest frequencies (GDEA)
-        [56,51,46,41] @=> int maxes[]; // the highest notes
+        [44,39,33/*,28*/] @=> int mins[]; // the lowest frequencies (GDEA)
+        [56,51,46/*,41*/] @=> int maxes[]; // the highest notes
         
         setRanges(maxes, mins);
         if (!setMidiPort("Express  128 Port 1"))
