@@ -64,6 +64,7 @@
 
 \end{enumerate}
 
+\newpage
 \section{Start Up Procedure}
 \label{sec:startupproc}
 What actually happens when the above instructions are followed:
@@ -103,12 +104,13 @@ What actually happens when the above instructions are followed:
 \end{enumerate}
 \end{flushleft}
 
+\newpage
 \section{Client.ck options}
 \label{sec:clientopts}
 Options for \texttt{Client.ck} are specified via a colon separated list of arguments. All arguments are specifed in the form \texttt{<key>=<value>}. A full list of options
 is in table \ref{tab:clientopts}.
 
-\begin{table} [h]
+\begin{table} [ht]
 \caption {\texttt{Client.ck} options}
 \label{tab:clientopts}
 \begin{tabularx} {\textwidth} { | >{\bfseries}r | X | X |}
@@ -144,13 +146,77 @@ An example of a likely command to run the client might then be:
 			midi=IAC Driver 1 Bus 1:test=all:delay=on
 \end{verbatim}
 
+\newpage
 \section{Adding New Instruments}
 The server discovers instruments by searching the \texttt{Tangle/Instruments}. Each instrument requires a file which tels the server how to talk to it. This can be a 
 configuration file to be read in or a ChucK source file which contains a sub-class of Instrument.
+All files that do not end in .ck must begin with \texttt{type=}\textit{<something>}, all .ck files must begin \texttt{//type=}{\textit{<something>} (so that ChucK will
+still compile them). \textit{<something>} must be a key defined in \texttt{Sever.ck} which the server uses to decide what type of instrument to instantiate.
 
 \subsection{MIDI Instrument Config Files}
+Files with no extension and a first line of \texttt{type=MIDI} are used to generate an instance of MidiInstrument. In general, details are specified by \texttt{<key>=<value>}
+The possible lines in the file are described in table \ref{tab:midifile}. Note that all that is required is a name and a port. The file parser treats each individual line
+as a potential setting so only one can be specified per line. Comments can be added with the \# symbol which causes the remainder of the line to be ignored.
 
+\begin{table} [h]
+\caption{MIDI Instrument Configuration Options}
+\label{tab:midifile}
+\begin{tabularx} {\textwidth} {| l | >{\ttfamily}X | X | c |}
+\hline
+Configuration & specified as & description & required \\
+\hline \hline
+Name & name=<string> & Name of the instrument. & yes \\
+\hline
+MIDI Port & port=<string> | <number> & Which MIDI port to output received commands to. & yes \\
+\hline
+Translation & [<number>=]<osc message>=<midi message> & how to transform incoming MIDI. 
+												The first (optional) number is what status 
+												byte the client should listen for,
+												the OSC message is what it gets turned
+												into (needs a type tag of 2 numbers)
+												and the midi message is the result
+												that gets sent to the instrument. & no \\
+\hline
+Note & note=<string> & A note about the instrument that gets sent to clients. Everything until the end of 
+				     the line (except comments) is used, nothing more. & no \\
+\hline
+
+\end{tabularx}
+\end{table}
+
+Translation lines consist of: 
+\begin{enumerate} [\bf 1.]
+	\item A MIDI status byte (the first byte of a MIDI message with the channel bits cleared). This defines the message the client receives to trigger the next events.
+	It is optional, a translation without it will still set up the OSC listeners on the server.
+	\item An OSC message. If specified without the name of the instrument at the root level, the name will be prepended. The OSC message must have a type tag
+	of two numbers (either integer or floating-point).
+	\item A MIDI message. This is specified  as three bytes separated by commas. The first gives the type of message and the channel necessary to communicate
+	with the instrument. The next two are the data bytes which can be either constants or variables taken from the OSC message. Variables are specified as
+	\texttt{\$1} or \texttt{\$2} which refer to the first or second arguments respectively. These can be in any order or repeated.
+\end{enumerate}
+The default translations for note on and control change are created automatically and passed through to channel one unless redefined.
+Examples can be found in the \texttt{Instruments} directory.
 
 \subsection{Subclassing Instrument}
+To add more complicated logic a new class can be made and stored in \texttt{Instruments}. The first line needs to be \texttt{//type=<TYPE>} and some edits need to
+be made to \texttt{Server.ck} so that it instantiates the new class when the file is found.
+
+Things to note when creating new instruments:
+\begin{enumerate} [\bf 1.]
+	\item Override \texttt{init( OscRecv, FileIO )} -- you can more or less ignore the arguments but this is called by the server and is where any initialisation should take
+	place. This function returns true or false depending on whether initialisation was successful. 
+	\item Call \texttt{\_init( OscRecv, string[] )} at the end (probably return the value it returns). The string array is the list of OSC messages you want to listen for,
+	creation of the listeners is handled by Instrument. 
+	\item Override \texttt{handleMessage( OscEvent, string )} to handle incoming messages. The OscEvent is the event that just fired, the string contains its address
+	pattern as there is no way in ChucK to retrieve this from the OscEvent.
+	\item If you are sub-classing MidiInstrument:
+	\begin{enumerate} [\bf a.]
+		\item if you want to tell the client to listen for a midi messages, add the number to the field \texttt{nonstandard\_statusbytes}. This is an associative array,
+		it uses a string as the key. Use the address pattern of the OSC message you want the MIDI to be transformed into.
+		\item remember to open a midi port.
+	\end{enumerate}
+\end{enumerate}
+
+\texttt{Kritaanjli.ck} provides a simple example of creating a sub-class of MidiInstrument to add some additional logic.t
 
 \end{document}

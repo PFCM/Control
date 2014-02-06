@@ -2,3 +2,5 @@
 \BOOKMARK [1][-]{section.2}{Start Up Procedure}{}% 2
 \BOOKMARK [1][-]{section.3}{Client.ck options}{}% 3
 \BOOKMARK [1][-]{section.4}{Adding New Instruments}{}% 4
+\BOOKMARK [2][-]{subsection.4.1}{MIDI Instrument Config Files}{section.4}% 5
+\BOOKMARK [2][-]{subsection.4.2}{Subclassing Instrument}{section.4}% 6
