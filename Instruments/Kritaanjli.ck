@@ -20,6 +20,7 @@ Essentially a wrapper around Jim Murphy and Ajay Kapur's Harmonium_v02 code
 // contains very much code from Ajay Kapur and Jim Murphy 2012
 public class Kritaanjli extends MidiInstrument
 {
+    false => do_delay;
     0 => int _polyphony; // how many notes are on 
     Event noteOff;       // notify other shreds if noteoff
     0 => int _doMotor;   // used to stop explicit setting of motor speed when it shouldn't go

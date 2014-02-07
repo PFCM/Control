@@ -20,6 +20,7 @@ public class Instrument {
     string patterns[0]; // to store the current address patterns for later queries
     string notes[0];
     0::samp => dur delay;
+    true => int do_delay;
     
     // Public initialiser ensures we can init all instruments
     // from the outside.
@@ -126,9 +127,10 @@ public class Instrument {
         {
             while ( evt.nextMsg() )
             {
-                spork~__delayAndHandle( evt, pat );
-                /*delay => now;
-                handleMessage( evt, pat );*/
+                if (do_delay)
+                    spork~__delayAndHandle( evt, pat );
+                else
+                    handleMessage( evt, pat );
             }
         }
     }
