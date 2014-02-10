@@ -51,8 +51,7 @@ public class Kritaanjli extends MidiInstrument
     
     // called when a note comes in
     fun void handleMessage( OscEvent event, string addrPat )
-    {
-       
+    { 
        //chout <= "[Kritaanjli] " <= addrPat <= IO.nl();
         // unpack the data
         // if it isn't ii it will complain here
@@ -130,6 +129,7 @@ public class Kritaanjli extends MidiInstrument
             if ( _polyphony > 0 )
                 me.exit();
             1::samp => now;
+            <<<"still alive">>>;
         }
         // if we make it here without exiting, bellows need to stop
         0 => _doMotor;

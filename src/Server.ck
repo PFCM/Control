@@ -20,6 +20,7 @@ Instrument @ instruments[0]; // array of references, initialises to null rather 
 /*******************BEGIN CUSTOM INSTRUMENT NAMES**********************/
 
 "KRITAANJLI" => string KRITAANJLI;
+"EDWARD" => string EDWARD;
 "ONECHANNELSWIVEL" => string ONECHANNELSWIVEL;
 "ONECHANNELMECHBASS" => string ONECHANNELMECHBASS;
 
@@ -94,6 +95,10 @@ else
                             else if ( type == ONECHANNELMECHBASS )
                             {
                                 new OneChannelMechBass @=> newI;
+                            }
+                            else if ( type == EDWARD )
+                            {
+                                new Edward @=> newI;
                             }
                             else
                             {
