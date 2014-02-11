@@ -1,7 +1,7 @@
 \documentclass[../main.tex]{subfiles}
 
 \begin{document}
-The system is divided into two parts, the {\em client} and the {\em server}. The server runs on a single computer, connected to the various devices and listens to incoming Open Sound 
+The system is divided into two parts, the {\em client} and the {\em server}. The server runs on a single computer, connected to the various instruments.  It listens to incoming Open Sound 
 Control (OSC) messages and translates them to the appropriate control for the target device. 
 
 The client runs on any number of computers networked to the server and serves to translate MIDI into OSC which it then relays to the server. This is optional, users
@@ -27,12 +27,12 @@ currently connected and sets itself up to communicate to them based on the infor
 Client machines communicate to the server using OSC over UDP. A translation layer is provided which accepts MIDI messages and turns them into OSC which it then sends to the 
 server. Some form of inter-application MIDI routing is required for this to succeed, but allows the use of standard musical software to interface with the server. 
 
-When the client translation layer starts up it notifies the server of its presence on the network. The server then enumerates the instruments it is currently connected to and any methods
+When the client translation layer starts up, it notifies the server of its presence on the network. The server then enumerates the instruments it is currently connected to and any methods
 they offer outside the standard interface. This step means the client layer is agnostic to changes on the server -- instruments can come and go and controls can change without any
 updates needing to happen on the client end.
 
 Currently the client automatically allocates MIDI channels, starting from 1, in the order they are presented by the server.
-This order is not necessariy guaranteed, but at the end of initialisation the client will print a list of all the instruments,
+This order is not necessarily guaranteed, but at the end of initialisation the client will print a list of all the instruments,
 their channel and what they expect.
 
 \subsection{Standard Interface}
