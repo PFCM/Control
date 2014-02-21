@@ -15,6 +15,8 @@ File: Kritaanjli.ck
 Desc: specific code for Kritaanjli, the harmonium. Requires that the
 motor for the bellows be shut off when no notes are playing.
 Essentially a wrapper around Jim Murphy and Ajay Kapur's Harmonium_v02 code
+
+Adds a partially-realised staccato mode.
 ***********************************************************************/
 
 // contains very much code from Ajay Kapur and Jim Murphy 2012
@@ -112,6 +114,7 @@ public class Kritaanjli extends MidiInstrument
                 0 => _polyphony;
                 _outputMidi(145,0,0);
             }
+            
             //If a CC 10 arrives, do a staccato note.
             else if (d1 == 10)
             {
@@ -138,12 +141,10 @@ public class Kritaanjli extends MidiInstrument
         mout.send(msg);
     }
     
+    //This pre-charges the bellows before actuating key
     fun void _stacattoPlayer(){
-        //start pumping
         _outputMidi(145,0,127);
-        //wait 100 ms to fill up bellows
         400::ms => now;
-        //press key
         _outputMidi( 144, actualNotes[d1-48], d2 );
     }
     
