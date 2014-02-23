@@ -21,17 +21,17 @@ but translates MIDI into OSC to be sent over the network. As such there is some 
 		 wise to surround it in quotes (eg. \texttt{midi="IAC Driver 1 Bus 1"})
 		
 \end{enumerate}
-If these need to be set, they can be provided as arguments to \texttt{Client.ck}. In ChucK arguments are expected to be colon delimited and appended
+If these need to be set, they can be provided as arguments to \texttt{Client.ck}. In ChucK, arguments are expected to be colon delimited and appended
 to the name of the file, so the command to run \texttt{Client.ck} would become something like 
 \begin{verbatim}
     %> chuck Client.ck:192.168.33.1:8000:in=8001:midi="IAC Driver Bus 1":\
     	  self=192.168.33.1
 \end{verbatim}
 These can be specified in any order.
-If you are running the file from the midiAudicle, you can add the argument list in the text field above the main editor.
+If you are running the file from the miniAudicle, you can add the argument list in the text field above the main editor.
 
-The essential values are the IP address of the server and the clients own IP address, without these no communication is possible. The MIDI input port is
-also likely to be necessary to specify, with no input it will default to 0, which mauy or may not be useful.
+The essential values are the IP address of the server and the client's own IP address: without these, no communication is possible. The MIDI input port is
+also likely to be need specification: with no input it will default to 0, which may or may not be useful.
 
 \subsection{Standard Interface}
 The standard interface for which all instruments must do something consists only of two standard messages: note and control.

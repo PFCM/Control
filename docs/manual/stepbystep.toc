@@ -1,5 +1,5 @@
 \contentsline {section}{\numberline {1}Quick start instructions}{2}{section.1}
-\contentsline {section}{\numberline {2}Start Up Procedure}{3}{section.2}
+\contentsline {section}{\numberline {2}Start Up procedure}{3}{section.2}
 \contentsline {section}{\numberline {3}Client.ck options}{4}{section.3}
 \contentsline {section}{\numberline {4}Adding New Instruments}{5}{section.4}
 \contentsline {subsection}{\numberline {4.1}MIDI Instrument Config Files}{5}{subsection.4.1}

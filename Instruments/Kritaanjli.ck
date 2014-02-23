@@ -15,6 +15,8 @@ File: Kritaanjli.ck
 Desc: specific code for Kritaanjli, the harmonium. Requires that the
 motor for the bellows be shut off when no notes are playing.
 Essentially a wrapper around Jim Murphy and Ajay Kapur's Harmonium_v02 code
+
+Adds a partially-realised staccato mode.
 ***********************************************************************/
 
 // contains very much code from Ajay Kapur and Jim Murphy 2012
@@ -25,7 +27,9 @@ public class Kritaanjli extends MidiInstrument
     Event noteOff;       // notify other shreds if noteoff
     0 => int _doMotor;   // used to stop explicit setting of motor speed when it shouldn't go
     1::second => dur _motorDelay; // max time we can wait
-[45,44,30,31,29,32,38,43,33,37,35,34,28,27,26,25,24,36,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0] @=> int actualNotes[];
+    0 => int staccato;
+    
+    [45,44,30,31,29,32,38,43,33,37,35,34,28,27,26,25,24,36,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0] @=> int actualNotes[];
     
     MidiMsg msg; 
     
@@ -51,9 +55,8 @@ public class Kritaanjli extends MidiInstrument
     
     // called when a note comes in
     fun void handleMessage( OscEvent event, string addrPat )
-    {
-       
-       //chout <= "[Kritaanjli] " <= addrPat <= IO.nl();
+    { 
+        //chout <= "[Kritaanjli] " <= addrPat <= IO.nl();
         // unpack the data
         // if it isn't ii it will complain here
         event.getInt() => int d1;
@@ -62,11 +65,16 @@ public class Kritaanjli extends MidiInstrument
         {
             // turn on solenoid
             // double check range
-            if ( (d1 >= 48) && (d1 <= 48 + actualNotes.cap()-1) )
+            if ( (d1 >= 48) && (d1 <= 48 + actualNotes.cap()-1))
             {
-                _outputMidi( 144, actualNotes[d1-48], d2 );
-                _polyphony++;
-                1 => _doMotor; // can do motor with > 0 notes
+                if(staccato == 0){
+                    _outputMidi( 144, actualNotes[d1-48], d2 );
+                    _polyphony++;
+                    1 => _doMotor; // can do motor with > 0 notes
+                }
+                if(staccato == 1){
+                    spork ~ _staccatoPlayer();
+                }
             }
         }
         else if ( addrPat == "/Kritaanjli/noteoff,ii" )
@@ -105,7 +113,19 @@ public class Kritaanjli extends MidiInstrument
                 0 => _doMotor;
                 0 => _polyphony;
                 _outputMidi(145,0,0);
-            } 
+            }
+            
+            //If a CC 10 arrives, do a staccato note.
+            else if (d1 == 10)
+            {
+                if (d2 > 100){
+                    1 => staccato;
+                }
+                else{
+                    0 => _doMotor;
+                    0 => staccato;
+                }
+            }
         }
         else
             cherr <= "[Kritaanjli] Unkown message: " <= addrPat <= IO.nl();
@@ -121,6 +141,13 @@ public class Kritaanjli extends MidiInstrument
         mout.send(msg);
     }
     
+    //This pre-charges the bellows before actuating key
+    fun void _stacattoPlayer(){
+        _outputMidi(145,0,127);
+        400::ms => now;
+        _outputMidi( 144, actualNotes[d1-48], d2 );
+    }
+    
     fun void _watchdog()
     {
         now => time start;
@@ -130,6 +157,7 @@ public class Kritaanjli extends MidiInstrument
             if ( _polyphony > 0 )
                 me.exit();
             1::samp => now;
+            <<<"still alive">>>;
         }
         // if we make it here without exiting, bellows need to stop
         0 => _doMotor;

@@ -1,5 +1,5 @@
 /***********************************************************************
-Code for Robot Network -- needs a cool name
+Server code for Tangle
 
 by Paul Mathews
 indebted to code by Ness Morris and Bruce Lott
@@ -20,6 +20,8 @@ Instrument @ instruments[0]; // array of references, initialises to null rather 
 /*******************BEGIN CUSTOM INSTRUMENT NAMES**********************/
 
 "KRITAANJLI" => string KRITAANJLI;
+"EDWARD" => string EDWARD;
+"NUDGE" => string NUDGE;
 "ONECHANNELSWIVEL" => string ONECHANNELSWIVEL;
 "ONECHANNELMECHBASS" => string ONECHANNELMECHBASS;
 
@@ -94,6 +96,14 @@ else
                             else if ( type == ONECHANNELMECHBASS )
                             {
                                 new OneChannelMechBass @=> newI;
+                            }
+                            else if ( type == EDWARD )
+                            {
+                                new Edward @=> newI;
+                            }
+                            else if ( type == NUDGE )
+                            {
+                                new Nudge @=> newI;
                             }
                             else
                             {

@@ -20,38 +20,37 @@
 \item {\large Server}
 	\begin{enumerate} [\bf i.]
 
-		\item{Check all the desired instruments are connected correctly.}
+		\item{Verify that all the desired instruments are connected correctly.}
 		\item{Start up the server. Once it has booted, log in either remotely---
 		\begin{verbatim}
 			    %> ssh sonics@192.168.33.1
 		\end{verbatim}                                 
-		or using the login screen. If you log in locally to the server, open a terminal window.}
+		or locally using the login screen. If you log in locally to the server, open a terminal window.}
 		\item{Check \texttt{Instruments} directory---
 		\begin{verbatim}
 			cd ~/Network/Tangle
 			ls Instruments/
 		\end{verbatim}
 		make sure files are present for each of the instruments you intend to use.}
-		\item Run \texttt{Master.ck} -- in the shell this is (assuming we are still in the root project directory)
+		\item Run \texttt{Master.ck} -- in the shell (this is assuming we are still in the root project directory)
 		\begin{verbatim}
 			    %> chuck src/Master
 		\end{verbatim}
-		\item  It will produce a lot of text, double check to make sure no errors were emitted. You could run the 
+		\item  It will produce a lot of text: double check to make sure no errors were emitted. You could run the 
 			  server from the miniAudicle, but this is often less stable over long periods of time.
 	\end{enumerate}
-\item {\large On your own machine}
+\item {\large Client: On your own machine}
 	\begin{enumerate} [\bf i.]
-		\item {If you want to use your own OSC}
+		\item {If you want to send your own OSC to the client}
 		\begin{enumerate} [\bf a.]
 			\item{Double check the address patterns the server printed at the end of its initialisation, you should be good to go.}
 		\end{enumerate}
 		\item {If you want to use MIDI run \texttt{Client.ck} -- it needs some information to function correctly.
 			  The minimum is: }
 		\begin{enumerate} [\bf a.]
-			\item{An address for the server; hopefully 192.168.33.1 or \texttt{leoadmins-Mac-mini.local} will work
-			\footnote{ To find the IP address the server is using for the ethernet either look in the settings or use \verb+ifconfig+
-			to find the IPv4 address.}}
-			\item{An IP address for the client machine}
+			\item{An address for the server; hopefully 192.168.33.1 or \texttt{leoadmins-Mac-mini.local} will work\footnote{ To find the IP address the server is using for the ethernet either look in the settings or use \verb+ifconfig+
+			to find the IPv4 address.}. These will vary from server to server; if on a different server, change accordingly.}
+			\item{An IP address for the client machine\footnote{If this isn't working and you are connecting via ethernet, make sure your computer's wifi is switched off.}}
 			\item Using this information, run \texttt{Client.ck}. The information above must be passed as arguments. For a server at the address 
 				192.168.33.1, a client IP address of 192.168.33.3 and MIDI on the port ``IAC Driver 1 Bus 1'' the command would be as follows:
 				\begin{verbatim}
@@ -65,7 +64,7 @@
 \end{enumerate}
 
 \newpage
-\section{Start Up Procedure}
+\section{Start Up procedure}
 \label{sec:startupproc}
 What actually happens when the above instructions are followed:
 
@@ -97,7 +96,7 @@ What actually happens when the above instructions are followed:
 			the instrument's designer feels useful.
 		\item Client uses this data to construct a table of MIDI input to OSC output and prints details about the instruments connected to the server
 			to the console.
-		\item Client checks if any latency calibration has been specified, if so sends to server. Blocks until server indicates it is complete.
+		\item Client checks if any latency calibration has been specified; if so, it sends it to the server. Blocks until server indicates it is complete.
 		\item Client checks if any test patterns have been asked for, if so sends to server, blocking until notified of completion.
 		\item Client listens for MIDI input on specified port and translates appropriately.
 	 \end{enumerate}
@@ -119,20 +118,20 @@ key			& values											& Description \\
 \hline \hline
 server		& url or numerical IP in the format AAA.BBB.CCC.DDD & Tells the client the IP address of the server. \\
 \hline
-self			& same as for server							    & Gives the server a return address to send information about connected instruments. \\
+self			& url or numerical IP in the format AAA.BBB.CCC.DDD & Gives the server a return address to send information about connected instruments. \\
 \hline
 in 			& an integer								    & Port on which Client listens for communication from server (default 50001). \\
 \hline
-out		         & an integer								    & Port which server is listening on (default 50000). \\
+out		         & an integer								    & Port on which server is listening (default 50000). \\
 \hline
 midi			& an integer or the name of a MIDI port			    & MIDI port on which the client listens, defaults to 0. It is better to use a name as the order
 														of these can shift. Available MIDI ports can be found by running \texttt{chuck --probe}. \\
 \hline
-test			& a comma separate list of names of instruments (ignores case) & Tells the client whether or not to ask the server to run a test pattern, and if so on
+test			& a comma separated list of names of instruments (ignores case) & Tells the client whether or not to ask the server to run a test pattern, and if so on
 														which instruments. An empty string or \texttt{none} will not cause any tests, \texttt{all} will
 														ask the server to test all instruments connected. \\
 \hline
-delay		& a comma separate list of names, as for test. 		    & Tells the client whether or not to ask the server to begin the delay calibration process. 
+delay		& a comma separated list of names of instruments. 	& Tells the client whether or not to ask the server to begin the delay calibration process. 
 														Special values \texttt{on} or \texttt{off} tell the server to calibrate all or no instruments
 														respectively. \\
 \hline
@@ -148,15 +147,15 @@ An example of a likely command to run the client might then be:
 
 \newpage
 \section{Adding New Instruments}
-The server discovers instruments by searching the \texttt{Tangle/Instruments}. Each instrument requires a file which tels the server how to talk to it. This can be a 
+The server discovers instruments by searching the \texttt{Tangle/Instruments} directory. Each instrument requires a file which tells the server how to talk to it. This can be a 
 configuration file to be read in or a ChucK source file which contains a sub-class of Instrument.
-All files that do not end in .ck must begin with \texttt{type=}\textit{<something>}, all .ck files must begin \texttt{//type=}{\textit{<something>} (so that ChucK will
+All files that do not end in .ck must begin with \texttt{type=}\textit{<something>}, all .ck files must begin \texttt{//type=}{\textit{<something>} (commented so that ChucK will
 still compile them). \textit{<something>} must be a key defined in \texttt{Sever.ck} which the server uses to decide what type of instrument to instantiate.
 
 \subsection{MIDI Instrument Config Files}
 Files with no extension and a first line of \texttt{type=MIDI} are used to generate an instance of MidiInstrument. In general, details are specified by \texttt{<key>=<value>}
 The possible lines in the file are described in table \ref{tab:midifile}. Note that all that is required is a name and a port. The file parser treats each individual line
-as a potential setting so only one can be specified per line. Comments can be added with the \# symbol which causes the remainder of the line to be ignored.
+as a potential setting so only one can be specified per line. Comments can be added with the \# symbol, which causes the remainder of the line to be ignored.
 
 \begin{table} [h]
 \caption{MIDI Instrument Configuration Options}
@@ -217,6 +216,6 @@ Things to note when creating new instruments:
 	\end{enumerate}
 \end{enumerate}
 
-\texttt{Kritaanjli.ck} provides a simple example of creating a sub-class of MidiInstrument to add some additional logic.t
+\texttt{Kritaanjli.ck} provides a simple example of creating a sub-class of MidiInstrument to add some additional logic.
 
 \end{document}
